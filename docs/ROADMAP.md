@@ -237,13 +237,13 @@
 
 ### Tareas:
 
-- [ ] Schema Prisma: tabla `templates`
-- [ ] Backend: CRUD de plantillas
-- [ ] Frontend: editor de plantilla base del proyecto
-- [ ] Frontend: indicador visual de mes con personalización propia
-- [ ] Frontend: "Aplicar a todos los meses" con confirmación
-- [ ] Frontend: guardar configuración actual como plantilla con nombre
-- [ ] Frontend: seleccionar plantilla al crear proyecto
+- [x] Schema Prisma: tabla `templates`
+- [x] Backend: CRUD de plantillas
+- [x] Frontend: editor de plantilla base del proyecto
+- [x] Frontend: indicador visual de mes con personalización propia
+- [x] Frontend: "Aplicar a todos los meses" con confirmación
+- [x] Frontend: guardar configuración actual como plantilla con nombre
+- [x] Frontend: seleccionar plantilla al crear proyecto
 
 **Entregable:** Se define una base visual y cada mes puede personalizarse sobre ella.
 

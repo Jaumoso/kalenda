@@ -16,6 +16,7 @@ import folderRoutes from './routes/folders.js'
 import monthRoutes from './routes/months.js'
 import holidayRoutes from './routes/holidays.js'
 import eventRoutes from './routes/events.js'
+import templateRoutes from './routes/templates.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -88,6 +89,9 @@ async function createServer() {
 
   // Register event routes
   await fastify.register(eventRoutes, { prefix: '/api' })
+
+  // Register template routes
+  await fastify.register(templateRoutes, { prefix: '/api' })
 
   // Catch-all handler for SPA (must be last)
   fastify.setNotFoundHandler(async (request, reply) => {

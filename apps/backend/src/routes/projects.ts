@@ -7,6 +7,7 @@ const createProjectSchema = z.object({
   year: z.number().int().min(2020).max(2050),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   autonomyCode: z.string().max(10).optional(),
+  templateId: z.string().optional(),
 })
 
 const updateProjectSchema = z.object({
@@ -45,7 +46,21 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
-    const { name, year, weekStartsOn, autonomyCode } = parsed.data
+    const { name, year, weekStartsOn, autonomyCode, templateId } = parsed.data
+
+    // Fetch template config if templateId provided
+    let templateConfig: { gridConfigJson?: unknown; canvasTopJson?: unknown } | null = null
+    if (templateId) {
+      const template = await prisma.template.findFirst({
+        where: { id: templateId, userId: request.user!.id },
+      })
+      if (template) {
+        templateConfig = template.configJson as {
+          gridConfigJson?: unknown
+          canvasTopJson?: unknown
+        }
+      }
+    }
 
     const project = await prisma.project.create({
       data: {
@@ -53,12 +68,19 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         year,
         weekStartsOn,
         autonomyCode,
+        templateId: templateId || undefined,
         userId: request.user!.id,
         months: {
           createMany: {
             data: Array.from({ length: 12 }, (_, i) => ({
               month: i + 1,
               year,
+              ...(templateConfig
+                ? {
+                    gridConfigJson: templateConfig.gridConfigJson ?? undefined,
+                    canvasTopJson: templateConfig.canvasTopJson ?? undefined,
+                  }
+                : {}),
             })),
           },
         },
