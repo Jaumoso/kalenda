@@ -3,12 +3,16 @@ import fastifyCookie from '@fastify/cookie'
 import fastifyCors from '@fastify/cors'
 import fastifyHelmet from '@fastify/helmet'
 import fastifyStatic from '@fastify/static'
+import fastifyMultipart from '@fastify/multipart'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import authPlugin from './plugins/auth.js'
 import authRoutes from './routes/auth.js'
 import userRoutes from './routes/users.js'
+import projectRoutes from './routes/projects.js'
+import assetRoutes from './routes/assets.js'
+import folderRoutes from './routes/folders.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -27,8 +31,21 @@ async function createServer() {
     credentials: true,
   })
 
+  // Register multipart for file uploads
+  await fastify.register(fastifyMultipart, {
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  })
+
   // Register custom plugins
   await fastify.register(authPlugin)
+
+  // Serve uploaded files (must be first static registration to own decorateReply)
+  const uploadsDir = path.join(__dirname, '../uploads')
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
+  await fastify.register(fastifyStatic, {
+    root: uploadsDir,
+    prefix: '/uploads/',
+  })
 
   // Serve static files (for production builds)
   const frontendDist = path.join(__dirname, '../../frontend/dist')
@@ -51,14 +68,28 @@ async function createServer() {
   // Register user routes
   await fastify.register(userRoutes, { prefix: '/api' })
 
+  // Register project routes
+  await fastify.register(projectRoutes, { prefix: '/api' })
+
+  // Register asset routes
+  await fastify.register(assetRoutes, { prefix: '/api' })
+
+  // Register folder routes
+  await fastify.register(folderRoutes, { prefix: '/api' })
+
   // Catch-all handler for SPA (must be last)
   fastify.setNotFoundHandler(async (request, reply) => {
-    if (request.raw.url?.startsWith('/api')) {
+    if (request.raw.url?.startsWith('/api') || request.raw.url?.startsWith('/uploads')) {
       return reply.code(404).send({ error: 'Not Found' })
     }
 
-    // Serve index.html for SPA routes
-    return reply.sendFile('index.html')
+    // Serve index.html for SPA routes (production only)
+    const indexPath = path.join(frontendDist, 'index.html')
+    if (fs.existsSync(indexPath)) {
+      return reply.type('text/html').send(fs.readFileSync(indexPath))
+    }
+
+    return reply.code(404).send({ error: 'Not Found' })
   })
 
   return fastify
