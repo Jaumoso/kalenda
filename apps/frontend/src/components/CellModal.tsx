@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import type { DayCell, Holiday, CalEvent } from '../lib/calendarTypes'
 import { MONTH_NAMES } from '../lib/calendarTypes'
 import ColorPicker from './ColorPicker'
+import AssetPickerModal from './AssetPickerModal'
+import StickerPickerModal from './StickerPickerModal'
 import api from '../lib/api'
 
 interface Props {
@@ -14,7 +16,14 @@ interface Props {
   saint: string | null
   onSave: (data: {
     bgColor: string | null
-    contentJson: { text?: string; emoji?: string } | null
+    contentJson: {
+      text?: string
+      emoji?: string
+      imageAssetId?: string
+      imageFilename?: string
+      stickerAssetId?: string
+      stickerFilename?: string
+    } | null
   }) => void
   onEventsChanged: () => void
   onClose: () => void
@@ -35,10 +44,17 @@ export default function CellModal({
   const [bgColor, setBgColor] = useState(cell?.bgColor || '')
   const [text, setText] = useState(cell?.contentJson?.text || '')
   const [emoji, setEmoji] = useState(cell?.contentJson?.emoji || '')
+  const [imageAssetId, setImageAssetId] = useState(cell?.contentJson?.imageAssetId || '')
+  const [imageFilename, setImageFilename] = useState(cell?.contentJson?.imageFilename || '')
+  const [stickerAssetId, setStickerAssetId] = useState(cell?.contentJson?.stickerAssetId || '')
+  const [stickerFilename, setStickerFilename] = useState(cell?.contentJson?.stickerFilename || '')
   const [showNewEvent, setShowNewEvent] = useState(false)
   const [newEventName, setNewEventName] = useState('')
   const [newEventType, setNewEventType] = useState<'BIRTHDAY' | 'ANNIVERSARY' | 'CUSTOM'>('CUSTOM')
   const [savingEvent, setSavingEvent] = useState(false)
+  const [showImagePicker, setShowImagePicker] = useState(false)
+  const [showStickerPicker, setShowStickerPicker] = useState(false)
+  const [showStickerAssetPicker, setShowStickerAssetPicker] = useState(false)
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -49,9 +65,24 @@ export default function CellModal({
   }, [onClose])
 
   const handleSave = () => {
-    const contentJson: { text?: string; emoji?: string } = {}
+    const contentJson: {
+      text?: string
+      emoji?: string
+      imageAssetId?: string
+      imageFilename?: string
+      stickerAssetId?: string
+      stickerFilename?: string
+    } = {}
     if (text.trim()) contentJson.text = text.trim()
     if (emoji.trim()) contentJson.emoji = emoji.trim()
+    if (imageAssetId) {
+      contentJson.imageAssetId = imageAssetId
+      contentJson.imageFilename = imageFilename
+    }
+    if (stickerAssetId) {
+      contentJson.stickerAssetId = stickerAssetId
+      contentJson.stickerFilename = stickerFilename
+    }
 
     onSave({
       bgColor: bgColor || null,
@@ -209,6 +240,90 @@ export default function CellModal({
 
         <hr className="my-3 border-neutral-200" />
 
+        {/* Cell image */}
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-neutral-700 mb-2">🖼️ Imagen de la celda</h3>
+          {imageFilename ? (
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 rounded-lg overflow-hidden border border-neutral-200 bg-neutral-50">
+                <img
+                  src={`/uploads/${imageFilename}`}
+                  alt="Imagen de celda"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  setImageAssetId('')
+                  setImageFilename('')
+                }}
+                className="text-xs text-red-500 hover:text-red-700 transition-colors"
+              >
+                ✕ Quitar imagen
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowImagePicker(true)}
+              className="w-full px-3 py-2 border border-dashed border-neutral-300 rounded-lg text-sm text-neutral-500 hover:border-primary-400 hover:text-primary-600 transition-colors"
+            >
+              + Seleccionar imagen de la biblioteca
+            </button>
+          )}
+        </div>
+
+        {/* Sticker / Emoji */}
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-neutral-700 mb-2">Sticker / Emoji</h3>
+          <div className="flex items-center gap-2">
+            {/* Emoji display */}
+            {emoji && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-neutral-50 rounded-lg border border-neutral-200">
+                <span className="text-2xl">{emoji}</span>
+                <button
+                  onClick={() => setEmoji('')}
+                  className="text-xs text-neutral-400 hover:text-red-500 ml-1"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            {/* Sticker asset display */}
+            {stickerFilename && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-neutral-50 rounded-lg border border-neutral-200">
+                <img
+                  src={`/uploads/${stickerFilename}`}
+                  alt="Sticker"
+                  className="w-8 h-8 object-contain"
+                />
+                <button
+                  onClick={() => {
+                    setStickerAssetId('')
+                    setStickerFilename('')
+                  }}
+                  className="text-xs text-neutral-400 hover:text-red-500 ml-1"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <button
+              onClick={() => setShowStickerPicker(true)}
+              className="px-3 py-1.5 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50 transition-colors"
+            >
+              😀 Emoji
+            </button>
+            <button
+              onClick={() => setShowStickerAssetPicker(true)}
+              className="px-3 py-1.5 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50 transition-colors"
+            >
+              🎨 Sticker
+            </button>
+          </div>
+        </div>
+
+        <hr className="my-3 border-neutral-200" />
+
         {/* Background color */}
         <div className="mb-4">
           <h3 className="text-sm font-medium text-neutral-700 mb-2">Color de fondo</h3>
@@ -223,19 +338,6 @@ export default function CellModal({
               Limpiar
             </button>
           </div>
-        </div>
-
-        {/* Emoji */}
-        <div className="mb-4">
-          <label className="text-sm font-medium text-neutral-700 block mb-1">Emoji / Sticker</label>
-          <input
-            type="text"
-            value={emoji}
-            onChange={(e) => setEmoji(e.target.value)}
-            placeholder="🎂 🎉 ⭐"
-            className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-            maxLength={4}
-          />
         </div>
 
         {/* Text */}
@@ -264,6 +366,38 @@ export default function CellModal({
           </button>
         </div>
       </div>
+
+      {/* Asset pickers */}
+      <AssetPickerModal
+        isOpen={showImagePicker}
+        onClose={() => setShowImagePicker(false)}
+        onSelect={(asset) => {
+          setImageAssetId(asset.id)
+          setImageFilename(asset.filename)
+          setShowImagePicker(false)
+        }}
+        assetType="IMAGE"
+        title="Seleccionar imagen para la celda"
+      />
+      <AssetPickerModal
+        isOpen={showStickerAssetPicker}
+        onClose={() => setShowStickerAssetPicker(false)}
+        onSelect={(asset) => {
+          setStickerAssetId(asset.id)
+          setStickerFilename(asset.filename)
+          setShowStickerAssetPicker(false)
+        }}
+        assetType="STICKER"
+        title="Seleccionar sticker de la biblioteca"
+      />
+      <StickerPickerModal
+        isOpen={showStickerPicker}
+        onClose={() => setShowStickerPicker(false)}
+        onSelect={(em) => {
+          setEmoji(em)
+          setShowStickerPicker(false)
+        }}
+      />
     </div>
   )
 }

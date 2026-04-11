@@ -20,9 +20,17 @@ interface AssetPickerModalProps {
   isOpen: boolean
   onClose: () => void
   onSelect: (asset: Asset) => void
+  assetType?: 'IMAGE' | 'STICKER'
+  title?: string
 }
 
-export default function AssetPickerModal({ isOpen, onClose, onSelect }: AssetPickerModalProps) {
+export default function AssetPickerModal({
+  isOpen,
+  onClose,
+  onSelect,
+  assetType = 'IMAGE',
+  title,
+}: AssetPickerModalProps) {
   const [assets, setAssets] = useState<Asset[]>([])
   const [folders, setFolders] = useState<AssetFolder[]>([])
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
@@ -32,7 +40,7 @@ export default function AssetPickerModal({ isOpen, onClose, onSelect }: AssetPic
   const fetchAssets = useCallback(async () => {
     setLoading(true)
     try {
-      const params: Record<string, string> = { type: 'IMAGE' }
+      const params: Record<string, string> = { type: assetType }
       if (currentFolder) params.folderId = currentFolder
       if (search) params.search = search
       const { data } = await api.get('/assets', { params })
@@ -62,7 +70,9 @@ export default function AssetPickerModal({ isOpen, onClose, onSelect }: AssetPic
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-200">
-          <h2 className="font-semibold text-neutral-900">Seleccionar imagen</h2>
+          <h2 className="font-semibold text-neutral-900">
+            {title || (assetType === 'STICKER' ? 'Seleccionar sticker' : 'Seleccionar imagen')}
+          </h2>
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600 text-xl">
             ×
           </button>

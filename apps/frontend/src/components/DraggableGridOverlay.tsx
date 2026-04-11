@@ -168,11 +168,16 @@ export default function DraggableGridOverlay({
         height,
         opacity: opacity / 100,
         zIndex: active ? 10 : 2,
-        pointerEvents: active ? 'auto' : 'none',
+        pointerEvents: 'auto',
       }}
     >
       {/* Content */}
-      <div className="w-full h-full overflow-hidden">{children}</div>
+      <div
+        className="w-full h-full overflow-hidden"
+        style={{ pointerEvents: active ? 'none' : 'auto' }}
+      >
+        {children}
+      </div>
 
       {/* Interactive frame — only visible in grid mode */}
       {active && (
@@ -272,11 +277,33 @@ export default function DraggableGridOverlay({
                   <>
                     <svg
                       className="pointer-events-none"
-                      style={{ position: 'absolute', left: -distLeft, top: '50%', width: distLeft, height: 1, overflow: 'visible' }}
+                      style={{
+                        position: 'absolute',
+                        left: -distLeft,
+                        top: '50%',
+                        width: distLeft,
+                        height: 1,
+                        overflow: 'visible',
+                      }}
                     >
-                      <line x1="0" y1="0" x2={distLeft} y2="0" stroke={lineColor} strokeWidth="1" strokeDasharray="3 2" />
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2={distLeft}
+                        y2="0"
+                        stroke={lineColor}
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
                     </svg>
-                    <span className={labelClass} style={{ left: -distLeft / 2, top: '50%', transform: 'translate(-50%, -50%)' }}>
+                    <span
+                      className={labelClass}
+                      style={{
+                        left: -distLeft / 2,
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    >
                       {Math.round(distLeft)}
                     </span>
                   </>
@@ -287,11 +314,33 @@ export default function DraggableGridOverlay({
                   <>
                     <svg
                       className="pointer-events-none"
-                      style={{ position: 'absolute', right: -distRight, top: '50%', width: distRight, height: 1, overflow: 'visible' }}
+                      style={{
+                        position: 'absolute',
+                        right: -distRight,
+                        top: '50%',
+                        width: distRight,
+                        height: 1,
+                        overflow: 'visible',
+                      }}
                     >
-                      <line x1="0" y1="0" x2={distRight} y2="0" stroke={lineColor} strokeWidth="1" strokeDasharray="3 2" />
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2={distRight}
+                        y2="0"
+                        stroke={lineColor}
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
                     </svg>
-                    <span className={labelClass} style={{ right: -distRight / 2, top: '50%', transform: 'translate(50%, -50%)' }}>
+                    <span
+                      className={labelClass}
+                      style={{
+                        right: -distRight / 2,
+                        top: '50%',
+                        transform: 'translate(50%, -50%)',
+                      }}
+                    >
                       {Math.round(distRight)}
                     </span>
                   </>
@@ -302,11 +351,29 @@ export default function DraggableGridOverlay({
                   <>
                     <svg
                       className="pointer-events-none"
-                      style={{ position: 'absolute', top: -distTop, left: '50%', width: 1, height: distTop, overflow: 'visible' }}
+                      style={{
+                        position: 'absolute',
+                        top: -distTop,
+                        left: '50%',
+                        width: 1,
+                        height: distTop,
+                        overflow: 'visible',
+                      }}
                     >
-                      <line x1="0" y1="0" x2="0" y2={distTop} stroke={lineColor} strokeWidth="1" strokeDasharray="3 2" />
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2={distTop}
+                        stroke={lineColor}
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
                     </svg>
-                    <span className={labelClass} style={{ top: -distTop / 2, left: '50%', transform: 'translate(-50%, -50%)' }}>
+                    <span
+                      className={labelClass}
+                      style={{ top: -distTop / 2, left: '50%', transform: 'translate(-50%, -50%)' }}
+                    >
                       {Math.round(distTop)}
                     </span>
                   </>
@@ -317,11 +384,33 @@ export default function DraggableGridOverlay({
                   <>
                     <svg
                       className="pointer-events-none"
-                      style={{ position: 'absolute', bottom: -distBottom, left: '50%', width: 1, height: distBottom, overflow: 'visible' }}
+                      style={{
+                        position: 'absolute',
+                        bottom: -distBottom,
+                        left: '50%',
+                        width: 1,
+                        height: distBottom,
+                        overflow: 'visible',
+                      }}
                     >
-                      <line x1="0" y1="0" x2="0" y2={distBottom} stroke={lineColor} strokeWidth="1" strokeDasharray="3 2" />
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2={distBottom}
+                        stroke={lineColor}
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
                     </svg>
-                    <span className={labelClass} style={{ bottom: -distBottom / 2, left: '50%', transform: 'translate(-50%, 50%)' }}>
+                    <span
+                      className={labelClass}
+                      style={{
+                        bottom: -distBottom / 2,
+                        left: '50%',
+                        transform: 'translate(-50%, 50%)',
+                      }}
+                    >
                       {Math.round(distBottom)}
                     </span>
                   </>

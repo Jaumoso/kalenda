@@ -187,7 +187,14 @@ export default function MonthEditorPage() {
 
   const handleCellSave = async (data: {
     bgColor: string | null
-    contentJson: { text?: string; emoji?: string } | null
+    contentJson: {
+      text?: string
+      emoji?: string
+      imageAssetId?: string
+      imageFilename?: string
+      stickerAssetId?: string
+      stickerFilename?: string
+    } | null
   }) => {
     if (!monthId || selectedDay === null) return
     try {

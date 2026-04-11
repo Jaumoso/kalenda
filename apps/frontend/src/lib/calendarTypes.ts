@@ -54,7 +54,9 @@ export interface DayCell {
   contentJson: {
     text?: string
     imageAssetId?: string
+    imageFilename?: string
     stickerAssetId?: string
+    stickerFilename?: string
     emoji?: string
   } | null
   hasEvent: boolean

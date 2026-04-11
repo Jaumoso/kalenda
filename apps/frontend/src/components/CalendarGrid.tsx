@@ -139,7 +139,7 @@ export default function CalendarGrid({
                   key={col}
                   className={`relative p-1 flex ${POSITION_CLASSES[config.dayPosition]} transition-colors ${
                     isValid ? 'cursor-pointer hover:bg-primary-50/50' : ''
-                  }`}
+                  } overflow-hidden`}
                   style={{
                     backgroundColor: cellBg || undefined,
                     borderRight: col < 6 ? borderStyle : undefined,
@@ -148,6 +148,15 @@ export default function CalendarGrid({
                 >
                   {isValid && (
                     <>
+                      {/* Cell background image */}
+                      {cell?.contentJson?.imageFilename && (
+                        <img
+                          src={`/uploads/${cell.contentJson.imageFilename}`}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      )}
+
                       <span
                         className="select-none leading-none z-10"
                         style={{
@@ -155,21 +164,40 @@ export default function CalendarGrid({
                           fontSize: `${config.dayFontSize}px`,
                           color: isHoliday ? '#DC2626' : config.dayFontColor,
                           fontWeight: isHoliday ? 'bold' : config.dayFontWeight,
+                          textShadow: cell?.contentJson?.imageFilename
+                            ? '0 0 3px rgba(255,255,255,0.8)'
+                            : undefined,
                         }}
                       >
                         {dayNumber}
                       </span>
 
+                      {/* Sticker asset from library */}
+                      {cell?.contentJson?.stickerFilename && (
+                        <img
+                          src={`/uploads/${cell.contentJson.stickerFilename}`}
+                          alt=""
+                          className="absolute bottom-0.5 right-0.5 w-5 h-5 object-contain z-10"
+                        />
+                      )}
+
                       {/* Saint name */}
                       {config.showSaints && saint && (
-                        <span className="absolute top-0.5 left-0.5 text-[7px] text-neutral-400 leading-tight max-w-[90%] truncate">
+                        <span className="absolute top-0.5 left-0.5 text-[7px] text-neutral-400 leading-tight max-w-[90%] truncate z-10">
                           {saint}
                         </span>
                       )}
 
                       {/* Holiday label */}
                       {isHoliday && dayHolidays && (
-                        <span className="absolute bottom-0.5 left-0.5 right-0.5 text-[8px] text-red-600 font-medium truncate leading-tight">
+                        <span
+                          className="absolute bottom-0.5 left-0.5 right-0.5 text-[8px] text-red-600 font-medium truncate leading-tight z-10"
+                          style={{
+                            textShadow: cell?.contentJson?.imageFilename
+                              ? '0 0 2px rgba(255,255,255,0.9)'
+                              : undefined,
+                          }}
+                        >
                           {dayHolidays[0].nameEs}
                         </span>
                       )}
@@ -177,8 +205,13 @@ export default function CalendarGrid({
                       {/* Events indicators */}
                       {hasEvents && !isHoliday && dayEvents && (
                         <span
-                          className="absolute bottom-0.5 left-0.5 right-0.5 text-[8px] truncate leading-tight"
-                          style={{ color: dayEvents[0].color }}
+                          className="absolute bottom-0.5 left-0.5 right-0.5 text-[8px] truncate leading-tight z-10"
+                          style={{
+                            color: dayEvents[0].color,
+                            textShadow: cell?.contentJson?.imageFilename
+                              ? '0 0 2px rgba(255,255,255,0.9)'
+                              : undefined,
+                          }}
                         >
                           {dayEvents[0].icon || '•'} {dayEvents[0].name}
                         </span>
@@ -186,7 +219,7 @@ export default function CalendarGrid({
 
                       {/* Event dots when holiday takes bottom text */}
                       {hasEvents && isHoliday && dayEvents && (
-                        <div className="absolute top-0.5 right-0.5 flex gap-0.5">
+                        <div className="absolute top-0.5 right-0.5 flex gap-0.5 z-10">
                           {dayEvents.slice(0, 3).map((ev) => (
                             <span
                               key={ev.id}
@@ -200,12 +233,19 @@ export default function CalendarGrid({
 
                       {/* Cell text (when no holiday/event text shown) */}
                       {cell?.contentJson?.text && !isHoliday && !hasEvents && (
-                        <span className="absolute bottom-0.5 left-0.5 right-0.5 text-[9px] text-neutral-500 truncate leading-tight">
+                        <span
+                          className="absolute bottom-0.5 left-0.5 right-0.5 text-[9px] text-neutral-500 truncate leading-tight z-10"
+                          style={{
+                            textShadow: cell?.contentJson?.imageFilename
+                              ? '0 0 2px rgba(255,255,255,0.9)'
+                              : undefined,
+                          }}
+                        >
                           {cell.contentJson.text}
                         </span>
                       )}
                       {cell?.contentJson?.emoji && (
-                        <span className="absolute top-0.5 left-0.5 text-xs">
+                        <span className="absolute top-0.5 left-0.5 text-xs z-10">
                           {cell.contentJson.emoji}
                         </span>
                       )}

@@ -156,22 +156,60 @@
 
 ### Tareas:
 
-- [ ] Integrar Fabric.js en la zona superior del editor
-- [ ] Cargar/guardar estado del canvas (JSON) en el backend
-- [ ] Herramienta: selección y movimiento de elementos
-- [ ] Herramienta: añadir imagen desde biblioteca → objeto Fabric.js posicionable
-- [ ] Herramienta: control X/Y numérico + arrastre
-- [ ] Herramienta: redimensionar manteniendo proporciones
-- [ ] Herramienta: control de capa Z (traer al frente, enviar al fondo)
-- [ ] Panel de capas (lista de objetos del canvas)
+- [x] Integrar Fabric.js en la zona superior del editor
+- [x] Cargar/guardar estado del canvas (JSON) en el backend
+- [x] Herramienta: selección y movimiento de elementos
+- [x] Herramienta: añadir imagen desde biblioteca → objeto Fabric.js posicionable
+- [x] Herramienta: control X/Y numérico + arrastre
+- [x] Herramienta: redimensionar manteniendo proporciones
+- [x] Herramienta: control de capa Z (traer al frente, enviar al fondo)
+- [x] Panel de capas (lista de objetos del canvas)
 - [ ] Herramienta: efectos de imagen (opacidad, brillo, contraste, escala de grises, sepia)
-- [ ] Herramienta: añadir texto decorativo libre con control de fuente/tamaño/color
-- [ ] Herramienta: fondo de zona (color, degradado, imagen)
-- [ ] Herramienta: añadir sticker/emoji como objeto del canvas
-- [ ] Deshacer/Rehacer (historial de canvas)
-- [ ] Zoom en el editor
+- [x] Herramienta: añadir texto decorativo libre con control de fuente/tamaño/color
+- [x] Herramienta: fondo de zona (color, degradado, imagen)
+- [x] Herramienta: añadir sticker/emoji como objeto del canvas
+- [x] Deshacer/Rehacer (historial de canvas)
+- [x] Zoom en el editor
 
 **Entregable:** La zona superior es un editor visual completo. Se pueden hacer collages.
+
+---
+
+## Fase 6a — Layout unificado A4 y fondo de página completa
+
+**Duración estimada:** 1 día  
+**Objetivo:** El editor refleja una página A4 real (794×1123px) donde el canvas Fabric.js cubre toda la superficie y el grid del calendario es un overlay posicionado encima.
+
+### Tareas:
+
+- [x] Canvas Fabric.js redimensionado a página A4 completa (794×1123px)
+- [x] Constantes `PAGE_WIDTH`, `PAGE_HEIGHT` en calendarTypes.ts
+- [x] Grid del calendario como overlay HTML posicionado en la mitad inferior
+- [x] Fondo de página (color/degradado/imagen) cubre el 100% — zona de fotos + tabla
+- [x] Control de opacidad del fondo de página (vía BackgroundModal)
+- [x] Control de opacidad general del grid (`gridOverlayOpacity`) para ver el fondo debajo
+- [x] Objetos del canvas (fotos, texto, stickers) se mueven libremente por toda la página
+- [x] Toggle de modo renombrado: "🎨 Decorar página" / "📅 Editar grid"
+
+**Entregable:** El editor muestra una página A4 unificada. El fondo cubre toda la hoja. Las imágenes pueden hacer overflow a la zona del grid.
+
+---
+
+## Fase 6b — Grid arrastrable, redimensionable y con indicadores de distancia
+
+**Duración estimada:** 1 día  
+**Objetivo:** El grid del calendario se puede reposicionar y redimensionar visualmente (drag & resize) con indicadores de distancia a los bordes.
+
+### Tareas:
+
+- [x] Propiedades `gridX`, `gridY`, `gridWidth`, `gridHeight` en GridConfig
+- [x] Campos numéricos en GridPropertiesPanel (X, Y, Ancho, Alto)
+- [x] Componente `DraggableGridOverlay` con drag para mover, handles en bordes y esquinas para resize
+- [x] Grid (CalendarGrid) con layout flex que se adapta al alto del contenedor
+- [x] Indicadores de distancia a los 4 bordes de la página (líneas discontinuas + valor en px)
+- [x] Sincronización bidireccional: drag ↔ inputs numéricos del panel
+
+**Entregable:** La tabla de días se puede posicionar y dimensionar arrastrando. Los indicadores de distancia facilitan centrar y alinear.
 
 ---
 

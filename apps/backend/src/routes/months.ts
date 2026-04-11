@@ -45,7 +45,9 @@ const updateCellSchema = z.object({
     .object({
       text: z.string().optional(),
       imageAssetId: z.string().optional(),
+      imageFilename: z.string().optional(),
       stickerAssetId: z.string().optional(),
+      stickerFilename: z.string().optional(),
       emoji: z.string().optional(),
     })
     .nullable()
