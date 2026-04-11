@@ -1,20 +1,21 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import api from '../lib/api'
 
 interface User {
   id: string
   email: string
   name: string
   role: 'USER' | 'ADMIN'
+  language?: string
 }
 
 interface AuthState {
   user: User | null
-  isAuthenticated: boolean
+  isAuthenticated: boolean | null
   isLoading: boolean
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>
   logout: () => Promise<void>
-  refresh: () => Promise<void>
   checkAuth: () => Promise<void>
 }
 
@@ -22,27 +23,13 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      isAuthenticated: false,
+      isAuthenticated: null,
       isLoading: false,
 
       login: async (email: string, password: string, rememberMe = false) => {
         set({ isLoading: true })
         try {
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ email, password, rememberMe }),
-          })
-
-          if (!response.ok) {
-            const error = await response.json()
-            throw new Error(error.error || 'Login failed')
-          }
-
-          const data = await response.json()
+          const { data } = await api.post('/auth/login', { email, password, rememberMe })
           set({
             user: data.user,
             isAuthenticated: true,
@@ -50,16 +37,17 @@ export const useAuthStore = create<AuthState>()(
           })
         } catch (error) {
           set({ isLoading: false })
+          if (error instanceof Error && 'response' in error) {
+            const axiosError = error as { response?: { data?: { message?: string } } }
+            throw new Error(axiosError.response?.data?.message || 'Login failed')
+          }
           throw error
         }
       },
 
       logout: async () => {
         try {
-          await fetch('/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include',
-          })
+          await api.post('/auth/logout')
         } catch (error) {
           console.error('Logout error:', error)
         } finally {
@@ -70,50 +58,14 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      refresh: async () => {
+      checkAuth: async () => {
         try {
-          const response = await fetch('/api/auth/refresh', {
-            method: 'POST',
-            credentials: 'include',
-          })
-
-          if (!response.ok) {
-            throw new Error('Refresh failed')
-          }
-
-          const data = await response.json()
+          const { data } = await api.get('/auth/me')
           set({
             user: data.user,
             isAuthenticated: true,
           })
-        } catch (error) {
-          set({
-            user: null,
-            isAuthenticated: false,
-          })
-          throw error
-        }
-      },
-
-      checkAuth: async () => {
-        try {
-          const response = await fetch('/api/auth/me', {
-            credentials: 'include',
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            set({
-              user: data.user,
-              isAuthenticated: true,
-            })
-          } else {
-            set({
-              user: null,
-              isAuthenticated: false,
-            })
-          }
-        } catch (error) {
+        } catch {
           set({
             user: null,
             isAuthenticated: false,

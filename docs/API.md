@@ -1,9 +1,10 @@
 # API.md — Contrato de la API REST
+
 ## CalendApp
 
-**Versión:** 1.0  
+**Versión:** 1.1  
 **Fecha:** Abril 2026  
-**Base URL:** `https://{servidor}/api/v1`  
+**Base URL:** `https://{servidor}/api`  
 **Autenticación:** JWT en httpOnly cookies (automático en todas las peticiones)  
 **Formato:** JSON en request y response  
 **Convención de errores:** `{ "error": "CÓDIGO", "message": "Descripción legible" }`
@@ -13,19 +14,21 @@
 ## Convenciones generales
 
 - Todas las rutas protegidas requieren autenticación (cookie `accessToken` válida)
-- Las rutas marcadas con `[ADMIN]` requieren rol `admin`
+- Las rutas marcadas con `[ADMIN]` requieren rol `ADMIN`
 - Paginación: `?page=1&limit=20` donde aplique
 - Fechas en formato ISO 8601: `2026-01-15T10:30:00Z`
-- IDs como UUID v4
+- IDs como CUID
 
 ---
 
 ## 1. Autenticación
 
 ### POST `/auth/login`
+
 Iniciar sesión.
 
 **Request:**
+
 ```json
 {
   "email": "usuario@ejemplo.com",
@@ -35,18 +38,20 @@ Iniciar sesión.
 ```
 
 **Response 200:**
+
 ```json
 {
   "user": {
     "id": "uuid",
     "name": "Nombre",
     "email": "usuario@ejemplo.com",
-    "role": "user",
+    "role": "USER",
     "language": "es"
   }
 }
 ```
-Además: `Set-Cookie: accessToken=...; HttpOnly; Secure; SameSite=Strict`  
+
+Además: `Set-Cookie: token=...; HttpOnly; Secure; SameSite=Strict; Path=/`  
 Además: `Set-Cookie: refreshToken=...; HttpOnly; Secure; SameSite=Strict; Path=/api/auth/refresh`
 
 **Errores:** `401 INVALID_CREDENTIALS`
@@ -54,6 +59,7 @@ Además: `Set-Cookie: refreshToken=...; HttpOnly; Secure; SameSite=Strict; Path=
 ---
 
 ### POST `/auth/logout`
+
 Cerrar sesión. Limpia cookies.
 
 **Response 200:** `{ "ok": true }`
@@ -61,6 +67,7 @@ Cerrar sesión. Limpia cookies.
 ---
 
 ### POST `/auth/refresh`
+
 Obtener nuevo accessToken usando refreshToken (automático vía interceptor).
 
 **Response 200:** Nuevo accessToken en cookie.  
@@ -69,9 +76,11 @@ Obtener nuevo accessToken usando refreshToken (automático vía interceptor).
 ---
 
 ### GET `/auth/me`
+
 Obtener datos del usuario autenticado actual.
 
 **Response 200:**
+
 ```json
 {
   "id": "uuid",
@@ -88,13 +97,23 @@ Obtener datos del usuario autenticado actual.
 ## 2. Usuarios
 
 ### GET `/users` `[ADMIN]`
+
 Listar todos los usuarios.
 
 **Response 200:**
+
 ```json
 {
   "users": [
-    { "id": "uuid", "name": "...", "email": "...", "role": "user", "active": true, "createdAt": "..." }
+    {
+      "id": "cuid",
+      "name": "...",
+      "email": "...",
+      "role": "USER",
+      "language": "es",
+      "isActive": true,
+      "createdAt": "..."
+    }
   ]
 }
 ```
@@ -102,21 +121,24 @@ Listar todos los usuarios.
 ---
 
 ### POST `/users` `[ADMIN]`
+
 Crear nuevo usuario.
 
 **Request:**
+
 ```json
 {
   "name": "Nombre",
   "email": "email@ejemplo.com",
   "password": "contraseña",
-  "role": "user"
+  "role": "USER"
 }
 ```
 
 **Response 201:**
+
 ```json
-{ "id": "uuid", "name": "Nombre", "email": "...", "role": "user" }
+{ "id": "cuid", "name": "Nombre", "email": "...", "role": "USER", "language": "es" }
 ```
 
 **Errores:** `409 EMAIL_ALREADY_EXISTS`
@@ -124,9 +146,11 @@ Crear nuevo usuario.
 ---
 
 ### PATCH `/users/:id` `[ADMIN o propio usuario]`
+
 Actualizar usuario (nombre, idioma, contraseña).
 
 **Request (campos opcionales):**
+
 ```json
 {
   "name": "Nuevo nombre",
@@ -137,11 +161,12 @@ Actualizar usuario (nombre, idioma, contraseña).
 ```
 
 **Response 200:** Usuario actualizado.  
-**Errores:** `403 WRONG_CURRENT_PASSWORD`, `404 USER_NOT_FOUND`
+**Errores:** `403 WRONG_CURRENT_PASSWORD`, `404 NOT_FOUND`
 
 ---
 
 ### PATCH `/users/:id/status` `[ADMIN]`
+
 Activar o desactivar un usuario.
 
 **Request:** `{ "active": false }`  
@@ -149,14 +174,33 @@ Activar o desactivar un usuario.
 
 ---
 
+### PATCH `/users/:id/role` `[ADMIN]`
+
+Cambiar rol de un usuario.
+
+**Request:** `{ "role": "ADMIN" }`  
+**Response 200:** Usuario actualizado.
+
+---
+
+### DELETE `/users/:id` `[ADMIN]`
+
+Eliminar un usuario (no se puede eliminar a uno mismo).
+
+**Response 204:** Sin contenido.
+
+---
+
 ## 3. Proyectos
 
 ### GET `/projects`
+
 Listar proyectos del usuario autenticado.
 
 **Query params:** `?status=draft|in_progress|completed`, `?year=2026`
 
 **Response 200:**
+
 ```json
 {
   "projects": [
@@ -177,9 +221,11 @@ Listar proyectos del usuario autenticado.
 ---
 
 ### POST `/projects`
+
 Crear nuevo proyecto.
 
 **Request:**
+
 ```json
 {
   "name": "Calendario 2026",
@@ -189,22 +235,27 @@ Crear nuevo proyecto.
 ```
 
 **Response 201:**
+
 ```json
 {
   "id": "uuid",
   "name": "Calendario 2026",
   "year": 2026,
   "status": "draft",
-  "months": [ /* 12 objetos month vacíos */ ]
+  "months": [
+    /* 12 objetos month vacíos */
+  ]
 }
 ```
 
 ---
 
 ### GET `/projects/:id`
+
 Obtener detalle de un proyecto con sus meses.
 
 **Response 200:**
+
 ```json
 {
   "id": "uuid",
@@ -224,9 +275,11 @@ Obtener detalle de un proyecto con sus meses.
 ---
 
 ### PATCH `/projects/:id`
+
 Actualizar metadatos del proyecto.
 
 **Request (campos opcionales):**
+
 ```json
 {
   "name": "Nuevo nombre",
@@ -242,6 +295,7 @@ Actualizar metadatos del proyecto.
 ---
 
 ### POST `/projects/:id/duplicate`
+
 Duplicar un proyecto.
 
 **Request:** `{ "name": "Calendario 2027" }`  
@@ -250,6 +304,7 @@ Duplicar un proyecto.
 ---
 
 ### DELETE `/projects/:id`
+
 Eliminar un proyecto y sus datos (los assets de biblioteca se conservan).
 
 **Response 204:** Sin contenido.
@@ -259,18 +314,22 @@ Eliminar un proyecto y sus datos (los assets de biblioteca se conservan).
 ## 4. Meses del calendario
 
 ### GET `/projects/:id/months/:month`
+
 Obtener el estado completo de un mes para cargar en el editor.
 
 **Params:** `:month` = 1-12
 
 **Response 200:**
+
 ```json
 {
   "id": "uuid",
   "projectId": "uuid",
   "monthNumber": 1,
   "year": 2026,
-  "canvasTopJson": { /* estado serializado de Fabric.js */ },
+  "canvasTopJson": {
+    /* estado serializado de Fabric.js */
+  },
   "gridConfigJson": {
     "tableBgColor": "#FFFFFF",
     "tableBgOpacity": 0.9,
@@ -299,9 +358,7 @@ Obtener el estado completo de un mes para cargar en el editor.
       "hasHoliday": false
     }
   ],
-  "holidays": [
-    { "day": 1, "name": "Año Nuevo", "scope": "national" }
-  ],
+  "holidays": [{ "day": 1, "name": "Año Nuevo", "scope": "national" }],
   "events": [
     { "day": 15, "name": "Cumpleaños Ana", "type": "birthday", "color": "#FF69B4", "icon": "🎂" }
   ],
@@ -312,14 +369,22 @@ Obtener el estado completo de un mes para cargar en el editor.
 ---
 
 ### PUT `/projects/:id/months/:month`
+
 Guardar el estado completo de un mes (auto-save o guardado manual).
 
 **Request:**
+
 ```json
 {
-  "canvasTopJson": { /* estado Fabric.js */ },
-  "gridConfigJson": { /* configuración del grid */ },
-  "dayCells": [ /* array de celdas modificadas */ ]
+  "canvasTopJson": {
+    /* estado Fabric.js */
+  },
+  "gridConfigJson": {
+    /* configuración del grid */
+  },
+  "dayCells": [
+    /* array de celdas modificadas */
+  ]
 }
 ```
 
@@ -328,6 +393,7 @@ Guardar el estado completo de un mes (auto-save o guardado manual).
 ---
 
 ### POST `/projects/:id/months/:month/apply-to-all`
+
 Aplicar la configuración visual de este mes (grid config) a todos los demás.
 
 **Response 200:** `{ "ok": true, "updatedMonths": [1,2,3,...,12] }`
@@ -337,11 +403,13 @@ Aplicar la configuración visual de este mes (grid config) a todos los demás.
 ## 5. Assets (Biblioteca)
 
 ### GET `/assets`
+
 Listar assets del usuario.
 
 **Query params:** `?folderId=uuid`, `?type=image|sticker`, `?q=nombre`
 
 **Response 200:**
+
 ```json
 {
   "assets": [
@@ -366,19 +434,20 @@ Listar assets del usuario.
 ---
 
 ### POST `/assets/upload`
+
 Subir uno o más assets. Multipart form data.
 
 **Form fields:**
+
 - `files`: uno o más archivos
 - `folderId`: UUID de carpeta (opcional)
 - `type`: `image` | `sticker`
 
 **Response 201:**
+
 ```json
 {
-  "uploaded": [
-    { "id": "uuid", "filename": "...", "url": "...", "thumbUrl": "..." }
-  ],
+  "uploaded": [{ "id": "uuid", "filename": "...", "url": "...", "thumbUrl": "..." }],
   "errors": []
 }
 ```
@@ -388,6 +457,7 @@ Subir uno o más assets. Multipart form data.
 ---
 
 ### DELETE `/assets/:id`
+
 Eliminar un asset. Falla si el asset está siendo usado en algún mes.
 
 **Response 204:** Sin contenido.  
@@ -396,20 +466,21 @@ Eliminar un asset. Falla si el asset está siendo usado en algún mes.
 ---
 
 ### GET `/assets/folders`
+
 Listar carpetas del usuario.
 
 **Response 200:**
+
 ```json
 {
-  "folders": [
-    { "id": "uuid", "name": "Fotos 2025", "parentId": null, "assetCount": 24 }
-  ]
+  "folders": [{ "id": "uuid", "name": "Fotos 2025", "parentId": null, "assetCount": 24 }]
 }
 ```
 
 ---
 
 ### POST `/assets/folders`
+
 Crear carpeta.
 
 **Request:** `{ "name": "Fotos 2026", "parentId": "uuid-opcional" }`  
@@ -418,6 +489,7 @@ Crear carpeta.
 ---
 
 ### PATCH `/assets/folders/:id`
+
 Renombrar carpeta.
 
 **Request:** `{ "name": "Nuevo nombre" }`  
@@ -426,6 +498,7 @@ Renombrar carpeta.
 ---
 
 ### DELETE `/assets/folders/:id`
+
 Eliminar carpeta (debe estar vacía).
 
 **Response 204:** Sin contenido.  
@@ -436,9 +509,11 @@ Eliminar carpeta (debe estar vacía).
 ## 6. Eventos personalizados
 
 ### GET `/events`
+
 Listar todos los eventos del usuario (recurrentes y puntuales).
 
 **Response 200:**
+
 ```json
 {
   "events": [
@@ -460,9 +535,11 @@ Listar todos los eventos del usuario (recurrentes y puntuales).
 ---
 
 ### POST `/events`
+
 Crear evento.
 
 **Request:**
+
 ```json
 {
   "name": "Cumpleaños Ana",
@@ -481,6 +558,7 @@ Crear evento.
 ---
 
 ### PATCH `/events/:id`
+
 Actualizar evento.
 
 **Response 200:** Evento actualizado.
@@ -488,6 +566,7 @@ Actualizar evento.
 ---
 
 ### DELETE `/events/:id`
+
 Eliminar evento.
 
 **Response 204:** Sin contenido.
@@ -497,16 +576,31 @@ Eliminar evento.
 ## 7. Festivos
 
 ### GET `/holidays`
+
 Obtener festivos para un año y comunidad autónoma.
 
 **Query params:** `?year=2026&autonomyCode=VC`
 
 **Response 200:**
+
 ```json
 {
   "holidays": [
-    { "day": 1, "month": 1, "nameEs": "Año Nuevo", "nameEn": "New Year's Day", "scope": "national" },
-    { "day": 9, "month": 10, "nameEs": "Día de la Comunitat Valenciana", "nameEn": "Valencia Day", "scope": "autonomy", "autonomyCode": "VC" }
+    {
+      "day": 1,
+      "month": 1,
+      "nameEs": "Año Nuevo",
+      "nameEn": "New Year's Day",
+      "scope": "national"
+    },
+    {
+      "day": 9,
+      "month": 10,
+      "nameEs": "Día de la Comunitat Valenciana",
+      "nameEn": "Valencia Day",
+      "scope": "autonomy",
+      "autonomyCode": "VC"
+    }
   ]
 }
 ```
@@ -514,9 +608,11 @@ Obtener festivos para un año y comunidad autónoma.
 ---
 
 ### GET `/holidays/autonomies`
+
 Listar comunidades autónomas disponibles.
 
 **Response 200:**
+
 ```json
 {
   "autonomies": [
@@ -532,11 +628,13 @@ Listar comunidades autónomas disponibles.
 ## 8. Santos
 
 ### GET `/saints`
+
 Obtener santos para un mes concreto.
 
 **Query params:** `?month=1`
 
 **Response 200:**
+
 ```json
 {
   "saints": [
@@ -551,9 +649,11 @@ Obtener santos para un mes concreto.
 ## 9. Plantillas
 
 ### GET `/templates`
+
 Listar plantillas del usuario.
 
 **Response 200:**
+
 ```json
 {
   "templates": [
@@ -565,6 +665,7 @@ Listar plantillas del usuario.
 ---
 
 ### POST `/templates`
+
 Guardar configuración actual como plantilla.
 
 **Request:** `{ "name": "Mi plantilla", "configJson": { /* grid config + estilos */ } }`  
@@ -573,6 +674,7 @@ Guardar configuración actual como plantilla.
 ---
 
 ### DELETE `/templates/:id`
+
 Eliminar plantilla.
 
 **Response 204:** Sin contenido.
@@ -582,9 +684,11 @@ Eliminar plantilla.
 ## 10. Exportación
 
 ### POST `/exports`
+
 Solicitar exportación de uno o varios meses.
 
 **Request:**
+
 ```json
 {
   "projectId": "uuid",
@@ -598,6 +702,7 @@ Solicitar exportación de uno o varios meses.
 ```
 
 **Response 202 (Accepted):**
+
 ```json
 {
   "jobId": "uuid",
@@ -609,9 +714,11 @@ Solicitar exportación de uno o varios meses.
 ---
 
 ### GET `/exports/:jobId/status`
+
 Consultar estado del trabajo de exportación (polling).
 
 **Response 200:**
+
 ```json
 {
   "jobId": "uuid",
@@ -627,7 +734,11 @@ Consultar estado del trabajo de exportación (polling).
   "jobId": "uuid",
   "status": "completed",
   "files": [
-    { "name": "Calendario_2026.pdf", "url": "/exports/uuid/Calendario_2026.pdf", "sizeBytes": 24000000 },
+    {
+      "name": "Calendario_2026.pdf",
+      "url": "/exports/uuid/Calendario_2026.pdf",
+      "sizeBytes": 24000000
+    },
     { "name": "Enero_2026.png", "url": "/exports/uuid/Enero_2026.png" }
   ]
 }
@@ -639,15 +750,15 @@ Consultar estado del trabajo de exportación (polling).
 
 ## 11. Códigos de error comunes
 
-| Código HTTP | Código interno | Descripción |
-|-------------|---------------|-------------|
-| 400 | VALIDATION_ERROR | Datos de entrada inválidos |
-| 401 | UNAUTHORIZED | No autenticado |
-| 401 | TOKEN_EXPIRED | Token expirado (el cliente debe refrescar) |
-| 403 | FORBIDDEN | Sin permisos para esta acción |
-| 404 | NOT_FOUND | Recurso no encontrado |
-| 409 | CONFLICT | Conflicto (email duplicado, asset en uso...) |
-| 413 | FILE_TOO_LARGE | Archivo supera el límite |
-| 415 | UNSUPPORTED_FORMAT | Formato de archivo no soportado |
-| 500 | INTERNAL_ERROR | Error interno del servidor |
-| 503 | EXPORT_SERVICE_UNAVAILABLE | El servicio de exportación no está disponible |
+| Código HTTP | Código interno             | Descripción                                   |
+| ----------- | -------------------------- | --------------------------------------------- |
+| 400         | VALIDATION_ERROR           | Datos de entrada inválidos                    |
+| 401         | UNAUTHORIZED               | No autenticado                                |
+| 401         | TOKEN_EXPIRED              | Token expirado (el cliente debe refrescar)    |
+| 403         | FORBIDDEN                  | Sin permisos para esta acción                 |
+| 404         | NOT_FOUND                  | Recurso no encontrado                         |
+| 409         | CONFLICT                   | Conflicto (email duplicado, asset en uso...)  |
+| 413         | FILE_TOO_LARGE             | Archivo supera el límite                      |
+| 415         | UNSUPPORTED_FORMAT         | Formato de archivo no soportado               |
+| 500         | INTERNAL_ERROR             | Error interno del servidor                    |
+| 503         | EXPORT_SERVICE_UNAVAILABLE | El servicio de exportación no está disponible |

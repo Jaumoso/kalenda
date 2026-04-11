@@ -3,25 +3,25 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@8.15.0
 
-# Copy package files
+# Copy workspace config and package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/backend/package.json ./apps/backend/
 COPY packages/shared/package.json ./packages/shared/
 
-# Install all dependencies
-RUN pnpm install
+# Install dependencies
+RUN pnpm install --frozen-lockfile || pnpm install
 
 # Copy source code
 COPY packages/shared ./packages/shared
 COPY apps/backend ./apps/backend
 
-# Build shared package
-RUN cd packages/shared && pnpm build
+# Generate Prisma client
+RUN cd apps/backend && npx prisma generate
 
-# Expose port
+WORKDIR /app/apps/backend
+
 EXPOSE 3000
 
-# Default command (can be overridden)
-CMD ["cd", "apps/backend", "&&", "pnpm", "dev"]
+CMD ["pnpm", "dev"]

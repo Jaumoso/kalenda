@@ -1,7 +1,6 @@
 import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify'
 import fp from 'fastify-plugin'
 import jwt from 'jsonwebtoken'
-import { z } from 'zod'
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -16,7 +15,10 @@ declare module 'fastify' {
   interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>
     requireAdmin: (request: FastifyRequest, reply: FastifyReply) => Promise<void>
-    generateTokens: (user: { id: string; email: string; name: string; role: string }) => { accessToken: string; refreshToken: string }
+    generateTokens: (user: { id: string; email: string; name: string; role: string }) => {
+      accessToken: string
+      refreshToken: string
+    }
   }
 }
 
@@ -33,7 +35,12 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
         return reply.code(401).send({ error: 'No token provided' })
       }
 
-      const decoded = jwt.verify(token, jwtSecret) as any
+      const decoded = jwt.verify(token, jwtSecret) as {
+        id: string
+        email: string
+        name: string
+        role: 'USER' | 'ADMIN'
+      }
       request.user = {
         id: decoded.id,
         email: decoded.email,
@@ -41,6 +48,7 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
         role: decoded.role,
       }
     } catch (error) {
+      fastify.log.debug('Authentication failed: %s', (error as Error).message)
       return reply.code(401).send({ error: 'Invalid token' })
     }
   })
@@ -53,26 +61,25 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
   })
 
   // Helper to generate tokens
-  fastify.decorate('generateTokens', (user: { id: string; email: string; name: string; role: string }) => {
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-      jwtSecret,
-      { expiresIn: '15m' }
-    )
+  fastify.decorate(
+    'generateTokens',
+    (user: { id: string; email: string; name: string; role: string }) => {
+      const accessToken = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+        jwtSecret,
+        { expiresIn: '15m' }
+      )
 
-    const refreshToken = jwt.sign(
-      { id: user.id },
-      jwtSecret,
-      { expiresIn: '7d' }
-    )
+      const refreshToken = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '7d' })
 
-    return { accessToken, refreshToken }
-  })
+      return { accessToken, refreshToken }
+    }
+  )
 }
 
 export default fp(authPlugin, {

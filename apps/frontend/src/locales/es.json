@@ -11,5 +11,31 @@
     "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
     "invalidEmail": "Correo electrónico inválido",
     "demoCredentials": "Credenciales de demostración:"
+  },
+  "admin": {
+    "title": "Panel de administración",
+    "users": "Usuarios",
+    "createUser": "Crear usuario",
+    "newUser": "Nuevo usuario",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "role": "Rol",
+    "roleAdmin": "Administrador",
+    "roleUser": "Usuario",
+    "status": "Estado",
+    "actions": "Acciones",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "cancel": "Cancelar",
+    "loading": "Cargando usuarios...",
+    "noUsers": "No hay usuarios",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar a {{name}}?",
+    "backToDashboard": "Volver al inicio",
+    "logout": "Cerrar sesión"
   }
 }

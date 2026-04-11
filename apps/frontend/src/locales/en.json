@@ -11,5 +11,31 @@
     "passwordMinLength": "Password must be at least 6 characters",
     "invalidEmail": "Invalid email",
     "demoCredentials": "Demo credentials:"
+  },
+  "admin": {
+    "title": "Administration panel",
+    "users": "Users",
+    "createUser": "Create user",
+    "newUser": "New user",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "role": "Role",
+    "roleAdmin": "Admin",
+    "roleUser": "User",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "create": "Create",
+    "cancel": "Cancel",
+    "loading": "Loading users...",
+    "noUsers": "No users found",
+    "confirmDelete": "Are you sure you want to delete {{name}}?",
+    "backToDashboard": "Back to dashboard",
+    "logout": "Sign out"
   }
 }

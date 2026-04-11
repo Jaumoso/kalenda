@@ -1,4 +1,5 @@
 # ROADMAP.md — Plan de desarrollo
+
 ## CalendApp
 
 **Versión:** 1.0  
@@ -19,10 +20,12 @@
 ---
 
 ## Fase 0 — Setup e infraestructura
+
 **Duración estimada:** 1-2 días  
 **Objetivo:** Tener el esqueleto funcionando en el servidor.
 
 ### Tareas:
+
 - [ ] Inicializar monorepo con pnpm workspaces
 - [ ] Configurar TypeScript en frontend (Vite + React) y backend (Fastify)
 - [ ] Configurar Tailwind CSS y shadcn/ui
@@ -39,10 +42,12 @@
 ---
 
 ## Fase 1 — Autenticación y gestión de usuarios
+
 **Duración estimada:** 2-3 días  
 **Objetivo:** Login funcional, dos usuarios (madre + admin).
 
 ### Tareas:
+
 - [ ] Schema Prisma: tabla `users`
 - [ ] Backend: POST `/auth/login`, POST `/auth/logout`, POST `/auth/refresh`, GET `/auth/me`
 - [ ] Backend: middleware de autenticación JWT
@@ -58,10 +63,12 @@
 ---
 
 ## Fase 2 — Gestión de proyectos (Dashboard)
+
 **Duración estimada:** 2-3 días  
 **Objetivo:** Crear, listar y organizar proyectos de calendario.
 
 ### Tareas:
+
 - [ ] Schema Prisma: tablas `projects`, `calendar_months`
 - [ ] Backend: CRUD de proyectos (`/projects`)
 - [ ] Backend: al crear proyecto, generar automáticamente 12 registros `calendar_months`
@@ -76,10 +83,12 @@
 ---
 
 ## Fase 3 — Biblioteca de assets
+
 **Duración estimada:** 3-4 días  
 **Objetivo:** Subir imágenes y stickers que persisten en el servidor.
 
 ### Tareas:
+
 - [ ] Schema Prisma: tablas `assets`, `asset_folders`
 - [ ] Backend: subida de archivos con validación (MIME, tamaño)
 - [ ] Backend: procesamiento con Sharp (miniaturas, optimización)
@@ -94,10 +103,12 @@
 ---
 
 ## Fase 4 — Editor de mes: zona inferior (Grid)
+
 **Duración estimada:** 5-7 días  
 **Objetivo:** El grid del calendario es editable visualmente.
 
 ### Tareas:
+
 - [ ] Schema Prisma: actualizar `calendar_months` con `gridConfigJson`, `dayCells`
 - [ ] Backend: GET/PUT del mes (cargar y guardar estado)
 - [ ] Frontend: MonthEditorPage con layout básico (zonas superior/inferior)
@@ -116,10 +127,12 @@
 ---
 
 ## Fase 5 — Festivos y eventos
+
 **Duración estimada:** 3-4 días  
 **Objetivo:** Festivos automáticos y eventos personalizados en el grid.
 
 ### Tareas:
+
 - [ ] Schema Prisma: tablas `holidays`, `events`
 - [ ] Importar base de datos de festivos nacionales ES (2025-2030) y por CCAA
 - [ ] Importar calendario de santos español
@@ -137,10 +150,12 @@
 ---
 
 ## Fase 6 — Editor de mes: zona superior (Canvas Fabric.js)
+
 **Duración estimada:** 7-10 días  
 **Objetivo:** Editor visual completo para la zona de imagen/collage.
 
 ### Tareas:
+
 - [ ] Integrar Fabric.js en la zona superior del editor
 - [ ] Cargar/guardar estado del canvas (JSON) en el backend
 - [ ] Herramienta: selección y movimiento de elementos
@@ -161,10 +176,12 @@
 ---
 
 ## Fase 7 — Celda avanzada (imágenes y stickers en días)
+
 **Duración estimada:** 3-4 días  
 **Objetivo:** Cada celda del grid puede tener imagen, sticker y texto.
 
 ### Tareas:
+
 - [ ] Modal de celda: seleccionar imagen de biblioteca → se muestra en la celda
 - [ ] Modal de celda: seleccionar sticker/emoji → se muestra en la celda
 - [ ] Panel de Stickers y Emojis (con búsqueda)
@@ -176,10 +193,12 @@
 ---
 
 ## Fase 8 — Plantillas
+
 **Duración estimada:** 2-3 días  
 **Objetivo:** Sistema de plantilla base + personalización por mes.
 
 ### Tareas:
+
 - [ ] Schema Prisma: tabla `templates`
 - [ ] Backend: CRUD de plantillas
 - [ ] Frontend: editor de plantilla base del proyecto
@@ -193,10 +212,12 @@
 ---
 
 ## Fase 9 — Exportación PDF/PNG
+
 **Duración estimada:** 4-5 días  
 **Objetivo:** Generar archivos de alta calidad listos para imprimir.
 
 ### Tareas:
+
 - [ ] Contenedor Docker para Puppeteer (sin sandbox, usuario no-root)
 - [ ] Ruta interna de renderizado (URL que Puppeteer abre para cada mes)
 - [ ] Backend: cola de trabajos de exportación con estado
@@ -212,14 +233,17 @@
 ---
 
 ## Fase 10 — Pulido, UX y producción
+
 **Duración estimada:** 3-4 días  
 **Objetivo:** App lista para uso diario por la madre.
 
 ### Tareas:
+
 - [ ] Onboarding breve (tooltip tour en primer uso)
 - [ ] Tooltips en todas las herramientas del editor
 - [ ] Mensajes de error amigables en toda la app
 - [ ] Optimización de rendimiento (lazy loading de assets, compresión)
+- [ ] Rate limiting en rutas de autenticación y API (`@fastify/rate-limit`)
 - [ ] Tests de los flujos principales (Playwright)
 - [ ] Documentación de uso básico (guía de usuario en PDF)
 - [ ] Configurar backup automático del volumen de datos
@@ -232,20 +256,20 @@
 
 ## Resumen de fases y estimaciones
 
-| Fase | Descripción | Estimación |
-|------|-------------|------------|
-| 0 | Setup e infraestructura | 1-2 días |
-| 1 | Autenticación | 2-3 días |
-| 2 | Gestión de proyectos | 2-3 días |
-| 3 | Biblioteca de assets | 3-4 días |
-| 4 | Editor grid (zona inferior) | 5-7 días |
-| 5 | Festivos y eventos | 3-4 días |
-| 6 | Editor canvas (zona superior) | 7-10 días |
-| 7 | Celdas avanzadas | 3-4 días |
-| 8 | Plantillas | 2-3 días |
-| 9 | Exportación PDF/PNG | 4-5 días |
-| 10 | Pulido y producción | 3-4 días |
-| **Total** | | **~35-49 días** |
+| Fase      | Descripción                   | Estimación      |
+| --------- | ----------------------------- | --------------- |
+| 0         | Setup e infraestructura       | 1-2 días        |
+| 1         | Autenticación                 | 2-3 días        |
+| 2         | Gestión de proyectos          | 2-3 días        |
+| 3         | Biblioteca de assets          | 3-4 días        |
+| 4         | Editor grid (zona inferior)   | 5-7 días        |
+| 5         | Festivos y eventos            | 3-4 días        |
+| 6         | Editor canvas (zona superior) | 7-10 días       |
+| 7         | Celdas avanzadas              | 3-4 días        |
+| 8         | Plantillas                    | 2-3 días        |
+| 9         | Exportación PDF/PNG           | 4-5 días        |
+| 10        | Pulido y producción           | 3-4 días        |
+| **Total** |                               | **~35-49 días** |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 
@@ -254,6 +278,7 @@
 ## MVP funcional (Fases 0-5 + 9 básico)
 
 Con las fases 0 a 5 más una versión básica de exportación, la madre ya puede:
+
 - Crear un proyecto de calendario
 - Subir sus fotos
 - Personalizar el grid (colores, fuentes)

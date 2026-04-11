@@ -1,10 +1,11 @@
-# CalendApp
+# Caledit
 
 Aplicación web auto-hospedada para crear calendarios de pared personalizables. Diseña calendarios de 12 meses con imágenes, stickers, texto y colores personalizados, y exporta en PDF/PNG listo para imprimir.
 
 ## 🚀 Inicio rápido
 
 ### Configuración inicial
+
 ```bash
 # Instalar dependencias
 pnpm install
@@ -26,10 +27,12 @@ pnpm dev
 ```
 
 ### Credenciales de prueba
+
 - **Admin**: admin@calendapp.com / admin123
 - **Usuario**: user@calendapp.com / user123
 
 ### Endpoints de API
+
 - `POST /api/auth/login` - Iniciar sesión
 - `POST /api/auth/logout` - Cerrar sesión
 - `POST /api/auth/refresh` - Refrescar token
@@ -40,6 +43,7 @@ pnpm dev
 ## Stack Tecnológico
 
 ### Frontend
+
 - **React 19.1** — Framework principal
 - **Vite 5.x** — Build tool y dev server
 - **Tailwind CSS 4.x** — Estilos utility-first
@@ -53,6 +57,7 @@ pnpm dev
 - **@fontsource** — Fuentes self-hosted
 
 ### Backend
+
 - **Node.js 20 LTS** — Runtime
 - **Fastify 5.x** — Framework web
 - **Prisma 7.x** — ORM y migraciones
@@ -64,6 +69,7 @@ pnpm dev
 - **Puppeteer** — Generación de PDF/PNG
 
 ### Infraestructura
+
 - **Docker Compose** — Orquestación de contenedores
 - **pnpm** — Gestor de paquetes para monorepo
 - **ESLint 10.x + Prettier** — Linting y formateo
@@ -93,11 +99,13 @@ calendapp/
 ## Instalación y Desarrollo
 
 ### Prerrequisitos
+
 - Node.js 20 LTS
 - pnpm 8+
 - Docker y Docker Compose
 
 ### Instalación
+
 ```bash
 # Clonar el repositorio
 git clone <url-del-repo>
@@ -123,6 +131,7 @@ docker-compose -f docker-compose.dev.yml up
 ```
 
 ### Desarrollo
+
 ```bash
 # Frontend
 cd apps/frontend
@@ -142,6 +151,7 @@ pnpm build
 ## Despliegue
 
 ### Producción
+
 ```bash
 # Build y despliegue
 docker-compose up -d
@@ -150,6 +160,7 @@ docker-compose up -d
 ```
 
 ### Self-hosted
+
 - Configurar reverse proxy externo (Nginx/Traefik/Caddy) para SSL
 - Montar volumen `/data/` para persistencia de assets y DB
 - Configurar backups automáticos

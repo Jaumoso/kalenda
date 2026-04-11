@@ -15,25 +15,34 @@ model User {
   name      String
   password  String
   role      Role     @default(USER)
+  language  String   @default("es")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  projects Project[]
+  projects     Project[]
+  assets       Asset[]
+  assetFolders AssetFolder[]
+  events       Event[]
+  templates    Template[]
 
   @@map("users")
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  name        String
-  year        Int
-  status      Status   @default(DRAFT)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  name          String
+  year          Int
+  status        Status   @default(DRAFT)
+  weekStartsOn  String   @default("monday") // "monday" | "sunday"
+  autonomyCode  String?  // Comunidad autónoma para festivos
+  templateId    String?
+  template      Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
   months CalendarMonth[]
@@ -48,14 +57,120 @@ model CalendarMonth {
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  // Canvas data stored as JSON
-  canvasData Json?
+  // Zona superior: estado del canvas Fabric.js (JSON serializado)
+  canvasTopJson Json?
+
+  // Grid del calendario: configuración visual
+  gridConfigJson Json?
+
+  // Zona de decoración overlay (canvas Fabric.js transparente)
+  overlayJson Json?
+
+  isCustomized Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  dayCells DayCell[]
+
   @@unique([projectId, month, year])
   @@map("calendar_months")
+}
+
+model DayCell {
+  id          String @id @default(cuid())
+  dayNumber   Int
+  monthId     String
+  month       CalendarMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+  contentJson Json?  // { imageAssetId?, stickerAssetId?, emoji?, text? }
+  bgColor     String?
+  hasEvent    Boolean @default(false)
+  hasHoliday  Boolean @default(false)
+
+  @@unique([monthId, dayNumber])
+  @@map("day_cells")
+}
+
+model Template {
+  id         String   @id @default(cuid())
+  name       String
+  configJson Json     // Configuración del grid + estilos
+  isDefault  Boolean  @default(false)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  projects Project[]
+
+  @@map("templates")
+}
+
+model Asset {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  width        Int?
+  height       Int?
+  thumbPath    String?
+  type         AssetType @default(IMAGE)
+  folderId     String?
+  folder       AssetFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@map("assets")
+}
+
+model AssetFolder {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  parent    AssetFolder?  @relation("FolderTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children  AssetFolder[] @relation("FolderTree")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  // Relations
+  assets Asset[]
+
+  @@map("asset_folders")
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  name        String
+  day         Int
+  month       Int
+  year        Int?      // NULL = recurrente
+  type        EventType @default(CUSTOM)
+  color       String    @default("#C8502A")
+  icon        String?
+  isRecurring Boolean   @default(true)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@map("events")
+}
+
+model Holiday {
+  id           String @id @default(cuid())
+  year         Int
+  month        Int
+  day          Int
+  nameEs       String
+  nameEn       String
+  scope        HolidayScope @default(NATIONAL)
+  autonomyCode String?
+
+  @@unique([year, month, day, scope, autonomyCode])
+  @@map("holidays")
 }
 
 enum Role {
@@ -67,4 +182,21 @@ enum Status {
   DRAFT
   IN_PROGRESS
   COMPLETED
+}
+
+enum AssetType {
+  IMAGE
+  STICKER
+}
+
+enum EventType {
+  BIRTHDAY
+  ANNIVERSARY
+  SAINT
+  CUSTOM
+}
+
+enum HolidayScope {
+  NATIONAL
+  AUTONOMY
 }

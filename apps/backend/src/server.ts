@@ -1,13 +1,14 @@
 import Fastify from 'fastify'
-import { z } from 'zod'
 import fastifyCookie from '@fastify/cookie'
 import fastifyCors from '@fastify/cors'
 import fastifyHelmet from '@fastify/helmet'
 import fastifyStatic from '@fastify/static'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import authPlugin from './plugins/auth.js'
 import authRoutes from './routes/auth.js'
+import userRoutes from './routes/users.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -22,7 +23,7 @@ async function createServer() {
     secret: process.env.COOKIE_SECRET || 'default-secret-change-in-production',
   })
   await fastify.register(fastifyCors, {
-    origin: process.env.NODE_ENV === 'production' ? false : true,
+    origin: process.env.NODE_ENV !== 'production',
     credentials: true,
   })
 
@@ -30,11 +31,14 @@ async function createServer() {
   await fastify.register(authPlugin)
 
   // Serve static files (for production builds)
-  await fastify.register(fastifyStatic, {
-    root: path.join(__dirname, '../../frontend/dist'),
-    prefix: '/',
-    decorateReply: false,
-  })
+  const frontendDist = path.join(__dirname, '../../frontend/dist')
+  if (fs.existsSync(frontendDist)) {
+    await fastify.register(fastifyStatic, {
+      root: frontendDist,
+      prefix: '/',
+      decorateReply: false,
+    })
+  }
 
   // API routes
   fastify.get('/api/health', async () => {
@@ -43,6 +47,9 @@ async function createServer() {
 
   // Register auth routes
   await fastify.register(authRoutes, { prefix: '/api' })
+
+  // Register user routes
+  await fastify.register(userRoutes, { prefix: '/api' })
 
   // Catch-all handler for SPA (must be last)
   fastify.setNotFoundHandler(async (request, reply) => {

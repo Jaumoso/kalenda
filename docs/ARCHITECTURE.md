@@ -1,4 +1,5 @@
 # ARCHITECTURE.md — Arquitectura del sistema
+
 ## CalendApp
 
 **Versión:** 1.1  
@@ -77,8 +78,28 @@ Frontend React App
 │   └── uiStore                   → idioma, preferencias visuales
 │
 ├── MonthEditorPage (página más compleja)
+│   │
+│   │  Arquitectura de capas de la página A4:
+│   │  ┌──────────────────────────────────┐
+│   │  │  Capa 3: DecorationOverlay      │ ← Canvas Fabric.js transparente
+│   │  │  (stickers, decoraciones libres  │   sobre TODA la página A4
+│   │  │   pueden ir encima del grid)     │
+│   │  ├──────────────────────────────────┤
+│   │  │  Capa 2: CalendarGrid           │ ← Componentes React/HTML + CSS
+│   │  │  (tabla de días, editable)       │   Tipografía, colores, bordes dinámicos
+│   │  ├──────────────────────────────────┤
+│   │  │  Capa 1: CanvasTopZone          │ ← Canvas Fabric.js
+│   │  │  (fotos, collage, texto libre)  │   Imágenes arrastrables, efectos
+│   │  └──────────────────────────────────┘
+│   │
+│   │  Toggle de modo: "Editar grid" ↔ "Decorar"
+│   │  - Modo grid: pointer-events en grid, overlay no intercepta
+│   │  - Modo decorar: pointer-events en overlay, grid no intercepta
+│   │
 │   ├── CanvasTopZone             → Fabric.js canvas (zona imagen/collage)
-│   ├── CalendarGridZone          → Fabric.js canvas o componente React (grid días)
+│   ├── CalendarGrid              → Componente React/HTML (grid de días)
+│   ├── DecorationOverlay         → Fabric.js canvas transparente (stickers/decoración sobre toda la página)
+│   ├── EditorModeToggle          → Toggle modo grid / modo decoración
 │   ├── LayerPanel                → Lista de capas del canvas con controles
 │   ├── PropertiesPanel           → Panel contextual según elemento seleccionado
 │   │   ├── ImageProperties       → Efectos, opacidad, posición X/Y/Z
@@ -108,15 +129,15 @@ Frontend React App
 ├──────────────┤       ├─────────────────┤       ├──────────────────┤
 │ id (PK)      │──┐    │ id (PK)         │──┐    │ id (PK)          │
 │ email        │  │    │ user_id (FK)    │◀─┘    │ project_id (FK)  │◀─┐
-│ password_hash│  └───▶│ name            │    ┌─▶│ month_number     │  │
+│ password     │  └───▶│ name            │    ┌─▶│ month (1-12)     │  │
 │ name         │       │ year            │    │  │ year             │  │
-│ role         │       │ status          │    │  │ canvas_top_json  │  │ (JSON Fabric.js)
-│ language     │       │ template_id(FK) │    │  │ grid_config_json │  │
-│ created_at   │       │ created_at      │    │  │ bg_type          │  │
-│ updated_at   │       │ updated_at      │────┘  │ bg_value         │  │
-└──────────────┘       └─────────────────┘       │ is_customized    │  │
-                                                  │ created_at       │  │
-                                                  └──────────────────┘  │
+│ role         │       │ status          │    │  │ canvas_top_json  │  │ (JSON Fabric.js zona superior)
+│ language     │       │ week_starts_on  │    │  │ grid_config_json │  │ (JSON config grid)
+│ is_active    │       │ autonomy_code   │    │  │ overlay_json     │  │ (JSON Fabric.js decoración)
+│ created_at   │       │ template_id(FK) │    │  │ is_customized    │  │
+│ updated_at   │       │ created_at      │    │  │ created_at       │  │
+└──────────────┘       │ updated_at      │────┘  │ updated_at       │  │
+                        └─────────────────┘       └──────────────────┘  │
                                                                          │
 ┌──────────────────────────────────────────────────────────────────────┘
 │
@@ -180,24 +201,30 @@ Frontend solicita GET /api/projects/:id/months/:m
 Backend devuelve:
   - canvas_top_json (estado Fabric.js de zona superior)
   - grid_config_json (colores, fuentes, bordes del grid)
+  - overlay_json (estado Fabric.js de la capa de decoración)
   - day_cells[] (contenido de cada día)
   - events[] del mes (festivos + eventos personalizados)
          │
          ▼
-Frontend inicializa Fabric.js con canvas_top_json
-Frontend renderiza CalendarGrid con grid_config_json + day_cells
+Frontend inicializa:
+  - Fabric.js canvas #1 con canvas_top_json (zona imagen/collage)
+  - CalendarGrid (React/HTML) con grid_config_json + day_cells
+  - Fabric.js canvas #2 con overlay_json (capa decoración transparente)
+         │
+         ▼
+Toggle de modo en el editor:
+  - "Editar grid" → pointer-events en CalendarGrid, overlay inerte
+  - "Decorar" → pointer-events en overlay Fabric.js, grid inerte
+  - Zona superior siempre editable en su propio canvas
          │
          ▼
 Usuario edita (arrastra elemento, cambia color, sube imagen...)
-         │
-         ▼
-Fabric.js actualiza su estado interno en tiempo real
 Cambios se acumulan en editorStore (Zustand)
          │
          ▼
 Auto-save cada 30 segundos O al hacer clic en "Guardar"
   PUT /api/projects/:id/months/:m
-  Body: { canvas_top_json, grid_config_json, day_cells[] }
+  Body: { canvas_top_json, grid_config_json, overlay_json, day_cells[] }
          │
          ▼
 Backend persiste en PostgreSQL
@@ -298,7 +325,6 @@ El frontend (build de Vite) se copia dentro de la imagen del backend durante el 
 # docker-compose.yml (estructura, sin valores reales)
 
 services:
-
   backend:
     build:
       context: .
@@ -307,7 +333,7 @@ services:
       # y copia el resultado a apps/backend/public/
       # Fastify sirve ese directorio con @fastify/static
     ports:
-      - "3000:3000"          # Solo puerto expuesto — el reverse proxy externo apunta aquí
+      - '3000:3000' # Solo puerto expuesto — el reverse proxy externo apunta aquí
     environment:
       - DATABASE_URL
       - JWT_SECRET
@@ -341,7 +367,7 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -381,17 +407,17 @@ CMD ["node", "apps/backend/dist/index.js"]
 
 ## 9. Consideraciones de seguridad
 
-| Área | Medida |
-|------|--------|
-| Autenticación | JWT en httpOnly cookies, no localStorage |
-| Contraseñas | bcrypt con salt rounds ≥ 12 |
-| Uploads | Validación de MIME type real (magic bytes), no solo extensión |
-| Uploads | Límite de tamaño por archivo (ej. 20MB) y por usuario |
-| SQL Injection | Imposible con Prisma (queries parametrizadas) |
-| XSS | React escapa HTML por defecto; CSP + security headers vía `@fastify/helmet` |
-| CORS | `@fastify/cors` restringido al origen del reverse proxy externo |
-| Puppeteer | Contenedor sin privilegios extra, sin acceso a red externa; usuario no-root |
-| Assets estáticos | `@fastify/static` con `send` — solo lectura, sin ejecución |
+| Área               | Medida                                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| Autenticación      | JWT en httpOnly cookies, no localStorage                                                |
+| Contraseñas        | bcrypt con salt rounds ≥ 12                                                             |
+| Uploads            | Validación de MIME type real (magic bytes), no solo extensión                           |
+| Uploads            | Límite de tamaño por archivo (ej. 20MB) y por usuario                                   |
+| SQL Injection      | Imposible con Prisma (queries parametrizadas)                                           |
+| XSS                | React escapa HTML por defecto; CSP + security headers vía `@fastify/helmet`             |
+| CORS               | `@fastify/cors` restringido al origen del reverse proxy externo                         |
+| Puppeteer          | Contenedor sin privilegios extra, sin acceso a red externa; usuario no-root             |
+| Assets estáticos   | `@fastify/static` con `send` — solo lectura, sin ejecución                              |
 | Red interna Docker | Puppeteer y Postgres no exponen puertos al host; solo backend es accesible externamente |
 
 ### Cabeceras de seguridad (`@fastify/helmet`)
