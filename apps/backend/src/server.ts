@@ -13,6 +13,7 @@ import userRoutes from './routes/users.js'
 import projectRoutes from './routes/projects.js'
 import assetRoutes from './routes/assets.js'
 import folderRoutes from './routes/folders.js'
+import monthRoutes from './routes/months.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -76,6 +77,9 @@ async function createServer() {
 
   // Register folder routes
   await fastify.register(folderRoutes, { prefix: '/api' })
+
+  // Register month routes
+  await fastify.register(monthRoutes, { prefix: '/api' })
 
   // Catch-all handler for SPA (must be last)
   fastify.setNotFoundHandler(async (request, reply) => {

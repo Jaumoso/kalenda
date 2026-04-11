@@ -152,9 +152,10 @@ export default function ProjectPage() {
           const firstDay = getFirstDayOfWeek(m.year, m.month, project.weekStartsOn)
 
           return (
-            <div
+            <Link
               key={m.id}
-              className={`bg-white rounded-lg border p-4 hover:shadow-md transition-shadow cursor-pointer ${
+              to={`/projects/${project.id}/months/${m.id}`}
+              className={`bg-white rounded-lg border p-4 hover:shadow-md transition-shadow ${
                 m.isCustomized ? 'border-primary-200' : 'border-neutral-200'
               }`}
             >
@@ -185,7 +186,7 @@ export default function ProjectPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Link>
           )
         })}
       </div>

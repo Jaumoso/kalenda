@@ -8,6 +8,7 @@ import AdminPage from './pages/AdminPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectPage from './pages/ProjectPage'
 import LibraryPage from './pages/LibraryPage'
+import MonthEditorPage from './pages/MonthEditorPage'
 import './App.css'
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
       >
         <Route path="/" element={<DashboardPage />} />
         <Route path="/projects/:id" element={<ProjectPage />} />
+        <Route path="/projects/:projectId/months/:monthId" element={<MonthEditorPage />} />
         <Route path="/library" element={<LibraryPage />} />
         <Route
           path="/admin"
