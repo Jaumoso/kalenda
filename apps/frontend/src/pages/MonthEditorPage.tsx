@@ -6,6 +6,13 @@ import { DEFAULT_GRID_CONFIG, MONTH_NAMES } from '../lib/calendarTypes'
 import CalendarGrid from '../components/CalendarGrid'
 import GridPropertiesPanel from '../components/GridPropertiesPanel'
 import CellModal from '../components/CellModal'
+import CanvasEditor, { type CanvasEditorHandle } from '../components/CanvasEditor'
+import CanvasToolbar from '../components/CanvasToolbar'
+import LayersPanel from '../components/LayersPanel'
+import ObjectPropertiesPanel from '../components/ObjectPropertiesPanel'
+import AssetPickerModal from '../components/AssetPickerModal'
+import StickerPickerModal from '../components/StickerPickerModal'
+import BackgroundModal from '../components/BackgroundModal'
 
 const AUTOSAVE_INTERVAL = 30_000 // 30 seconds
 
@@ -26,6 +33,17 @@ export default function MonthEditorPage() {
   const [events, setEvents] = useState<CalEvent[]>([])
   const [saints, setSaints] = useState<Saint[]>([])
 
+  // Canvas state
+  const canvasEditorRef = useRef<CanvasEditorHandle>(null)
+  const canvasTopJsonRef = useRef<object | null>(null)
+  const [editorMode, setEditorMode] = useState<'grid' | 'canvas'>('canvas')
+  const [selectedObject, setSelectedObject] = useState<import('fabric').FabricObject | null>(null)
+  const [canvasRefreshKey, setCanvasRefreshKey] = useState(0)
+  const [showAssetPicker, setShowAssetPicker] = useState(false)
+  const [showStickerPicker, setShowStickerPicker] = useState(false)
+  const [showBackgroundModal, setShowBackgroundModal] = useState(false)
+  const [bgAssetMode, setBgAssetMode] = useState(false)
+
   const dirtyRef = useRef(false)
   const gridConfigRef = useRef(gridConfig)
 
@@ -43,6 +61,9 @@ export default function MonthEditorPage() {
         setMonthData(data.month)
         if (data.month.gridConfigJson) {
           setGridConfig({ ...DEFAULT_GRID_CONFIG, ...data.month.gridConfigJson })
+        }
+        if (data.month.canvasTopJson) {
+          canvasTopJsonRef.current = data.month.canvasTopJson as object
         }
         setDayCells(data.month.dayCells || [])
         setHolidays(data.holidays || [])
@@ -62,8 +83,10 @@ export default function MonthEditorPage() {
     if (!monthId || !dirtyRef.current) return
     setSaving(true)
     try {
+      const canvasJson = canvasEditorRef.current?.toJSON() ?? canvasTopJsonRef.current
       await api.put(`/months/${monthId}`, {
         gridConfigJson: gridConfigRef.current,
+        canvasTopJson: canvasJson,
       })
       setLastSaved(new Date())
       setDirty(false)
@@ -86,8 +109,14 @@ export default function MonthEditorPage() {
   useEffect(() => {
     return () => {
       if (dirtyRef.current) {
+        const canvasJson = canvasEditorRef.current?.toJSON() ?? canvasTopJsonRef.current
         // Fire and forget
-        api.put(`/months/${monthId}`, { gridConfigJson: gridConfigRef.current }).catch(() => {})
+        api
+          .put(`/months/${monthId}`, {
+            gridConfigJson: gridConfigRef.current,
+            canvasTopJson: canvasJson,
+          })
+          .catch(() => {})
       }
     }
   }, [monthId])
@@ -100,6 +129,34 @@ export default function MonthEditorPage() {
   const handleCellClick = (dayNumber: number) => {
     setSelectedDay(dayNumber)
   }
+
+  // Canvas handlers
+  const handleCanvasModified = useCallback(() => {
+    setDirty(true)
+    setCanvasRefreshKey((k) => k + 1)
+  }, [])
+
+  const handleSelectionChange = useCallback((obj: import('fabric').FabricObject | null) => {
+    setSelectedObject(obj)
+  }, [])
+
+  const handleAssetSelect = useCallback(
+    (asset: { filename: string; originalName: string }) => {
+      const url = `/uploads/${asset.filename}`
+      if (bgAssetMode) {
+        canvasEditorRef.current?.setBackground('image', url)
+        setBgAssetMode(false)
+      } else {
+        canvasEditorRef.current?.addImageFromURL(url, asset.originalName)
+      }
+      setShowAssetPicker(false)
+    },
+    [bgAssetMode]
+  )
+
+  const handleStickerSelect = useCallback((emoji: string) => {
+    canvasEditorRef.current?.addSticker(emoji)
+  }, [])
 
   const refetchEvents = useCallback(async () => {
     if (!monthData) return
@@ -231,20 +288,63 @@ export default function MonthEditorPage() {
         </div>
       </div>
 
+      {/* Mode toggle bar */}
+      <div className="bg-white border-b border-neutral-200 px-4 py-1.5 flex items-center gap-2 shrink-0">
+        <button
+          onClick={() => setEditorMode('canvas')}
+          className={`px-3 py-1 text-xs rounded-full transition-colors ${
+            editorMode === 'canvas'
+              ? 'bg-primary-600 text-white'
+              : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+          }`}
+        >
+          🎨 Imagen superior
+        </button>
+        <button
+          onClick={() => setEditorMode('grid')}
+          className={`px-3 py-1 text-xs rounded-full transition-colors ${
+            editorMode === 'grid'
+              ? 'bg-primary-600 text-white'
+              : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+          }`}
+        >
+          📅 Editar grid
+        </button>
+
+        {editorMode === 'canvas' && (
+          <div className="ml-2 flex-1">
+            <CanvasToolbar
+              editorRef={canvasEditorRef}
+              onAddImage={() => {
+                setBgAssetMode(false)
+                setShowAssetPicker(true)
+              }}
+              onAddSticker={() => setShowStickerPicker(true)}
+              onBackgroundSettings={() => setShowBackgroundModal(true)}
+            />
+          </div>
+        )}
+      </div>
+
       {/* Main editor area */}
       <div className="flex flex-1 min-h-0">
         {/* Canvas area */}
         <div className="flex-1 overflow-auto p-6 bg-neutral-100">
-          {/* Top zone placeholder (Phase 6) */}
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-neutral-200/50 border-2 border-dashed border-neutral-300 rounded-lg p-8 mb-4 text-center">
-              <p className="text-sm text-neutral-400">
-                Zona superior — Editor de imagen (próximamente)
-              </p>
+          <div className="max-w-4xl mx-auto">
+            {/* Canvas top zone */}
+            <div className={editorMode === 'canvas' ? '' : 'pointer-events-none opacity-60'}>
+              <CanvasEditor
+                ref={canvasEditorRef}
+                initialJson={canvasTopJsonRef.current}
+                onModified={handleCanvasModified}
+                onSelectionChange={handleSelectionChange}
+              />
             </div>
 
             {/* Calendar Grid */}
-            <div className="bg-white rounded-lg shadow-sm p-4">
+            <div
+              className={`bg-white rounded-lg shadow-sm p-4 mt-4 ${editorMode === 'grid' ? '' : 'pointer-events-none opacity-80'}`}
+            >
               <CalendarGrid
                 year={monthData.year}
                 month={monthData.month}
@@ -262,7 +362,24 @@ export default function MonthEditorPage() {
 
         {/* Right panel — Properties */}
         <div className="w-72 bg-white border-l border-neutral-200 overflow-y-auto p-4 shrink-0">
-          <GridPropertiesPanel config={gridConfig} onChange={handleGridConfigChange} />
+          {editorMode === 'canvas' ? (
+            <div className="space-y-6">
+              <ObjectPropertiesPanel
+                editorRef={canvasEditorRef}
+                selectedObject={selectedObject}
+                onModified={handleCanvasModified}
+              />
+              <div className="border-t border-neutral-100 pt-4">
+                <LayersPanel
+                  editorRef={canvasEditorRef}
+                  selectedObject={selectedObject}
+                  refreshKey={canvasRefreshKey}
+                />
+              </div>
+            </div>
+          ) : (
+            <GridPropertiesPanel config={gridConfig} onChange={handleGridConfigChange} />
+          )}
         </div>
       </div>
 
@@ -281,6 +398,34 @@ export default function MonthEditorPage() {
           onClose={() => setSelectedDay(null)}
         />
       )}
+
+      {/* Asset picker modal */}
+      <AssetPickerModal
+        isOpen={showAssetPicker}
+        onClose={() => {
+          setShowAssetPicker(false)
+          setBgAssetMode(false)
+        }}
+        onSelect={handleAssetSelect}
+      />
+
+      {/* Sticker picker modal */}
+      <StickerPickerModal
+        isOpen={showStickerPicker}
+        onClose={() => setShowStickerPicker(false)}
+        onSelect={handleStickerSelect}
+      />
+
+      {/* Background modal */}
+      <BackgroundModal
+        isOpen={showBackgroundModal}
+        editorRef={canvasEditorRef}
+        onClose={() => setShowBackgroundModal(false)}
+        onOpenAssetPicker={() => {
+          setBgAssetMode(true)
+          setShowAssetPicker(true)
+        }}
+      />
     </div>
   )
 }
