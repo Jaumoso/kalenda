@@ -77,6 +77,40 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
 
     reply.send({ month, holidays, events, saints })
   })
+
+  // GET /render-data/cover/:projectId?token=xxx&type=front|back
+  fastify.get('/render-data/cover/:projectId', async (request, reply) => {
+    const { projectId } = request.params as { projectId: string }
+    const { token, type } = request.query as { token?: string; type?: string }
+
+    if (!token) {
+      return reply.code(401).send({ error: 'Token required' })
+    }
+
+    let payload: { projectId: string; purpose: string }
+    try {
+      payload = jwt.verify(token, jwtSecret) as { projectId: string; purpose: string }
+    } catch {
+      return reply.code(401).send({ error: 'Invalid or expired token' })
+    }
+
+    if (payload.purpose !== 'render-cover' || payload.projectId !== projectId) {
+      return reply.code(403).send({ error: 'Token mismatch' })
+    }
+
+    const project = await prisma.project.findFirst({
+      where: { id: projectId },
+      select: { id: true, name: true, year: true, coverJson: true, backCoverJson: true },
+    })
+
+    if (!project) {
+      return reply.code(404).send({ error: 'Project not found' })
+    }
+
+    const canvasJson = type === 'back' ? project.backCoverJson : project.coverJson
+
+    reply.send({ project: { id: project.id, name: project.name, year: project.year }, canvasJson })
+  })
 }
 
 export default renderRoutes

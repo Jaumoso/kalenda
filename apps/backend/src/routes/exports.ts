@@ -48,7 +48,7 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
         dpi,
         bindingGuide,
         filename: exportFilename,
-        totalPages: project.months.length,
+        totalPages: project.months.length + 2, // +2 for covers
       },
     })
 
@@ -59,12 +59,21 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
       token: jwt.sign({ monthId: m.id, purpose: 'render' }, jwtSecret, { expiresIn: '5m' }),
     }))
 
+    // Generate cover render token
+    const coverToken = jwt.sign(
+      { projectId, purpose: 'render-cover' },
+      jwtSecret,
+      { expiresIn: '5m' }
+    )
+
     // Start async rendering (fire and forget)
     renderProject(job.id, renderTokens, {
       format,
       dpi,
       bindingGuide,
       filename: exportFilename,
+      projectId,
+      coverToken,
     }).catch((err) => {
       fastify.log.error('Export render failed: %s', err.message)
     })

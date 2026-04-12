@@ -40,6 +40,8 @@ model Project {
   autonomyCode  String?  // Comunidad autónoma para festivos
   templateId    String?
   template      Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  coverJson     Json?    // Portada: canvas Fabric.js
+  backCoverJson Json?    // Contraportada: canvas Fabric.js
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())

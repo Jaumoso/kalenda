@@ -163,8 +163,18 @@ export default function ProjectPage() {
         </div>
       </div>
 
-      {/* 12-month grid */}
+      {/* 12-month grid + covers */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {/* Cover (front) */}
+        <Link
+          to={`/projects/${project.id}/cover/front`}
+          className="bg-white rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
+        >
+          <span className="text-3xl mb-2">📖</span>
+          <h3 className="font-semibold text-primary-700 text-sm">Portada</h3>
+          <p className="text-[10px] text-neutral-400 mt-1">Página A4 completa</p>
+        </Link>
+
         {project.months.map((m) => {
           const daysInMonth = getDaysInMonth(m.year, m.month)
           const firstDay = getFirstDayOfWeek(m.year, m.month, project.weekStartsOn)
@@ -207,6 +217,16 @@ export default function ProjectPage() {
             </Link>
           )
         })}
+
+        {/* Back cover */}
+        <Link
+          to={`/projects/${project.id}/cover/back`}
+          className="bg-white rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
+        >
+          <span className="text-3xl mb-2">📘</span>
+          <h3 className="font-semibold text-primary-700 text-sm">Contraportada</h3>
+          <p className="text-[10px] text-neutral-400 mt-1">Página A4 completa</p>
+        </Link>
       </div>
 
       {/* Apply template modal */}

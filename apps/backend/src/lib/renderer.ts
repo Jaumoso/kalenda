@@ -25,6 +25,8 @@ interface RenderOptions {
   dpi: number
   bindingGuide: boolean
   filename: string
+  projectId: string
+  coverToken: string
 }
 
 async function ensureExportsDir() {
@@ -67,42 +69,47 @@ export async function renderProject(
     const jobDir = path.join(EXPORTS_DIR, jobId)
     fs.mkdirSync(jobDir, { recursive: true })
 
-    for (let i = 0; i < renderTokens.length; i++) {
-      const { monthId, month, token } = renderTokens[i]
+    const totalPages = renderTokens.length + 2 // +2 for covers
 
-      // Update progress
+    // Helper to capture a single page
+    async function capturePage(url: string, pngPath: string, pageNum: number) {
       await prisma.exportJob.update({
         where: { id: jobId },
-        data: { currentPage: i + 1, progress: Math.round((i / renderTokens.length) * 100) },
+        data: { currentPage: pageNum, progress: Math.round(((pageNum - 1) / totalPages) * 100) },
       })
 
-      const page = await browser.newPage()
-
+      const page = await browser!.newPage()
       await page.setViewport({
         width: PAGE_WIDTH,
         height: PAGE_HEIGHT,
         deviceScaleFactor: scaleFactor,
       })
-
-      const url = `${frontendUrl}/render/${monthId}?token=${encodeURIComponent(token)}`
       await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 })
-
-      // Wait for the render page to signal readiness
       await page.waitForFunction('window.__RENDER_READY__ === true', { timeout: 30000 })
-
-      // Small delay for final paint
       await new Promise((r) => setTimeout(r, 500))
-
-      const pngPath = path.join(jobDir, `${String(month).padStart(2, '0')}.png`)
       await page.screenshot({
         path: pngPath,
         type: 'png',
         clip: { x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT },
       })
-
       pngPaths.push(pngPath)
       await page.close()
     }
+
+    // 1. Front cover
+    const coverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=front`
+    await capturePage(coverUrl, path.join(jobDir, '00-cover.png'), 1)
+
+    // 2. Calendar months
+    for (let i = 0; i < renderTokens.length; i++) {
+      const { monthId, month, token } = renderTokens[i]
+      const url = `${frontendUrl}/render/${monthId}?token=${encodeURIComponent(token)}`
+      await capturePage(url, path.join(jobDir, `${String(month).padStart(2, '0')}.png`), i + 2)
+    }
+
+    // 3. Back cover
+    const backCoverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=back`
+    await capturePage(backCoverUrl, path.join(jobDir, '99-backcover.png'), totalPages)
 
     let finalPath: string
     let fileSize: number
@@ -133,7 +140,7 @@ export async function renderProject(
       data: {
         status: 'COMPLETED',
         progress: 100,
-        currentPage: renderTokens.length,
+        currentPage: totalPages,
         filePath: finalPath,
         fileSize,
       },

@@ -19,6 +19,7 @@ import eventRoutes from './routes/events.js'
 import templateRoutes from './routes/templates.js'
 import renderRoutes from './routes/render.js'
 import exportRoutes from './routes/exports.js'
+import coverRoutes from './routes/covers.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -100,6 +101,9 @@ async function createServer() {
 
   // Register export routes
   await fastify.register(exportRoutes, { prefix: '/api' })
+
+  // Register cover routes
+  await fastify.register(coverRoutes, { prefix: '/api' })
 
   // Serve export files
   const exportsDir = process.env.EXPORT_PATH || path.join(__dirname, '../exports')

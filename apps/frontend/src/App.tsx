@@ -12,6 +12,8 @@ import MonthEditorPage from './pages/MonthEditorPage'
 import EventsPage from './pages/EventsPage'
 import TemplatesPage from './pages/TemplatesPage'
 import RenderMonthPage from './pages/RenderMonthPage'
+import RenderCoverPage from './pages/RenderCoverPage'
+import CoverEditorPage from './pages/CoverEditorPage'
 import './App.css'
 
 function App() {
@@ -35,8 +37,9 @@ function App() {
 
   return (
     <Routes>
-      {/* Public render route for Puppeteer export */}
+      {/* Public render routes for Puppeteer export */}
       <Route path="/render/:monthId" element={<RenderMonthPage />} />
+      <Route path="/render-cover/:projectId" element={<RenderCoverPage />} />
 
       <Route
         path="/login"
@@ -52,6 +55,7 @@ function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/projects/:id" element={<ProjectPage />} />
         <Route path="/projects/:projectId/months/:monthId" element={<MonthEditorPage />} />
+        <Route path="/projects/:projectId/cover/:type" element={<CoverEditorPage />} />
         <Route path="/library" element={<LibraryPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
