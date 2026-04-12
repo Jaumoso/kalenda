@@ -60,11 +60,9 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
     }))
 
     // Generate cover render token
-    const coverToken = jwt.sign(
-      { projectId, purpose: 'render-cover' },
-      jwtSecret,
-      { expiresIn: '5m' }
-    )
+    const coverToken = jwt.sign({ projectId, purpose: 'render-cover' }, jwtSecret, {
+      expiresIn: '5m',
+    })
 
     // Start async rendering (fire and forget)
     renderProject(job.id, renderTokens, {
