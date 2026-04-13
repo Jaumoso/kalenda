@@ -31,22 +31,22 @@ export default function SaveAsTemplateModal({ monthId, onClose, onSaved }: Props
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-5">
-        <h2 className="text-base font-semibold text-neutral-900 mb-3">💾 Guardar como plantilla</h2>
+        <h2 className="text-base font-semibold text-neutral-900 mb-3">💾 Save as template</h2>
         <p className="text-xs text-neutral-500 mb-4">
-          Se guardará la configuración actual del grid y canvas como plantilla reutilizable.
+          The current grid and canvas configuration will be saved as a reusable template.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label htmlFor="tplName" className="block text-sm font-medium text-neutral-700 mb-1">
-              Nombre de la plantilla
+              Template name
             </label>
             <input
               id="tplName"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Estilo clásico"
+              placeholder="E.g.: Classic style"
               className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
               autoFocus
               required
@@ -57,7 +57,7 @@ export default function SaveAsTemplateModal({ monthId, onClose, onSaved }: Props
 
           <div className="flex gap-3 justify-end pt-1">
             <button type="button" onClick={onClose} className="btn btn-secondary text-sm">
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"

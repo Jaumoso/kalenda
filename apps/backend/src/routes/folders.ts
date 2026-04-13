@@ -41,7 +41,7 @@ const folderRoutes: FastifyPluginAsync = async (fastify) => {
         where: { id: parentId, userId: request.user!.id },
       })
       if (!parent) {
-        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Carpeta padre no encontrada' })
+        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Parent folder not found' })
       }
     }
 
@@ -71,7 +71,7 @@ const folderRoutes: FastifyPluginAsync = async (fastify) => {
       where: { id, userId: request.user!.id },
     })
     if (!folder) {
-      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Carpeta no encontrada' })
+      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
     }
 
     // Prevent moving folder into itself
@@ -101,7 +101,7 @@ const folderRoutes: FastifyPluginAsync = async (fastify) => {
       where: { id, userId: request.user!.id },
     })
     if (!folder) {
-      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Carpeta no encontrada' })
+      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
     }
 
     // Move assets to root before deleting folder (onDelete: SetNull handles this)

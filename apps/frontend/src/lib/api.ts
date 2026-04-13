@@ -71,12 +71,12 @@ api.interceptors.response.use(
 
 // Friendly error messages
 const ERROR_MESSAGES: Record<number, string> = {
-  400: 'Los datos enviados no son válidos',
-  403: 'No tienes permisos para esta acción',
-  404: 'El recurso no se ha encontrado',
-  413: 'El archivo es demasiado grande',
-  429: 'Demasiadas peticiones, espera un momento',
-  500: 'Error del servidor, inténtalo de nuevo',
+  400: 'The submitted data is invalid',
+  403: 'You do not have permission for this action',
+  404: 'The requested resource was not found',
+  413: 'The file is too large',
+  429: 'Too many requests, please wait a moment',
+  500: 'Server error, please try again',
 }
 
 api.interceptors.response.use(
@@ -94,7 +94,7 @@ api.interceptors.response.use(
 
     if (!isSilent && status && status >= 400) {
       const serverMsg = error.response?.data?.message
-      const msg = serverMsg || ERROR_MESSAGES[status] || 'Ha ocurrido un error inesperado'
+      const msg = serverMsg || ERROR_MESSAGES[status] || 'An unexpected error occurred'
       toast.error(msg)
     }
 

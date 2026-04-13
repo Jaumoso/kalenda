@@ -134,7 +134,7 @@ export default function RenderMonthPage() {
           backgroundColor: '#fff',
         }}
       >
-        <p style={{ color: '#999' }}>Cargando...</p>
+        <p style={{ color: '#999' }}>Loading...</p>
       </div>
     )
   }

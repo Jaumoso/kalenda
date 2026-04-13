@@ -4,9 +4,9 @@ import type { CalEvent } from '../lib/calendarTypes'
 import { MONTH_NAMES } from '../lib/calendarTypes'
 
 const EVENT_TYPES = [
-  { value: 'BIRTHDAY', label: 'Cumpleaños', icon: '🎂' },
-  { value: 'ANNIVERSARY', label: 'Aniversario', icon: '💍' },
-  { value: 'CUSTOM', label: 'Personalizado', icon: '📌' },
+  { value: 'BIRTHDAY', label: 'Birthday', icon: '🎂' },
+  { value: 'ANNIVERSARY', label: 'Anniversary', icon: '💍' },
+  { value: 'CUSTOM', label: 'Custom', icon: '📌' },
 ] as const
 
 export default function EventsPage() {
@@ -31,7 +31,7 @@ export default function EventsPage() {
   }, [fetchEvents])
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este evento?')) return
+    if (!confirm('Delete this event?')) return
     try {
       await api.delete(`/events/${id}`)
       setEvents((prev) => prev.filter((e) => e.id !== id))
@@ -67,9 +67,9 @@ export default function EventsPage() {
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Mis eventos</h1>
+          <h1 className="text-2xl font-bold text-neutral-900">My events</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Cumpleaños, aniversarios y eventos personalizados que aparecerán en tus calendarios
+            Birthdays, anniversaries, and custom events that will appear on your calendars
           </p>
         </div>
         <button
@@ -79,7 +79,7 @@ export default function EventsPage() {
           }}
           className="btn btn-primary"
         >
-          + Nuevo evento
+          + New event
         </button>
       </div>
 
@@ -90,9 +90,9 @@ export default function EventsPage() {
       ) : events.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-4xl mb-3">📅</p>
-          <p className="text-neutral-500">Aún no tienes eventos.</p>
+          <p className="text-neutral-500">No events yet.</p>
           <p className="text-sm text-neutral-400">
-            Añade cumpleaños, aniversarios y otros eventos para que aparezcan automáticamente.
+            Add birthdays, anniversaries, and other events to have them appear automatically.
           </p>
         </div>
       ) : (
@@ -122,9 +122,9 @@ export default function EventsPage() {
                           <div>
                             <p className="text-sm font-medium text-neutral-900">{event.name}</p>
                             <p className="text-xs text-neutral-500">
-                              {event.day} de {MONTH_NAMES[event.month - 1].toLowerCase()}
+                              {MONTH_NAMES[event.month - 1]} {event.day}
                               {event.isRecurring
-                                ? ' · Cada año'
+                                ? ' · Every year'
                                 : event.year
                                   ? ` · ${event.year}`
                                   : ''}
@@ -230,18 +230,18 @@ function EventForm({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">
-          {event ? 'Editar evento' : 'Nuevo evento'}
+          {event ? 'Edit event' : 'New event'}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Nombre</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Cumpleaños de Ana"
+              placeholder="Ana's birthday"
               className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
               autoFocus
               required
@@ -251,13 +251,13 @@ function EventForm({
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Tipo</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">Type</label>
             <div className="flex gap-2">
               {(
                 [
-                  { value: 'BIRTHDAY', label: '🎂 Cumpleaños' },
-                  { value: 'ANNIVERSARY', label: '💍 Aniversario' },
-                  { value: 'CUSTOM', label: '📌 Otro' },
+                  { value: 'BIRTHDAY', label: '🎂 Birthday' },
+                  { value: 'ANNIVERSARY', label: '💍 Anniversary' },
+                  { value: 'CUSTOM', label: '📌 Other' },
                 ] as const
               ).map((t) => (
                 <button
@@ -279,7 +279,7 @@ function EventForm({
           {/* Date */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">Día</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Day</label>
               <input
                 type="number"
                 min={1}
@@ -290,7 +290,7 @@ function EventForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">Mes</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Month</label>
               <select
                 value={month}
                 onChange={(e) => setMonth(Number(e.target.value))}
@@ -315,13 +315,13 @@ function EventForm({
               className="accent-primary-600"
             />
             <label htmlFor="recurring" className="text-sm text-neutral-700">
-              Se repite cada año
+              Repeats every year
             </label>
           </div>
 
           {!isRecurring && (
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">Año</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Year</label>
               <input
                 type="number"
                 min={2020}
@@ -354,7 +354,7 @@ function EventForm({
           {/* Icon */}
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">
-              Icono/emoji (opcional)
+              Icon/emoji (optional)
             </label>
             <input
               type="text"
@@ -374,14 +374,14 @@ function EventForm({
               onClick={onClose}
               className="px-4 py-2 text-sm text-neutral-600 hover:text-neutral-800 border border-neutral-300 rounded-md transition-colors"
             >
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !name.trim()}
               className="btn btn-primary disabled:opacity-50"
             >
-              {saving ? 'Guardando...' : event ? 'Guardar' : 'Crear'}
+              {saving ? 'Saving...' : event ? 'Save' : 'Create'}
             </button>
           </div>
         </form>

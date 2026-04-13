@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: calendapp
-      POSTGRES_USER: calendapp
-      POSTGRES_PASSWORD: calendapp_password
+      POSTGRES_DB: ${POSTGRES_DB:-calendapp}
+      POSTGRES_USER: ${POSTGRES_USER:-calendapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -16,11 +16,9 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.backend
+    image: ghcr.io/${GHCR_OWNER:-jaumec}/caledit-backend:${APP_TAG:-latest}
     environment:
-      - DATABASE_URL=postgresql://calendapp:calendapp_password@postgres:5432/calendapp?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-calendapp}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-calendapp}?schema=public
       - NODE_ENV=production
       - COOKIE_SECRET=${COOKIE_SECRET:-default-secret-change-in-production}
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-change-in-production}
@@ -36,18 +34,16 @@ services:
     restart: unless-stopped
 
   puppeteer:
-    build:
-      context: .
-      dockerfile: docker/puppeteer/Dockerfile
+    image: ghcr.io/${GHCR_OWNER:-jaumec}/caledit-puppeteer:${APP_TAG:-latest}
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-      - FRONTEND_URL=http://frontend:5173
+      - FRONTEND_URL=http://backend:3000
     ports:
       - "4000:4000"
     volumes:
       - ./data/exports:/data/exports
     depends_on:
-      - frontend
+      - backend
     restart: unless-stopped
 
 volumes:

@@ -37,9 +37,9 @@ const MONTH_NAMES = [
 ]
 
 const STATUS_OPTIONS = [
-  { value: 'DRAFT', label: 'Borrador' },
-  { value: 'IN_PROGRESS', label: 'En progreso' },
-  { value: 'COMPLETED', label: 'Completado' },
+  { value: 'DRAFT', label: 'Draft' },
+  { value: 'IN_PROGRESS', label: 'In progress' },
+  { value: 'COMPLETED', label: 'Completed' },
 ]
 
 function getDaysInMonth(year: number, month: number): number {
@@ -171,8 +171,8 @@ export default function ProjectPage() {
           className="bg-white rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
         >
           <span className="text-3xl mb-2">📖</span>
-          <h3 className="font-semibold text-primary-700 text-sm">Portada</h3>
-          <p className="text-[10px] text-neutral-400 mt-1">Página A4 completa</p>
+          <h3 className="font-semibold text-primary-700 text-sm">Front cover</h3>
+          <p className="text-[10px] text-neutral-400 mt-1">Full A4 page</p>
         </Link>
 
         {project.months.map((m) => {
@@ -192,7 +192,7 @@ export default function ProjectPage() {
                   {MONTH_NAMES[m.month - 1]}
                 </h3>
                 {m.isCustomized && (
-                  <span className="w-2 h-2 rounded-full bg-primary-500" title="Personalizado" />
+                  <span className="w-2 h-2 rounded-full bg-primary-500" title="Customized" />
                 )}
               </div>
               {/* Mini calendar */}
@@ -224,8 +224,8 @@ export default function ProjectPage() {
           className="bg-white rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
         >
           <span className="text-3xl mb-2">📘</span>
-          <h3 className="font-semibold text-primary-700 text-sm">Contraportada</h3>
-          <p className="text-[10px] text-neutral-400 mt-1">Página A4 completa</p>
+          <h3 className="font-semibold text-primary-700 text-sm">Back cover</h3>
+          <p className="text-[10px] text-neutral-400 mt-1">Full A4 page</p>
         </Link>
       </div>
 

@@ -171,5 +171,5 @@ export function isWeekend(dayNumber: number, year: number, month: number): boole
   return dow === 0 || dow === 6
 }
 
-export const WEEKDAY_HEADERS_MON = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
-export const WEEKDAY_HEADERS_SUN = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+export const WEEKDAY_HEADERS_MON = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+export const WEEKDAY_HEADERS_SUN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']

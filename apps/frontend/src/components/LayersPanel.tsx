@@ -19,7 +19,7 @@ export default function LayersPanel({ editorRef, selectedObject, refreshKey }: L
 
   if (objects.length === 0) {
     return (
-      <div className="text-xs text-neutral-400 text-center py-4">No hay elementos en el canvas</div>
+      <div className="text-xs text-neutral-400 text-center py-4">No elements on the canvas</div>
     )
   }
 
@@ -67,12 +67,12 @@ function getObjectName(obj: fabric.FabricObject, layerNum: number): string {
   if (custom) return custom
   if (obj.type === 'i-text' || obj.type === 'text' || obj.type === 'textbox') {
     const text = (obj as fabric.IText).text || ''
-    return text.length > 20 ? text.slice(0, 20) + '...' : text || `Texto ${layerNum}`
+    return text.length > 20 ? text.slice(0, 20) + '...' : text || `Text ${layerNum}`
   }
-  if (obj.type === 'image') return `Imagen ${layerNum}`
-  if (obj.type === 'rect') return `Rectángulo ${layerNum}`
-  if (obj.type === 'circle') return `Círculo ${layerNum}`
-  return `Elemento ${layerNum}`
+  if (obj.type === 'image') return `Image ${layerNum}`
+  if (obj.type === 'rect') return `Rectangle ${layerNum}`
+  if (obj.type === 'circle') return `Circle ${layerNum}`
+  return `Element ${layerNum}`
 }
 
 function getObjectIcon(obj: fabric.FabricObject): string {

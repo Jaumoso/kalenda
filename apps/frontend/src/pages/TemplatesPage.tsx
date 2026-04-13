@@ -55,13 +55,12 @@ export default function TemplatesPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar esta plantilla? Los proyectos que la usen quedarán sin plantilla.'))
-      return
+    if (!confirm('Delete this template? Projects using it will have no template.')) return
     try {
       await api.delete(`/templates/${id}`)
       setTemplates((prev) => prev.filter((t) => t.id !== id))
     } catch {
-      setError('Error al eliminar')
+      setError('Error deleting')
     }
   }
 
@@ -81,14 +80,14 @@ export default function TemplatesPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900">Plantillas</h1>
+        <h1 className="text-2xl font-bold text-neutral-900">Templates</h1>
       </div>
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           {error}
           <button onClick={() => setError(null)} className="ml-2 underline">
-            Cerrar
+            Close
           </button>
         </div>
       )}
@@ -96,12 +95,10 @@ export default function TemplatesPage() {
       {templates.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-4">📋</div>
-          <h2 className="text-lg font-semibold text-neutral-700 mb-2">
-            No tienes plantillas todavía
-          </h2>
+          <h2 className="text-lg font-semibold text-neutral-700 mb-2">No templates yet</h2>
           <p className="text-neutral-500 text-sm">
-            Edita un mes en cualquier proyecto y usa el botón "💾 Plantilla" para guardar la
-            configuración actual como plantilla reutilizable.
+            Edit a month in any project and use the "💾 Template" button to save the current
+            configuration as a reusable template.
           </p>
         </div>
       ) : (
@@ -140,7 +137,7 @@ export default function TemplatesPage() {
                         onClick={() => setEditingId(null)}
                         className="text-xs text-neutral-500 hover:underline"
                       >
-                        Cancelar
+                        Cancel
                       </button>
                     </form>
                   ) : (
@@ -200,7 +197,7 @@ export default function TemplatesPage() {
                       onClick={() => handleDelete(t.id)}
                       className="text-xs text-neutral-500 hover:text-red-600 transition-colors"
                     >
-                      Eliminar
+                      Delete
                     </button>
                   </div>
                 )}

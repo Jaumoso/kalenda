@@ -307,14 +307,14 @@ export default function MonthEditorPage() {
             disabled={saving || !dirty}
             className="btn btn-primary text-sm disabled:opacity-50"
           >
-            {saving ? 'Guardando...' : 'Guardar'}
+            {saving ? 'Saving...' : 'Save'}
           </button>
           <button
             onClick={() => setShowSaveTemplate(true)}
             className="btn btn-secondary text-sm"
-            title="Guardar configuración actual como plantilla"
+            title="Save current configuration as template"
           >
-            💾 Plantilla
+            💾 Template
           </button>
         </div>
       </div>
@@ -329,7 +329,7 @@ export default function MonthEditorPage() {
               : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
           }`}
         >
-          🎨 Decorar página
+          🎨 Decorate page
         </button>
         <button
           onClick={() => setEditorMode('grid')}

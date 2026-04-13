@@ -63,7 +63,7 @@ export default function LibraryPage() {
       const { data } = await api.get('/assets', { params })
       setAssets(data.assets)
     } catch {
-      setError('Error al cargar los assets')
+      setError('Error loading assets')
     } finally {
       setLoading(false)
     }
@@ -101,7 +101,7 @@ export default function LibraryPage() {
       fetchAssets()
       fetchFolders()
     } catch {
-      setError('Error al subir los archivos')
+      setError('Error uploading files')
     } finally {
       setUploading(false)
       setUploadProgress(0)
@@ -117,12 +117,12 @@ export default function LibraryPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este archivo?')) return
+    if (!confirm('Delete this file?')) return
     try {
       await api.delete(`/assets/${id}`)
       setAssets((prev) => prev.filter((a) => a.id !== id))
     } catch {
-      setError('Error al eliminar')
+      setError('Error deleting')
     }
   }
 
@@ -137,19 +137,19 @@ export default function LibraryPage() {
       setShowNewFolder(false)
       fetchFolders()
     } catch {
-      setError('Error al crear la carpeta')
+      setError('Error creating folder')
     }
   }
 
   const handleDeleteFolder = async (id: string, name: string) => {
-    if (!confirm(`¿Eliminar la carpeta "${name}"? Los archivos se moverán a la raíz.`)) return
+    if (!confirm(`Delete folder "${name}"? Files will be moved to root.`)) return
     try {
       await api.delete(`/folders/${id}`)
       if (currentFolderId === id) setCurrentFolderId(null)
       fetchFolders()
       fetchAssets()
     } catch {
-      setError('Error al eliminar la carpeta')
+      setError('Error deleting folder')
     }
   }
 
@@ -172,16 +172,16 @@ export default function LibraryPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900">Biblioteca</h1>
+        <h1 className="text-2xl font-bold text-neutral-900">Library</h1>
         <div className="flex gap-2">
           <button
             onClick={() => setShowNewFolder(true)}
             className="px-3 py-2 text-sm border border-neutral-300 rounded-md hover:bg-neutral-100 transition-colors"
           >
-            Nueva carpeta
+            New folder
           </button>
           <button onClick={() => fileInputRef.current?.click()} className="btn btn-primary">
-            Subir archivos
+            Upload files
           </button>
           <input
             ref={fileInputRef}
@@ -198,7 +198,7 @@ export default function LibraryPage() {
         <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           {error}
           <button onClick={() => setError(null)} className="ml-2 underline">
-            Cerrar
+            Close
           </button>
         </div>
       )}
@@ -209,7 +209,7 @@ export default function LibraryPage() {
           onClick={() => setCurrentFolderId(null)}
           className={`hover:text-primary-600 transition-colors ${!currentFolderId ? 'font-semibold text-neutral-900' : 'text-neutral-500'}`}
         >
-          Raíz
+          Root
         </button>
         {breadcrumb.map((f) => (
           <span key={f.id} className="flex items-center gap-1">
@@ -228,7 +228,7 @@ export default function LibraryPage() {
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Buscar por nombre..."
+          placeholder="Search by name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-sm px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
@@ -240,7 +240,7 @@ export default function LibraryPage() {
         <div className="mb-4 flex items-center gap-2">
           <input
             type="text"
-            placeholder="Nombre de la carpeta"
+            placeholder="Folder name"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
@@ -248,7 +248,7 @@ export default function LibraryPage() {
             autoFocus
           />
           <button onClick={handleCreateFolder} className="text-sm text-primary-600 hover:underline">
-            Crear
+            Create
           </button>
           <button
             onClick={() => {
@@ -257,7 +257,7 @@ export default function LibraryPage() {
             }}
             className="text-sm text-neutral-500 hover:underline"
           >
-            Cancelar
+            Cancel
           </button>
         </div>
       )}
@@ -292,7 +292,7 @@ export default function LibraryPage() {
         {/* Subfolders */}
         {currentSubfolders.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-sm font-medium text-neutral-500 mb-2">Carpetas</h2>
+            <h2 className="text-sm font-medium text-neutral-500 mb-2">Folders</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
               {currentSubfolders.map((folder) => (
                 <div
@@ -303,7 +303,7 @@ export default function LibraryPage() {
                   <div className="text-2xl mb-1">📁</div>
                   <p className="text-sm font-medium text-neutral-800 truncate">{folder.name}</p>
                   <p className="text-xs text-neutral-400">
-                    {folder._count.assets} archivo{folder._count.assets !== 1 && 's'}
+                    {folder._count.assets} file{folder._count.assets !== 1 && 's'}
                   </p>
                   <button
                     onClick={(e) => {
@@ -311,7 +311,7 @@ export default function LibraryPage() {
                       handleDeleteFolder(folder.id, folder.name)
                     }}
                     className="absolute top-1 right-1 text-neutral-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs p-1"
-                    title="Eliminar carpeta"
+                    title="Delete folder"
                   >
                     ✕
                   </button>
@@ -332,12 +332,12 @@ export default function LibraryPage() {
           <div className="text-center py-16">
             <div className="text-5xl mb-4">🖼️</div>
             <h2 className="text-lg font-semibold text-neutral-700 mb-2">
-              {search ? 'Sin resultados' : 'No hay archivos aquí'}
+              {search ? 'No results' : 'No files here'}
             </h2>
             <p className="text-neutral-500 mb-4">
               {search
-                ? 'Prueba con otro término de búsqueda.'
-                : 'Arrastra imágenes aquí o usa el botón "Subir archivos".'}
+                ? 'Try a different search term.'
+                : 'Drag images here or use the "Upload files" button.'}
             </p>
           </div>
         ) : (
@@ -345,7 +345,7 @@ export default function LibraryPage() {
             {assets.length > 0 && (
               <>
                 <h2 className="text-sm font-medium text-neutral-500 mb-2">
-                  Archivos ({assets.length})
+                  Files ({assets.length})
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
                   {assets.map((asset) => (
@@ -382,7 +382,7 @@ export default function LibraryPage() {
                       <button
                         onClick={() => handleDelete(asset.id)}
                         className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Eliminar"
+                        title="Delete"
                       >
                         ✕
                       </button>
@@ -397,7 +397,7 @@ export default function LibraryPage() {
         {dragOver && (
           <div className="fixed inset-0 z-40 pointer-events-none flex items-center justify-center">
             <div className="bg-primary-600/90 text-white px-8 py-4 rounded-xl text-lg font-medium shadow-2xl">
-              Suelta para subir
+              Drop files to upload
             </div>
           </div>
         )}

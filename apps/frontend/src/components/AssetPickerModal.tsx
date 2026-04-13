@@ -119,9 +119,7 @@ export default function AssetPickerModal({
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
             </div>
           ) : assets.length === 0 ? (
-            <div className="text-center py-12 text-neutral-400 text-sm">
-              No se encontraron imágenes
-            </div>
+            <div className="text-center py-12 text-neutral-400 text-sm">No images found</div>
           ) : (
             <div className="grid grid-cols-4 gap-3">
               {assets.map((asset) => (

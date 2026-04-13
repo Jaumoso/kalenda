@@ -52,11 +52,11 @@ export default function BackgroundModal({
       onClick={onClose}
     >
       <div className="bg-white rounded-xl shadow-xl w-96 p-5" onClick={(e) => e.stopPropagation()}>
-        <h2 className="font-semibold text-neutral-900 mb-4">Fondo de página</h2>
+        <h2 className="font-semibold text-neutral-900 mb-4">Page background</h2>
 
         {/* Solid color */}
         <div className="mb-4">
-          <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-2">Color sólido</h3>
+          <h3 className="text-xs font-semibold text-neutral-500 uppercase mb-2">Solid color</h3>
           <div className="flex items-center gap-3">
             <input
               type="color"
@@ -124,7 +124,7 @@ export default function BackgroundModal({
 
         <div className="flex justify-end pt-2 border-t border-neutral-100">
           <button onClick={onClose} className="btn btn-secondary text-sm">
-            Cerrar
+            Close
           </button>
         </div>
       </div>

@@ -23,19 +23,19 @@ export default function CanvasToolbar({
       <Separator />
 
       {/* Add elements */}
-      <ToolButton title="Añadir imagen" icon="🖼️" onClick={onAddImage} />
+      <ToolButton title="Add image" icon="🖼️" onClick={onAddImage} />
       <ToolButton
-        title="Añadir texto"
+        title="Add text"
         icon="T"
         onClick={() => editor?.addText()}
         textStyle="font-bold text-base"
       />
-      <ToolButton title="Añadir sticker" icon="😀" onClick={onAddSticker} />
+      <ToolButton title="Add sticker" icon="😀" onClick={onAddSticker} />
 
       <Separator />
 
       {/* Background */}
-      <ToolButton title="Fondo" icon="🎨" onClick={onBackgroundSettings} />
+      <ToolButton title="Background" icon="🎨" onClick={onBackgroundSettings} />
 
       <Separator />
 
@@ -75,7 +75,7 @@ export default function CanvasToolbar({
 
       {/* Delete */}
       <ToolButton
-        title="Eliminar seleccionado"
+        title="Delete selected"
         icon="🗑"
         onClick={() => editor?.deleteSelected()}
         className="text-red-500 hover:!bg-red-50"

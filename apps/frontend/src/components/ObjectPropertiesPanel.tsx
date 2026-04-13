@@ -195,7 +195,7 @@ export default function ObjectPropertiesPanel({
       {isTextObject(selectedObject) && (
         <>
           <div>
-            <label className="text-xs text-neutral-500">Tamaño fuente</label>
+            <label className="text-xs text-neutral-500">Font size</label>
             <input
               type="number"
               value={props.fontSize as number}
@@ -206,7 +206,7 @@ export default function ObjectPropertiesPanel({
             />
           </div>
           <div>
-            <label className="text-xs text-neutral-500">Color texto</label>
+            <label className="text-xs text-neutral-500">Text color</label>
             <input
               type="color"
               value={(props.fill as string) || '#000000'}

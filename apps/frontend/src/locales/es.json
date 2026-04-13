@@ -21,7 +21,7 @@
     "email": "Correo electrónico",
     "password": "Contraseña",
     "role": "Rol",
-    "roleAdmin": "Administrador",
+    "roleAdmin": "Admin",
     "roleUser": "Usuario",
     "status": "Estado",
     "actions": "Acciones",
@@ -33,7 +33,7 @@
     "create": "Crear",
     "cancel": "Cancelar",
     "loading": "Cargando usuarios...",
-    "noUsers": "No hay usuarios",
+    "noUsers": "No se encontraron usuarios",
     "confirmDelete": "¿Estás seguro de que quieres eliminar a {{name}}?",
     "backToDashboard": "Volver al inicio",
     "logout": "Cerrar sesión"

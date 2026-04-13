@@ -6,11 +6,11 @@ export default function AppLayout() {
   const location = useLocation()
 
   const navLinks = [
-    { to: '/', label: 'Mis calendarios' },
-    { to: '/library', label: 'Biblioteca' },
-    { to: '/events', label: 'Eventos' },
-    { to: '/templates', label: 'Plantillas' },
-    ...(user?.role === 'ADMIN' ? [{ to: '/admin', label: 'Administración' }] : []),
+    { to: '/', label: 'My calendars' },
+    { to: '/library', label: 'Library' },
+    { to: '/events', label: 'Events' },
+    { to: '/templates', label: 'Templates' },
+    ...(user?.role === 'ADMIN' ? [{ to: '/admin', label: 'Admin' }] : []),
   ]
 
   return (
@@ -44,7 +44,7 @@ export default function AppLayout() {
                 onClick={logout}
                 className="text-sm text-neutral-500 hover:text-red-600 transition-colors"
               >
-                Salir
+                Sign out
               </button>
             </div>
           </div>

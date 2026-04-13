@@ -132,7 +132,7 @@ export default function CellModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-neutral-900 mb-1">
-          Día {dayNumber} — {MONTH_NAMES[month - 1]} {year}
+          Day {dayNumber} — {MONTH_NAMES[month - 1]} {year}
         </h2>
         {saint && <p className="text-xs text-neutral-400 mb-1">🕊️ {saint}</p>}
         <hr className="my-3 border-neutral-200" />
@@ -140,7 +140,7 @@ export default function CellModal({
         {/* Holidays */}
         {holidays.length > 0 && (
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-red-600 mb-1">🏛️ Festivos</h3>
+            <h3 className="text-sm font-medium text-red-600 mb-1">🏙️ Holidays</h3>
             {holidays.map((h) => (
               <div key={h.id} className="text-xs bg-red-50 text-red-700 rounded px-2 py-1 mb-1">
                 {h.nameEs}
@@ -155,7 +155,7 @@ export default function CellModal({
         {/* Events */}
         {events.length > 0 && (
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-neutral-700 mb-1">📅 Eventos</h3>
+            <h3 className="text-sm font-medium text-neutral-700 mb-1">📅 Events</h3>
             {events.map((ev) => (
               <div
                 key={ev.id}
@@ -164,12 +164,12 @@ export default function CellModal({
               >
                 <span style={{ color: ev.color }}>
                   {ev.icon || '•'} {ev.name}
-                  {ev.isRecurring && <span className="text-neutral-400 ml-1">(anual)</span>}
+                  {ev.isRecurring && <span className="text-neutral-400 ml-1">(yearly)</span>}
                 </span>
                 <button
                   onClick={() => handleDeleteEvent(ev.id)}
                   className="text-neutral-400 hover:text-red-500 ml-2"
-                  title="Eliminar evento"
+                  title="Delete event"
                 >
                   ✕
                 </button>
@@ -186,7 +186,7 @@ export default function CellModal({
                 type="text"
                 value={newEventName}
                 onChange={(e) => setNewEventName(e.target.value)}
-                placeholder="Nombre del evento"
+                placeholder="Event name"
                 className="w-full px-2 py-1.5 border border-neutral-300 rounded text-sm focus:ring-2 focus:ring-primary-500 outline-none"
                 autoFocus
                 maxLength={100}
@@ -217,14 +217,14 @@ export default function CellModal({
                   onClick={() => setShowNewEvent(false)}
                   className="text-xs text-neutral-500 px-2 py-1"
                 >
-                  Cancelar
+                  Cancel
                 </button>
                 <button
                   onClick={handleAddQuickEvent}
                   disabled={savingEvent || !newEventName.trim()}
                   className="text-xs bg-primary-600 text-white px-3 py-1 rounded disabled:opacity-50"
                 >
-                  {savingEvent ? '...' : 'Añadir'}
+                  {savingEvent ? '...' : 'Add'}
                 </button>
               </div>
             </div>
@@ -233,7 +233,7 @@ export default function CellModal({
               onClick={() => setShowNewEvent(true)}
               className="text-xs text-primary-600 hover:text-primary-800 transition-colors"
             >
-              + Añadir evento en este día
+              + Add event for this day
             </button>
           )}
         </div>
@@ -242,7 +242,7 @@ export default function CellModal({
 
         {/* Cell image */}
         <div className="mb-4">
-          <h3 className="text-sm font-medium text-neutral-700 mb-2">🖼️ Imagen de la celda</h3>
+          <h3 className="text-sm font-medium text-neutral-700 mb-2">🖼️ Cell image</h3>
           {imageFilename ? (
             <div className="flex items-center gap-3">
               <div className="w-16 h-16 rounded-lg overflow-hidden border border-neutral-200 bg-neutral-50">
@@ -347,7 +347,7 @@ export default function CellModal({
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Cumpleaños de Ana"
+            placeholder="Ana's birthday"
             className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
             maxLength={60}
           />
@@ -359,10 +359,10 @@ export default function CellModal({
             onClick={onClose}
             className="px-4 py-2 text-sm text-neutral-600 hover:text-neutral-800 border border-neutral-300 rounded-md transition-colors"
           >
-            Cancelar
+            Cancel
           </button>
           <button onClick={handleSave} className="btn btn-primary">
-            Guardar
+            Save
           </button>
         </div>
       </div>

@@ -56,13 +56,13 @@ export default function ApplyTemplateModal({ projectId, onClose, onApplied }: Pr
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar esta plantilla?')) return
+    if (!confirm('Delete this template?')) return
     try {
       await api.delete(`/templates/${id}`)
       setTemplates((prev) => prev.filter((t) => t.id !== id))
       if (selectedId === id) setSelectedId(null)
     } catch {
-      setError('Error al eliminar')
+      setError('Error deleting')
     }
   }
 
@@ -71,10 +71,10 @@ export default function ApplyTemplateModal({ projectId, onClose, onApplied }: Pr
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-5">
         <h2 className="text-base font-semibold text-neutral-900 mb-1">
-          📋 Aplicar plantilla al proyecto
+          📋 Apply template to project
         </h2>
         <p className="text-xs text-neutral-500 mb-4">
-          Aplica una plantilla guardada a los meses del proyecto.
+          Apply a saved template to the project months.
         </p>
 
         {loading ? (
@@ -136,7 +136,7 @@ export default function ApplyTemplateModal({ projectId, onClose, onApplied }: Pr
                           handleDelete(t.id)
                         }}
                         className="text-neutral-400 hover:text-red-500 text-xs transition-colors"
-                        title="Eliminar"
+                        title="Delete"
                       >
                         ✕
                       </button>
@@ -151,7 +151,7 @@ export default function ApplyTemplateModal({ projectId, onClose, onApplied }: Pr
                     onChange={(e) => setForceAll(e.target.checked)}
                     className="accent-primary-600"
                   />
-                  Aplicar también a meses ya personalizados (sobrescribir)
+                  Also apply to already customized months (overwrite)
                 </label>
               </>
             )}
@@ -163,14 +163,14 @@ export default function ApplyTemplateModal({ projectId, onClose, onApplied }: Pr
         {!result && (
           <div className="flex gap-3 justify-end">
             <button type="button" onClick={onClose} className="btn btn-secondary text-sm">
-              Cancelar
+              Cancel
             </button>
             <button
               onClick={handleApply}
               disabled={applying || !selectedId || templates.length === 0}
               className="btn btn-primary text-sm disabled:opacity-50"
             >
-              {applying ? 'Aplicando...' : 'Aplicar a todos los meses'}
+              {applying ? 'Applying...' : 'Apply to all months'}
             </button>
           </div>
         )}

@@ -21,9 +21,9 @@ interface Project {
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  DRAFT: { label: 'Borrador', color: 'bg-neutral-200 text-neutral-700' },
-  IN_PROGRESS: { label: 'En progreso', color: 'bg-blue-100 text-blue-700' },
-  COMPLETED: { label: 'Completado', color: 'bg-green-100 text-green-700' },
+  DRAFT: { label: 'Draft', color: 'bg-neutral-200 text-neutral-700' },
+  IN_PROGRESS: { label: 'In progress', color: 'bg-blue-100 text-blue-700' },
+  COMPLETED: { label: 'Completed', color: 'bg-green-100 text-green-700' },
 }
 
 export default function DashboardPage() {
@@ -37,7 +37,7 @@ export default function DashboardPage() {
       const { data } = await api.get('/projects')
       setProjects(data.projects)
     } catch {
-      setError('Error al cargar los proyectos')
+      setError('Error loading projects')
     } finally {
       setLoading(false)
     }
@@ -52,17 +52,17 @@ export default function DashboardPage() {
       await api.post(`/projects/${id}/duplicate`)
       fetchProjects()
     } catch {
-      setError('Error al duplicar el proyecto')
+      setError('Error duplicating project')
     }
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return
+    if (!confirm(`Delete "${name}"? This action cannot be undone.`)) return
     try {
       await api.delete(`/projects/${id}`)
       setProjects((prev) => prev.filter((p) => p.id !== id))
     } catch {
-      setError('Error al eliminar el proyecto')
+      setError('Error deleting project')
     }
   }
 
@@ -84,13 +84,13 @@ export default function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900">Mis calendarios</h1>
+        <h1 className="text-2xl font-bold text-neutral-900">My calendars</h1>
         <button
           onClick={() => setShowModal(true)}
           className="btn btn-primary flex items-center gap-2"
         >
           <span className="text-lg leading-none">+</span>
-          Nuevo calendario
+          New calendar
         </button>
       </div>
 
@@ -98,7 +98,7 @@ export default function DashboardPage() {
         <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           {error}
           <button onClick={() => setError(null)} className="ml-2 underline">
-            Cerrar
+            Close
           </button>
         </div>
       )}
@@ -107,13 +107,13 @@ export default function DashboardPage() {
         <div className="text-center py-16">
           <div className="text-5xl mb-4">📅</div>
           <h2 className="text-lg font-semibold text-neutral-700 mb-2">
-            No tienes calendarios todavía
+            No calendars yet
           </h2>
           <p className="text-neutral-500 mb-6">
-            Crea tu primer calendario personalizado para empezar a diseñar.
+            Create your first custom calendar to start designing.
           </p>
           <button onClick={() => setShowModal(true)} className="btn btn-primary">
-            Crear mi primer calendario
+            Create my first calendar
           </button>
         </div>
       ) : (
@@ -148,7 +148,7 @@ export default function DashboardPage() {
                             ? 'bg-primary-100 text-primary-700'
                             : 'bg-neutral-100 text-neutral-400'
                         }`}
-                        title={new Date(project.year, m.month - 1).toLocaleString('es', {
+                        title={new Date(project.year, m.month - 1).toLocaleString('en', {
                           month: 'short',
                         })}
                       >
@@ -156,7 +156,7 @@ export default function DashboardPage() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-neutral-400">{customized}/12 meses personalizados</p>
+                  <p className="text-xs text-neutral-400">{customized}/12 months customized</p>
                 </Link>
                 <div className="border-t border-neutral-100 px-5 py-2 flex gap-2 justify-end">
                   <button
@@ -165,9 +165,9 @@ export default function DashboardPage() {
                       handleDuplicate(project.id)
                     }}
                     className="text-xs text-neutral-500 hover:text-primary-600 transition-colors"
-                    title="Duplicar"
+                    title="Duplicate"
                   >
-                    Duplicar
+                    Duplicate
                   </button>
                   <button
                     onClick={(e) => {
@@ -175,9 +175,9 @@ export default function DashboardPage() {
                       handleDelete(project.id, project.name)
                     }}
                     className="text-xs text-neutral-500 hover:text-red-600 transition-colors"
-                    title="Eliminar"
+                    title="Delete"
                   >
-                    Eliminar
+                    Delete
                   </button>
                 </div>
               </div>

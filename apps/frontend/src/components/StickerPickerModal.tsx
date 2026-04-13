@@ -23,31 +23,31 @@ const EMOJI_CATEGORIES: { name: string; emojis: string[] }[] = [
     ],
   },
   {
-    name: 'Caras',
+    name: 'Faces',
     emojis: ['😀', '😊', '😍', '🥰', '😎', '🤩', '😇', '🥳', '😘', '☺️', '🤗', '😄'],
   },
   {
-    name: 'Animales',
+    name: 'Animals',
     emojis: ['🐶', '🐱', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸'],
   },
   {
-    name: 'Naturaleza',
+    name: 'Nature',
     emojis: ['🌺', '🌻', '🌷', '🌹', '🌼', '🍀', '🌿', '🍂', '🍁', '🌴', '🌳', '🌵'],
   },
   {
-    name: 'Comida',
+    name: 'Food',
     emojis: ['🍎', '🍕', '🍰', '🎂', '☕', '🍷', '🍓', '🍒', '🍑', '🥂', '🧁', '🍫'],
   },
   {
-    name: 'Objetos',
+    name: 'Objects',
     emojis: ['🎈', '🎁', '🎀', '🎊', '🏆', '🎯', '📸', '🎨', '✏️', '📅', '🔔', '💌'],
   },
   {
-    name: 'Viajes',
+    name: 'Travel',
     emojis: ['✈️', '🚗', '⛵', '🏖️', '🗼', '🏰', '⛰️', '🌍', '🗺️', '🧳', '🏕️', '🎢'],
   },
   {
-    name: 'Símbolos',
+    name: 'Symbols',
     emojis: ['❤️', '💛', '💚', '💙', '💜', '🤍', '🖤', '🤎', '💗', '💝', '♻️', '☮️'],
   },
 ]

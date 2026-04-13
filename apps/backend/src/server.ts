@@ -63,9 +63,14 @@ async function createServer() {
     prefix: '/uploads/',
   })
 
-  // Serve static files (for production builds)
-  const frontendDist = path.join(__dirname, '../../frontend/dist')
-  if (fs.existsSync(frontendDist)) {
+  // Serve static files (for production builds).
+  // Support both local tsx execution and containerized dist layout.
+  const frontendDistCandidates = [
+    path.join(__dirname, '../../frontend/dist'),
+    path.join(__dirname, '../frontend/dist'),
+  ]
+  const frontendDist = frontendDistCandidates.find((p) => fs.existsSync(p))
+  if (frontendDist) {
     await fastify.register(fastifyStatic, {
       root: frontendDist,
       prefix: '/',
@@ -125,7 +130,7 @@ async function createServer() {
     }
 
     // Serve index.html for SPA routes (production only)
-    const indexPath = path.join(frontendDist, 'index.html')
+    const indexPath = frontendDist ? path.join(frontendDist, 'index.html') : ''
     if (fs.existsSync(indexPath)) {
       return reply.type('text/html').send(fs.readFileSync(indexPath))
     }

@@ -1,6 +1,6 @@
 {
   "name": "@calendapp/puppeteer-service",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "puppeteer-core": "^24.0.0"

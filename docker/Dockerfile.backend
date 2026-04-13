@@ -6,6 +6,7 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
 COPY packages/shared/package.json ./packages/shared/
 
 # Install dependencies
@@ -15,9 +16,13 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY packages/shared ./packages/shared
 COPY apps/backend ./apps/backend
+COPY apps/frontend ./apps/frontend
 
 # Build shared package
 RUN cd packages/shared && pnpm build
+
+# Build frontend (served by Fastify static in production)
+RUN cd apps/frontend && pnpm build
 
 # Build backend
 RUN cd apps/backend && pnpm build
@@ -27,12 +32,15 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install production dependencies only
-COPY apps/backend/package.json ./
-RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
+# Install production dependencies only for backend workspace
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/backend/package.json ./apps/backend/
+COPY packages/shared/package.json ./packages/shared/
+RUN npm install -g pnpm && pnpm install --filter @calendapp/backend... --prod --frozen-lockfile
 
 # Copy built files
 COPY --from=builder /app/apps/backend/dist ./dist
+COPY --from=builder /app/apps/frontend/dist ./frontend/dist
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 
 # Create data directories

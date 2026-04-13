@@ -75,7 +75,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
         err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : undefined
-      setError(msg || 'Error al iniciar la exportación')
+      setError(msg || 'Error starting export')
     } finally {
       setStarting(false)
     }
@@ -101,7 +101,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-200">
-          <h2 className="text-lg font-bold text-neutral-900">📄 Exportar calendario</h2>
+          <h2 className="text-lg font-bold text-neutral-900">📄 Export calendar</h2>
           <button
             onClick={onClose}
             disabled={!!isRunning}
@@ -117,7 +117,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
             <>
               {/* Format */}
               <div>
-                <p className="text-sm font-medium text-neutral-700 mb-2">Formato</p>
+                <p className="text-sm font-medium text-neutral-700 mb-2">Format</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setFormat('PDF')}
@@ -130,7 +130,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
                     📕 PDF
                     <br />
                     <span className="text-xs font-normal opacity-70">
-                      Multipágina, listo para imprimir
+                      Multi-page, ready to print
                     </span>
                   </button>
                   <button
@@ -143,16 +143,14 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
                   >
                     🖼️ PNG
                     <br />
-                    <span className="text-xs font-normal opacity-70">
-                      Imágenes individuales (ZIP)
-                    </span>
+                    <span className="text-xs font-normal opacity-70">Individual images (ZIP)</span>
                   </button>
                 </div>
               </div>
 
               {/* DPI */}
               <div>
-                <p className="text-sm font-medium text-neutral-700 mb-2">Calidad (DPI)</p>
+                <p className="text-sm font-medium text-neutral-700 mb-2">Quality (DPI)</p>
                 <div className="flex gap-2">
                   {[150, 300, 600].map((d) => (
                     <button
@@ -165,10 +163,10 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
                       }`}
                     >
                       {d} DPI
-                      {d === 150 && <span className="block text-[10px] opacity-70">Borrador</span>}
-                      {d === 300 && <span className="block text-[10px] opacity-70">Impresión</span>}
+                      {d === 150 && <span className="block text-[10px] opacity-70">Draft</span>}
+                      {d === 300 && <span className="block text-[10px] opacity-70">Print</span>}
                       {d === 600 && (
-                        <span className="block text-[10px] opacity-70">Alta calidad</span>
+                        <span className="block text-[10px] opacity-70">High quality</span>
                       )}
                     </button>
                   ))}
@@ -184,22 +182,20 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
                     onChange={(e) => setBindingGuide(e.target.checked)}
                     className="w-4 h-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
                   />
-                  <span className="text-sm text-neutral-700">
-                    Guía de encuadernación (línea central)
-                  </span>
+                  <span className="text-sm text-neutral-700">Binding guide (center line)</span>
                 </label>
               )}
 
               {/* Filename */}
               <div>
-                <p className="text-sm font-medium text-neutral-700 mb-1">Nombre del archivo</p>
+                <p className="text-sm font-medium text-neutral-700 mb-1">Filename</p>
                 <div className="flex items-center gap-1">
                   <input
                     type="text"
                     value={filename}
                     onChange={(e) => setFilename(e.target.value)}
                     className="flex-1 text-sm border border-neutral-300 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-primary-500 outline-none"
-                    placeholder="Mi calendario"
+                    placeholder="My calendar"
                   />
                   <span className="text-sm text-neutral-400">
                     .{format === 'PDF' ? 'pdf' : 'zip'}
@@ -219,12 +215,12 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
               {/* Status */}
               <div className="text-center">
                 {job.status === 'PENDING' && (
-                  <p className="text-neutral-600">⏳ Preparando exportación...</p>
+                  <p className="text-neutral-600">⏳ Preparing export...</p>
                 )}
                 {job.status === 'PROCESSING' && (
                   <>
                     <p className="text-neutral-600 mb-2">
-                      🔄 Renderizando página {job.currentPage} de {job.totalPages}...
+                      🔄 Rendering page {job.currentPage} of {job.totalPages}...
                     </p>
                     <div className="w-full bg-neutral-200 rounded-full h-3">
                       <div
@@ -237,23 +233,23 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
                 )}
                 {job.status === 'COMPLETED' && (
                   <div className="space-y-3">
-                    <p className="text-green-600 font-medium">✅ Exportación completada</p>
+                    <p className="text-green-600 font-medium">✅ Export completed</p>
                     {!!job.fileSize && (
                       <p className="text-xs text-neutral-400">
-                        Tamaño: {formatFileSize(job.fileSize)}
+                        Size: {formatFileSize(job.fileSize)}
                       </p>
                     )}
                     <button onClick={handleDownload} className="btn btn-primary w-full">
-                      ⬇️ Descargar {job.format === 'PDF' ? 'PDF' : 'ZIP'}
+                      ⬇️ Download {job.format === 'PDF' ? 'PDF' : 'ZIP'}
                     </button>
                   </div>
                 )}
                 {job.status === 'FAILED' && (
                   <div className="space-y-2">
-                    <p className="text-red-600 font-medium">❌ Error en la exportación</p>
+                    <p className="text-red-600 font-medium">❌ Export error</p>
                     <p className="text-xs text-red-500">{job.error}</p>
                     <button onClick={() => setJob(null)} className="btn btn-secondary text-sm">
-                      Reintentar
+                      Retry
                     </button>
                   </div>
                 )}
@@ -267,20 +263,20 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
           {!job && (
             <>
               <button onClick={onClose} className="btn btn-secondary text-sm">
-                Cancelar
+                Cancel
               </button>
               <button
                 onClick={handleStart}
                 disabled={starting}
                 className="btn btn-primary text-sm disabled:opacity-50"
               >
-                {starting ? 'Iniciando...' : `Exportar ${format}`}
+                {starting ? 'Starting...' : `Export ${format}`}
               </button>
             </>
           )}
           {job && (job.status === 'COMPLETED' || job.status === 'FAILED') && (
             <button onClick={onClose} className="btn btn-secondary text-sm">
-              Cerrar
+              Close
             </button>
           )}
         </div>

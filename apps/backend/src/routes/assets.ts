@@ -52,7 +52,7 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
       if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
         return reply.code(400).send({
           error: 'INVALID_FILE_TYPE',
-          message: `Tipo no permitido: ${mimetype}`,
+          message: `Unsupported type: ${mimetype}`,
         })
       }
 
@@ -113,7 +113,7 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
           // Clean up uploaded file
           await fs.unlink(filePath).catch(() => {})
           if (thumbName) await fs.unlink(path.join(THUMBS_DIR, thumbName)).catch(() => {})
-          return reply.code(404).send({ error: 'NOT_FOUND', message: 'Carpeta no encontrada' })
+          return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
         }
       }
 
@@ -136,7 +136,7 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     if (uploaded.length === 0) {
-      return reply.code(400).send({ error: 'NO_FILES', message: 'No se enviaron archivos' })
+      return reply.code(400).send({ error: 'NO_FILES', message: 'No files were uploaded' })
     }
 
     reply.code(201).send({ assets: uploaded })
@@ -194,7 +194,7 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
       where: { id, userId: request.user!.id },
     })
     if (!asset) {
-      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset no encontrado' })
+      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset not found' })
     }
 
     // Delete files
@@ -224,7 +224,7 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
       where: { id, userId: request.user!.id },
     })
     if (!asset) {
-      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset no encontrado' })
+      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset not found' })
     }
 
     // Verify folder ownership
@@ -233,7 +233,7 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
         where: { id: parsed.data.folderId, userId: request.user!.id },
       })
       if (!folder) {
-        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Carpeta no encontrada' })
+        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
       }
     }
 
