@@ -27,5 +27,8 @@
     "prettier": "^3.2.5",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.1"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^10.3.0"
   }
 }

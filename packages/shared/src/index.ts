@@ -14,7 +14,7 @@ export type {
   AuthTokens,
   AuthUser,
   LoginRequest,
-} from './types';
+} from './types'
 
 // Export schemas
 export {
@@ -29,4 +29,4 @@ export {
   createEventSchema,
   apiResponseSchema,
   paginatedResponseSchema,
-} from './schemas';
+} from './schemas'

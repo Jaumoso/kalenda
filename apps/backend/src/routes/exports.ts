@@ -126,17 +126,14 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
   )
 
   // GET /exports — List export jobs for current user
-  fastify.get(
-    '/exports', { preHandler: fastify.authenticate },
-    async (request, reply) => {
-      const jobs = await prisma.exportJob.findMany({
-        where: { userId: request.user!.id },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      })
-      reply.send({ jobs })
-    }
-  )
+  fastify.get('/exports', { preHandler: fastify.authenticate }, async (request, reply) => {
+    const jobs = await prisma.exportJob.findMany({
+      where: { userId: request.user!.id },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    })
+    reply.send({ jobs })
+  })
 
   // DELETE /exports/:id — Delete an export job and its file
   fastify.delete('/exports/:id', { preHandler: fastify.authenticate }, async (request, reply) => {

@@ -2,7 +2,10 @@ import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { prisma } from '../prisma.js'
+import { prisma } from '@/prisma.js'
+import { rateLimitConfig } from '@/config.js'
+
+const rateLimit = rateLimitConfig.login
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
   const loginSchema = z.object({
@@ -12,69 +15,61 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   })
 
   // POST /auth/login — stricter rate limit (5 attempts per minute)
-  fastify.post(
-    '/auth/login',
-    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
-    async (request, reply) => {
-      const parsed = loginSchema.safeParse(request.body)
-      if (!parsed.success) {
-        return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'Invalid input' })
-      }
-      const { email, password, rememberMe } = parsed.data
-
-      const user = await prisma.user.findUnique({ where: { email } })
-
-      if (!user?.isActive) {
-        return reply
-          .code(401)
-          .send({ error: 'INVALID_CREDENTIALS', message: 'Invalid credentials' })
-      }
-
-      const isValidPassword = await bcrypt.compare(password, user.password)
-      if (!isValidPassword) {
-        return reply
-          .code(401)
-          .send({ error: 'INVALID_CREDENTIALS', message: 'Invalid credentials' })
-      }
-
-      const { accessToken, refreshToken } = fastify.generateTokens({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      })
-
-      const maxAge = rememberMe ? 7 * 24 * 60 * 60 : 15 * 60
-
-      reply
-        .setCookie('token', accessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          path: '/',
-          maxAge,
-        })
-        .setCookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          path: '/api/auth/refresh',
-          maxAge: 30 * 24 * 60 * 60, // 30 days
-        })
-        .send({
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            language: user.language,
-          },
-        })
+  fastify.post('/auth/login', { config: { rateLimit } }, async (request, reply) => {
+    const parsed = loginSchema.safeParse(request.body)
+    if (!parsed.success) {
+      return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'Invalid input' })
     }
-  )
+    const { email, password, rememberMe } = parsed.data
+
+    const user = await prisma.user.findUnique({ where: { email } })
+
+    if (!user?.isActive) {
+      return reply.code(401).send({ error: 'INVALID_CREDENTIALS', message: 'Invalid credentials' })
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password)
+    if (!isValidPassword) {
+      return reply.code(401).send({ error: 'INVALID_CREDENTIALS', message: 'Invalid credentials' })
+    }
+
+    const { accessToken, refreshToken } = fastify.generateTokens({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    })
+
+    const maxAge = rememberMe ? 7 * 24 * 60 * 60 : 15 * 60
+
+    reply
+      .setCookie('token', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge,
+      })
+      .setCookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/api/auth/refresh',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+      })
+      .send({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          language: user.language,
+        },
+      })
+  })
 
   // POST /auth/logout
-  fastify.post('/auth/logout', async (_request, reply) => {
+  fastify.post('/auth/logout', { config: { rateLimit } }, async (_request, reply) => {
     reply
       .clearCookie('token', { path: '/' })
       .clearCookie('refreshToken', { path: '/api/auth/refresh' })
@@ -85,12 +80,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     '/auth/refresh',
     {
-      config: {
-        rateLimit: {
-          max: 30,
-          timeWindow: '1 minute',
-        },
-      },
+      config: { rateLimit },
     },
     async (request, reply) => {
       const refreshToken = request.cookies.refreshToken

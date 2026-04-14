@@ -4,8 +4,9 @@ import path from 'path'
 import fs from 'fs/promises'
 import crypto from 'crypto'
 import sharp from 'sharp'
-import { prisma } from '../prisma.js'
+import { prisma } from '@/prisma.js'
 import { fileURLToPath } from 'url'
+import { rateLimitConfig } from '@/config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const UPLOADS_DIR = path.join(__dirname, '../../uploads')
@@ -14,6 +15,8 @@ const THUMBS_DIR = path.join(UPLOADS_DIR, 'thumbs')
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const THUMB_SIZE = 300
+
+const rateLimit = rateLimitConfig.strict
 
 async function ensureDirs() {
   await fs.mkdir(UPLOADS_DIR, { recursive: true })
@@ -28,6 +31,9 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
     '/assets/upload',
     {
       preHandler: fastify.authenticate,
+      config: {
+        rateLimit,
+      },
     },
     async (request, reply) => {
       const parts = request.parts()
@@ -54,12 +60,12 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
 
         const { mimetype, filename: originalName } = part
 
-      if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
-        return reply.code(400).send({
-          error: 'INVALID_FILE_TYPE',
-          message: `Unsupported type: ${mimetype}`,
-        })
-      }
+        if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
+          return reply.code(400).send({
+            error: 'INVALID_FILE_TYPE',
+            message: `Unsupported type: ${mimetype}`,
+          })
+        }
 
         // Read file into buffer
         const chunks: Buffer[] = []
@@ -109,18 +115,18 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
           await fs.writeFile(filePath, buffer)
         }
 
-      // Verify folder ownership if specified
-      if (folderId) {
-        const folder = await prisma.assetFolder.findFirst({
-          where: { id: folderId, userId: request.user!.id },
-        })
-        if (!folder) {
-          // Clean up uploaded file
-          await fs.unlink(filePath).catch(() => {})
-          if (thumbName) await fs.unlink(path.join(THUMBS_DIR, thumbName)).catch(() => {})
-          return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
+        // Verify folder ownership if specified
+        if (folderId) {
+          const folder = await prisma.assetFolder.findFirst({
+            where: { id: folderId, userId: request.user!.id },
+          })
+          if (!folder) {
+            // Clean up uploaded file
+            await fs.unlink(filePath).catch(() => {})
+            if (thumbName) await fs.unlink(path.join(THUMBS_DIR, thumbName)).catch(() => {})
+            return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
+          }
         }
-      }
 
         const asset = await prisma.asset.create({
           data: {
@@ -140,9 +146,9 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
         uploaded.push(asset)
       }
 
-    if (uploaded.length === 0) {
-      return reply.code(400).send({ error: 'NO_FILES', message: 'No files were uploaded' })
-    }
+      if (uploaded.length === 0) {
+        return reply.code(400).send({ error: 'NO_FILES', message: 'No files were uploaded' })
+      }
 
       reply.code(201).send({ assets: uploaded })
     }
@@ -150,7 +156,13 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
 
   // GET /assets — List assets with optional filtering
   fastify.get(
-    '/assets', { preHandler: fastify.authenticate },
+    '/assets',
+    {
+      preHandler: fastify.authenticate,
+      config: {
+        rateLimit,
+      },
+    },
     async (request, reply) => {
       const query = request.query as {
         folderId?: string
@@ -196,63 +208,81 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
   )
 
   // DELETE /assets/:id
-  fastify.delete('/assets/:id', { preHandler: fastify.authenticate }, async (request, reply) => {
-    const { id } = request.params as { id: string }
+  fastify.delete(
+    '/assets/:id',
+    {
+      preHandler: fastify.authenticate,
+      config: {
+        rateLimit,
+      },
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string }
 
-    const asset = await prisma.asset.findFirst({
-      where: { id, userId: request.user!.id },
-    })
-    if (!asset) {
-      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset not found' })
+      const asset = await prisma.asset.findFirst({
+        where: { id, userId: request.user!.id },
+      })
+      if (!asset) {
+        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset not found' })
+      }
+
+      // Delete files
+      await fs.unlink(path.join(UPLOADS_DIR, asset.filename)).catch(() => {})
+      if (asset.thumbPath) {
+        await fs.unlink(path.join(UPLOADS_DIR, asset.thumbPath)).catch(() => {})
+      }
+
+      await prisma.asset.delete({ where: { id } })
+
+      reply.send({ ok: true })
     }
-
-    // Delete files
-    await fs.unlink(path.join(UPLOADS_DIR, asset.filename)).catch(() => {})
-    if (asset.thumbPath) {
-      await fs.unlink(path.join(UPLOADS_DIR, asset.thumbPath)).catch(() => {})
-    }
-
-    await prisma.asset.delete({ where: { id } })
-
-    reply.send({ ok: true })
-  })
+  )
 
   // PATCH /assets/:id — Move to folder or rename
-  fastify.patch('/assets/:id', { preHandler: fastify.authenticate }, async (request, reply) => {
-    const { id } = request.params as { id: string }
-    const schema = z.object({
-      folderId: z.string().nullable().optional(),
-      originalName: z.string().min(1).max(200).optional(),
-    })
-    const parsed = schema.safeParse(request.body)
-    if (!parsed.success) {
-      return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'Invalid input' })
-    }
-
-    const asset = await prisma.asset.findFirst({
-      where: { id, userId: request.user!.id },
-    })
-    if (!asset) {
-      return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset not found' })
-    }
-
-    // Verify folder ownership
-    if (parsed.data.folderId) {
-      const folder = await prisma.assetFolder.findFirst({
-        where: { id: parsed.data.folderId, userId: request.user!.id },
+  fastify.patch(
+    '/assets/:id',
+    {
+      preHandler: fastify.authenticate,
+      config: {
+        rateLimit,
+      },
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string }
+      const schema = z.object({
+        folderId: z.string().nullable().optional(),
+        originalName: z.string().min(1).max(200).optional(),
       })
-      if (!folder) {
-        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
+      const parsed = schema.safeParse(request.body)
+      if (!parsed.success) {
+        return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'Invalid input' })
       }
+
+      const asset = await prisma.asset.findFirst({
+        where: { id, userId: request.user!.id },
+      })
+      if (!asset) {
+        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Asset not found' })
+      }
+
+      // Verify folder ownership
+      if (parsed.data.folderId) {
+        const folder = await prisma.assetFolder.findFirst({
+          where: { id: parsed.data.folderId, userId: request.user!.id },
+        })
+        if (!folder) {
+          return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
+        }
+      }
+
+      const updated = await prisma.asset.update({
+        where: { id },
+        data: parsed.data,
+      })
+
+      reply.send({ asset: updated })
     }
-
-    const updated = await prisma.asset.update({
-      where: { id },
-      data: parsed.data,
-    })
-
-    reply.send({ asset: updated })
-  })
+  )
 }
 
 export default assetRoutes

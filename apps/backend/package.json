@@ -9,7 +9,7 @@
     "clean": "rm -rf dist",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "format": "prettier --write src/**/*.{ts,js}",
+    "format": "prettier --write src/**/*.ts",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "db:generate": "prisma generate",

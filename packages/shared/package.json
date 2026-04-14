@@ -10,7 +10,7 @@
     "clean": "rm -rf dist",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "format": "prettier --write src/**/*.{ts,tsx}",
+    "format": "prettier --write src/**/*.ts",
     "test": "vitest",
     "test:watch": "vitest --watch"
   },

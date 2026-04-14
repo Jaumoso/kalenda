@@ -106,9 +106,7 @@ export default function DashboardPage() {
       {projects.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-4">📅</div>
-          <h2 className="text-lg font-semibold text-neutral-700 mb-2">
-            No calendars yet
-          </h2>
+          <h2 className="text-lg font-semibold text-neutral-700 mb-2">No calendars yet</h2>
           <p className="text-neutral-500 mb-6">
             Create your first custom calendar to start designing.
           </p>

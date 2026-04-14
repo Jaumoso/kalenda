@@ -1,9 +1,12 @@
 import { FastifyPluginAsync } from 'fastify'
 import jwt from 'jsonwebtoken'
-import { prisma } from '../prisma.js'
-import { getSaintsForMonth } from '../data/saints.js'
+import { prisma } from '@/prisma.js'
+import { getSaintsForMonth } from '@/data/saints.js'
+import { rateLimitConfig } from '@/config.js'
 
 const jwtSecret = process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
+
+const rateLimit = rateLimitConfig.strict
 
 /**
  * Public render-data endpoint for Puppeteer.
@@ -15,10 +18,7 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
     '/render-data/:monthId',
     {
       config: {
-        rateLimit: {
-          max: 60,
-          timeWindow: '1 minute',
-        },
+        rateLimit,
       },
     },
     async (request, reply) => {
@@ -45,7 +45,13 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
         where: { id: monthId },
         include: {
           project: {
-            select: { userId: true, weekStartsOn: true, name: true, year: true, autonomyCode: true },
+            select: {
+              userId: true,
+              weekStartsOn: true,
+              name: true,
+              year: true,
+              autonomyCode: true,
+            },
           },
           dayCells: { orderBy: { dayNumber: 'asc' } },
         },
@@ -94,10 +100,7 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
     '/render-data/cover/:projectId',
     {
       config: {
-        rateLimit: {
-          max: 60,
-          timeWindow: '1 minute',
-        },
+        rateLimit,
       },
     },
     async (request, reply) => {
@@ -130,7 +133,10 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
 
       const canvasJson = type === 'back' ? project.backCoverJson : project.coverJson
 
-      reply.send({ project: { id: project.id, name: project.name, year: project.year }, canvasJson })
+      reply.send({
+        project: { id: project.id, name: project.name, year: project.year },
+        canvasJson,
+      })
     }
   )
 }
