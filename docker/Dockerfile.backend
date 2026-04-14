@@ -24,6 +24,9 @@ RUN cd packages/shared && pnpm build
 # Build frontend (served by Fastify static in production)
 RUN cd apps/frontend && pnpm build
 
+# Generate Prisma client
+RUN cd apps/backend && npx prisma generate
+
 # Build backend
 RUN cd apps/backend && pnpm build
 
@@ -36,7 +39,10 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/backend/package.json ./apps/backend/
 COPY packages/shared/package.json ./packages/shared/
+COPY apps/backend/prisma ./apps/backend/prisma
+COPY apps/backend/prisma.config.ts ./apps/backend/
 RUN npm install -g pnpm && pnpm install --filter @calendapp/backend... --prod --frozen-lockfile
+RUN cd apps/backend && npx prisma generate
 
 # Copy built files
 COPY --from=builder /app/apps/backend/dist ./dist
