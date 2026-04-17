@@ -116,6 +116,7 @@
     "goBack": "Go back",
     "withTemplate": "With template",
     "export": "Export",
+    "printPreview": "Preview",
     "applyTemplate": "Apply template",
     "frontCover": "Front cover",
     "backCover": "Back cover",
@@ -496,5 +497,13 @@
   },
   "app": {
     "loading": "Loading..."
+  },
+  "printPreview": {
+    "title": "Print preview",
+    "prev": "Previous",
+    "next": "Next",
+    "noContent": "No content yet",
+    "loading": "Loading preview…",
+    "errorLoading": "Could not load preview"
   }
 }

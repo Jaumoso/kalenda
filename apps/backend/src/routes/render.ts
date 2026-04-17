@@ -139,6 +139,36 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
   )
+
+  // GET /preview-tokens/:projectId — Generate short-lived render tokens for print preview
+  fastify.get(
+    '/preview-tokens/:projectId',
+    { preHandler: fastify.authenticate, config: { rateLimit } },
+    async (request, reply) => {
+      const { projectId } = request.params as { projectId: string }
+
+      const project = await prisma.project.findFirst({
+        where: { id: projectId, userId: request.user!.id },
+        include: { months: { orderBy: { month: 'asc' } } },
+      })
+
+      if (!project) {
+        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Project not found' })
+      }
+
+      const monthTokens = project.months.map((m) => ({
+        monthId: m.id,
+        month: m.month,
+        token: jwt.sign({ monthId: m.id, purpose: 'render' }, jwtSecret, { expiresIn: '10m' }),
+      }))
+
+      const coverToken = jwt.sign({ projectId, purpose: 'render-cover' }, jwtSecret, {
+        expiresIn: '10m',
+      })
+
+      reply.send({ monthTokens, coverToken })
+    }
+  )
 }
 
 export default renderRoutes

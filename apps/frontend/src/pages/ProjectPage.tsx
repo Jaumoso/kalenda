@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, ClipboardList, FileDown, BookOpen, Book, ImageOff } from 'lucide-react'
+import { ArrowLeft, ClipboardList, FileDown, BookOpen, Book, ImageOff, Eye } from 'lucide-react'
 import api from '../lib/api'
 import ApplyTemplateModal from '../components/ApplyTemplateModal'
 import ExportModal from '../components/ExportModal'
+import PrintPreviewModal from '../components/PrintPreviewModal'
 
 interface CalendarMonth {
   id: string
@@ -38,6 +39,7 @@ export default function ProjectPage() {
   const [error, setError] = useState<string | null>(null)
   const [showApplyTemplate, setShowApplyTemplate] = useState(false)
   const [showExport, setShowExport] = useState(false)
+  const [showPrintPreview, setShowPrintPreview] = useState(false)
   const [thumbVersion, setThumbVersion] = useState(Date.now())
 
   useEffect(() => {
@@ -119,6 +121,10 @@ export default function ProjectPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <button onClick={() => setShowPrintPreview(true)} className="btn btn-secondary text-sm">
+            <Eye size={14} className="inline mr-1" />
+            {t('project.printPreview')}
+          </button>
           <button onClick={() => setShowExport(true)} className="btn btn-primary text-sm">
             <FileDown size={14} className="inline mr-1" />
             {t('project.export')}
@@ -266,6 +272,17 @@ export default function ProjectPage() {
           projectName={project.name}
           projectYear={project.year}
           onClose={() => setShowExport(false)}
+        />
+      )}
+
+      {/* Print preview modal */}
+      {showPrintPreview && project && (
+        <PrintPreviewModal
+          projectId={project.id}
+          projectName={project.name}
+          projectYear={project.year}
+          months={project.months}
+          onClose={() => setShowPrintPreview(false)}
         />
       )}
     </div>

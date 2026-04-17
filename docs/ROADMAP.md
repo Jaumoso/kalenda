@@ -341,7 +341,6 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 - Sombra y resplandor en objetos (drop shadow, glow)
 - Multi-selección y agrupar/desagrupar objetos
 - Texto con contorno (stroke) y degradado
-- Copiar/pegar elementos entre meses
 - Guías de alineación (snap)
 
 ### Calendario y datos
@@ -356,7 +355,6 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 
 ### Exportación e impresión
 
-- Vista previa de impresión (simulación física)
 - Más tamaños de papel (A3, Letter, A5 — calendario de escritorio)
 - Marcas de corte y sangrado (bleed) para impresión profesional
 - Exportar meses individuales (no solo el calendario completo)

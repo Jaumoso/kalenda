@@ -116,6 +116,7 @@
     "goBack": "Volver",
     "withTemplate": "Con plantilla",
     "export": "Exportar",
+    "printPreview": "Vista previa",
     "applyTemplate": "Aplicar plantilla",
     "frontCover": "Portada",
     "backCover": "Contraportada",
@@ -496,5 +497,13 @@
   },
   "app": {
     "loading": "Cargando..."
+  },
+  "printPreview": {
+    "title": "Vista previa de impresión",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "noContent": "Sin contenido aún",
+    "loading": "Cargando vista previa…",
+    "errorLoading": "No se pudo cargar la vista previa"
   }
 }
