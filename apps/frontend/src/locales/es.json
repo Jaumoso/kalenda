@@ -320,8 +320,19 @@
     "contrast": "Contraste",
     "grayscale": "Grises",
     "sepia": "Sepia",
-    "fontSize": "Tamaño de fuente",
-    "textColor": "Color del texto"
+    "fontSize": "Tamaño",
+    "textColor": "Color del texto",
+    "fontFamily": "Tipografía",
+    "style": "Estilo",
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "underline": "Subrayado",
+    "alignment": "Alineación",
+    "alignLeft": "Izquierda",
+    "alignCenter": "Centro",
+    "alignRight": "Derecha",
+    "lineHeight": "Interlineado",
+    "charSpacing": "Espaciado de letras"
   },
   "layers": {
     "title": "Capas",

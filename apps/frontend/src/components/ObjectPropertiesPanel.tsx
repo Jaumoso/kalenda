@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import type * as fabric from 'fabric'
 import type { CanvasEditorHandle } from './CanvasEditor'
+import FontSelector from './FontSelector'
+import ColorPicker from './ColorPicker'
+import { AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline } from 'lucide-react'
 
 interface ObjectPropertiesPanelProps {
   editorRef: React.RefObject<CanvasEditorHandle | null>
@@ -54,6 +57,10 @@ export default function ObjectPropertiesPanel({
             fill: (selectedObject as fabric.IText).fill,
             fontWeight: (selectedObject as fabric.IText).fontWeight,
             fontStyle: (selectedObject as fabric.IText).fontStyle,
+            underline: (selectedObject as fabric.IText).underline,
+            textAlign: (selectedObject as fabric.IText).textAlign,
+            lineHeight: (selectedObject as fabric.IText).lineHeight,
+            charSpacing: (selectedObject as fabric.IText).charSpacing,
           }
         : {}),
     })
@@ -70,6 +77,15 @@ export default function ObjectPropertiesPanel({
 
     if (key === 'brightness' || key === 'contrast') {
       updateImageFilter(selectedObject as fabric.FabricImage, key, value as number, canvas)
+    } else if (key === 'fontFamily' && isTextObject(selectedObject)) {
+      // Font changes need special handling: wait for the font to be ready
+      // before recalculating text dimensions
+      const textObj = selectedObject as fabric.IText
+      textObj.set('fontFamily', value as string)
+      document.fonts.ready.then(() => {
+        textObj.initDimensions()
+        canvas.renderAll()
+      })
     } else {
       selectedObject.set(key as keyof fabric.FabricObject, value as never)
       canvas.renderAll()
@@ -196,51 +212,123 @@ export default function ObjectPropertiesPanel({
       {/* Text properties */}
       {isTextObject(selectedObject) && (
         <>
-          <div>
-            <label className="text-xs text-neutral-500">{t('objectProps.fontSize')}</label>
-            <input
-              type="number"
+          {/* Font family */}
+          <FontSelector
+            label={t('objectProps.fontFamily')}
+            value={(props.fontFamily as string) || 'Inter Variable'}
+            onChange={(v) => updateProp('fontFamily', v)}
+          />
+
+          {/* Font size + color row */}
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField
+              label={t('objectProps.fontSize')}
               value={props.fontSize as number}
-              onChange={(e) => updateProp('fontSize', parseInt(e.target.value) || 12)}
-              className="w-full mt-1 border border-neutral-200 rounded px-2 py-1 text-sm"
+              onChange={(v) => updateProp('fontSize', v)}
               min={8}
               max={200}
             />
+            <div className="flex flex-col">
+              <ColorPicker
+                label={t('objectProps.textColor')}
+                color={(props.fill as string) || '#000000'}
+                onChange={(v) => updateProp('fill', v)}
+              />
+            </div>
           </div>
+
+          {/* Style toggles: Bold, Italic, Underline */}
           <div>
-            <label className="text-xs text-neutral-500">{t('objectProps.textColor')}</label>
-            <input
-              type="color"
-              value={(props.fill as string) || '#000000'}
-              onChange={(e) => updateProp('fill', e.target.value)}
-              className="w-full h-8 mt-1 rounded border border-neutral-200 cursor-pointer"
-            />
+            <label className="text-xs text-neutral-500 block mb-1">{t('objectProps.style')}</label>
+            <div className="flex gap-1">
+              <ToggleButton
+                active={props.fontWeight === 'bold'}
+                onClick={() =>
+                  updateProp('fontWeight', props.fontWeight === 'bold' ? 'normal' : 'bold')
+                }
+                title={t('objectProps.bold')}
+              >
+                <Bold size={14} />
+              </ToggleButton>
+              <ToggleButton
+                active={props.fontStyle === 'italic'}
+                onClick={() =>
+                  updateProp('fontStyle', props.fontStyle === 'italic' ? 'normal' : 'italic')
+                }
+                title={t('objectProps.italic')}
+              >
+                <Italic size={14} />
+              </ToggleButton>
+              <ToggleButton
+                active={!!props.underline}
+                onClick={() => updateProp('underline', !props.underline)}
+                title={t('objectProps.underline')}
+              >
+                <Underline size={14} />
+              </ToggleButton>
+            </div>
           </div>
-          <div className="flex gap-1">
-            <button
-              onClick={() =>
-                updateProp('fontWeight', props.fontWeight === 'bold' ? 'normal' : 'bold')
-              }
-              className={`px-2 py-1 text-xs rounded border ${
-                props.fontWeight === 'bold'
-                  ? 'bg-primary-100 border-primary-300 text-primary-700'
-                  : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
-              }`}
-            >
-              <strong>B</strong>
-            </button>
-            <button
-              onClick={() =>
-                updateProp('fontStyle', props.fontStyle === 'italic' ? 'normal' : 'italic')
-              }
-              className={`px-2 py-1 text-xs rounded border ${
-                props.fontStyle === 'italic'
-                  ? 'bg-primary-100 border-primary-300 text-primary-700'
-                  : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
-              }`}
-            >
-              <em>I</em>
-            </button>
+
+          {/* Text alignment */}
+          <div>
+            <label className="text-xs text-neutral-500 block mb-1">
+              {t('objectProps.alignment')}
+            </label>
+            <div className="flex gap-1">
+              <ToggleButton
+                active={props.textAlign === 'left'}
+                onClick={() => updateProp('textAlign', 'left')}
+                title={t('objectProps.alignLeft')}
+              >
+                <AlignLeft size={14} />
+              </ToggleButton>
+              <ToggleButton
+                active={props.textAlign === 'center'}
+                onClick={() => updateProp('textAlign', 'center')}
+                title={t('objectProps.alignCenter')}
+              >
+                <AlignCenter size={14} />
+              </ToggleButton>
+              <ToggleButton
+                active={props.textAlign === 'right'}
+                onClick={() => updateProp('textAlign', 'right')}
+                title={t('objectProps.alignRight')}
+              >
+                <AlignRight size={14} />
+              </ToggleButton>
+            </div>
+          </div>
+
+          {/* Line height */}
+          <div>
+            <label className="text-xs text-neutral-500">{t('objectProps.lineHeight')}</label>
+            <input
+              type="range"
+              min={0.5}
+              max={3}
+              step={0.1}
+              value={(props.lineHeight as number) ?? 1.16}
+              onChange={(e) => updateProp('lineHeight', parseFloat(e.target.value))}
+              className="w-full mt-1"
+            />
+            <span className="text-xs text-neutral-400">
+              {((props.lineHeight as number) ?? 1.16).toFixed(1)}
+            </span>
+          </div>
+
+          {/* Letter spacing */}
+          <div>
+            <label className="text-xs text-neutral-500">{t('objectProps.charSpacing')}</label>
+            <input
+              type="range"
+              min={-200}
+              max={800}
+              step={10}
+              value={(props.charSpacing as number) ?? 0}
+              onChange={(e) => updateProp('charSpacing', parseInt(e.target.value))}
+              className="w-full mt-1"
+            />
+            <span className="text-xs text-neutral-400">{(props.charSpacing as number) ?? 0}</span>
           </div>
         </>
       )}
@@ -283,6 +371,32 @@ function FilterButton({ label, onClick }: { label: string; onClick: () => void }
       className="px-2 py-1 text-xs border border-neutral-200 rounded hover:bg-neutral-100 text-neutral-600 transition-colors"
     >
       {label}
+    </button>
+  )
+}
+
+function ToggleButton({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  title?: string
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`p-1.5 rounded border transition-colors ${
+        active
+          ? 'bg-primary-100 border-primary-300 text-primary-700'
+          : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+      }`}
+    >
+      {children}
     </button>
   )
 }

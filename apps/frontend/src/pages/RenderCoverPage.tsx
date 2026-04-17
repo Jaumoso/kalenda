@@ -4,14 +4,8 @@ import axios from 'axios'
 import { Canvas as FabricCanvas } from 'fabric'
 import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
 
-import '@fontsource-variable/inter'
-import '@fontsource-variable/lora'
-import '@fontsource-variable/montserrat'
-import '@fontsource-variable/open-sans'
-import '@fontsource-variable/playfair-display'
-import '@fontsource-variable/raleway'
-import '@fontsource-variable/roboto'
-import '@fontsource-variable/source-sans-3'
+// Import all fonts so they render correctly in Puppeteer
+import '../components/FontSelector'
 
 declare global {
   interface Window {

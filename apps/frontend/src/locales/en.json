@@ -320,8 +320,19 @@
     "contrast": "Contrast",
     "grayscale": "Grayscale",
     "sepia": "Sepia",
-    "fontSize": "Font size",
-    "textColor": "Text color"
+    "fontSize": "Size",
+    "textColor": "Text color",
+    "fontFamily": "Font",
+    "style": "Style",
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "alignment": "Alignment",
+    "alignLeft": "Left",
+    "alignCenter": "Center",
+    "alignRight": "Right",
+    "lineHeight": "Line height",
+    "charSpacing": "Letter spacing"
   },
   "layers": {
     "title": "Layers",
