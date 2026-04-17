@@ -25,6 +25,9 @@ interface Props {
       imageFilename?: string
       stickerAssetId?: string
       stickerFilename?: string
+      stickerX?: number
+      stickerY?: number
+      stickerSize?: number
     } | null
   }) => void
   onEventsChanged: () => void
@@ -51,6 +54,9 @@ export default function CellModal({
   const [imageFilename, setImageFilename] = useState(cell?.contentJson?.imageFilename || '')
   const [stickerAssetId, setStickerAssetId] = useState(cell?.contentJson?.stickerAssetId || '')
   const [stickerFilename, setStickerFilename] = useState(cell?.contentJson?.stickerFilename || '')
+  const [stickerX, setStickerX] = useState(cell?.contentJson?.stickerX ?? 50)
+  const [stickerY, setStickerY] = useState(cell?.contentJson?.stickerY ?? 50)
+  const [stickerSize, setStickerSize] = useState(cell?.contentJson?.stickerSize ?? 60)
   const [showNewEvent, setShowNewEvent] = useState(false)
   const [newEventName, setNewEventName] = useState('')
   const [newEventType, setNewEventType] = useState<'BIRTHDAY' | 'ANNIVERSARY' | 'CUSTOM'>('CUSTOM')
@@ -75,6 +81,9 @@ export default function CellModal({
       imageFilename?: string
       stickerAssetId?: string
       stickerFilename?: string
+      stickerX?: number
+      stickerY?: number
+      stickerSize?: number
     } = {}
     if (text.trim()) contentJson.text = text.trim()
     if (emoji.trim()) contentJson.emoji = emoji.trim()
@@ -85,6 +94,9 @@ export default function CellModal({
     if (stickerAssetId) {
       contentJson.stickerAssetId = stickerAssetId
       contentJson.stickerFilename = stickerFilename
+      contentJson.stickerX = stickerX
+      contentJson.stickerY = stickerY
+      contentJson.stickerSize = stickerSize
     }
 
     onSave({
@@ -337,6 +349,85 @@ export default function CellModal({
               {t('cell.stickerButton')}
             </button>
           </div>
+
+          {/* Sticker position/size controls with live preview */}
+          {stickerFilename && (
+            <div className="mt-3 bg-neutral-50 rounded-lg p-3 space-y-3">
+              {/* Live preview box */}
+              <div
+                className="relative w-full aspect-square border border-neutral-300 rounded bg-white overflow-hidden"
+                style={{ maxHeight: 120 }}
+              >
+                <img
+                  src={`/uploads/${stickerFilename}`}
+                  alt=""
+                  className="absolute object-contain pointer-events-none"
+                  style={{
+                    left: `${stickerX}%`,
+                    top: `${stickerY}%`,
+                    transform: 'translate(-50%, -50%)',
+                    width: `${stickerSize}%`,
+                    height: `${stickerSize}%`,
+                  }}
+                />
+                {/* crosshair guides */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <div
+                    className="absolute top-0 bottom-0 w-px bg-primary-300/40"
+                    style={{ left: `${stickerX}%` }}
+                  />
+                  <div
+                    className="absolute left-0 right-0 h-px bg-primary-300/40"
+                    style={{ top: `${stickerY}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Sliders */}
+              <div>
+                <div className="flex justify-between text-xs text-neutral-500 mb-0.5">
+                  <span>{t('cell.stickerPosX')}</span>
+                  <span className="tabular-nums">{stickerX}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={stickerX}
+                  onChange={(e) => setStickerX(Number(e.target.value))}
+                  className="w-full h-1.5 accent-primary-600"
+                />
+              </div>
+              <div>
+                <div className="flex justify-between text-xs text-neutral-500 mb-0.5">
+                  <span>{t('cell.stickerPosY')}</span>
+                  <span className="tabular-nums">{stickerY}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={stickerY}
+                  onChange={(e) => setStickerY(Number(e.target.value))}
+                  className="w-full h-1.5 accent-primary-600"
+                />
+              </div>
+              <div>
+                <div className="flex justify-between text-xs text-neutral-500 mb-0.5">
+                  <span>{t('cell.stickerSizeLabel')}</span>
+                  <span className="tabular-nums">{stickerSize}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={10}
+                  max={100}
+                  value={stickerSize}
+                  onChange={(e) => setStickerSize(Number(e.target.value))}
+                  className="w-full h-1.5 accent-primary-600"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <hr className="my-3 border-neutral-200" />

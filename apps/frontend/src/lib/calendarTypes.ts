@@ -39,6 +39,7 @@ export interface GridConfig {
   holidayBgColor: string
   showSaints: boolean
   showEvents: boolean
+  showMoonPhase: boolean
 }
 
 // A4 page dimensions at 96 DPI (210mm × 297mm)
@@ -73,6 +74,9 @@ export interface DayCell {
     imageFilename?: string
     stickerAssetId?: string
     stickerFilename?: string
+    stickerX?: number // 0-100 (% from left)
+    stickerY?: number // 0-100 (% from top)
+    stickerSize?: number // 10-100 (% of cell)
     emoji?: string
   } | null
   hasEvent: boolean
@@ -166,6 +170,7 @@ export const DEFAULT_GRID_CONFIG: GridConfig = {
   holidayBgColor: '#FECACA',
   showSaints: false,
   showEvents: true,
+  showMoonPhase: false,
 }
 
 export function getMonthNames(): string[] {

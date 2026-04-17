@@ -1,4 +1,5 @@
 import { FastifyPluginAsync } from 'fastify'
+import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { prisma } from '../prisma.js'
 import { getSaintsForMonth } from '../data/saints.js'
@@ -63,6 +64,9 @@ const updateCellSchema = z.object({
       imageFilename: z.string().optional(),
       stickerAssetId: z.string().optional(),
       stickerFilename: z.string().optional(),
+      stickerX: z.number().min(0).max(100).optional(),
+      stickerY: z.number().min(0).max(100).optional(),
+      stickerSize: z.number().min(10).max(100).optional(),
       emoji: z.string().optional(),
     })
     .nullable()
@@ -203,11 +207,17 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
           monthId: id,
           dayNumber: day,
           bgColor: parsed.data.bgColor ?? null,
-          contentJson: parsed.data.contentJson ?? undefined,
+          contentJson:
+            parsed.data.contentJson === null
+              ? Prisma.JsonNull
+              : (parsed.data.contentJson ?? undefined),
         },
         update: {
           bgColor: parsed.data.bgColor ?? null,
-          contentJson: parsed.data.contentJson ?? undefined,
+          contentJson:
+            parsed.data.contentJson === null
+              ? Prisma.JsonNull
+              : (parsed.data.contentJson ?? undefined),
         },
       })
 

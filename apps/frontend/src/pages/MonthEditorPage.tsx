@@ -243,6 +243,9 @@ export default function MonthEditorPage() {
       imageFilename?: string
       stickerAssetId?: string
       stickerFilename?: string
+      stickerX?: number
+      stickerY?: number
+      stickerSize?: number
     } | null
   }) => {
     if (!monthId || selectedDay === null) return

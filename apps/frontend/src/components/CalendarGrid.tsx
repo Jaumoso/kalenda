@@ -14,6 +14,7 @@ import {
   getWeekdayHeaders,
   getMonthNames,
 } from '../lib/calendarTypes'
+import { getMoonEmoji, isNotableMoonPhase } from '../lib/moonPhase'
 
 interface Props {
   year: number
@@ -27,17 +28,21 @@ interface Props {
   onCellClick: (dayNumber: number) => void
 }
 
-const POSITION_CLASSES: Record<DayPosition, string> = {
-  'top-left': 'items-start justify-start',
-  'top-center': 'items-start justify-center',
-  'top-right': 'items-start justify-end',
-  'middle-left': 'items-center justify-start',
-  'middle-center': 'items-center justify-center',
-  'middle-right': 'items-center justify-end',
-  'bottom-left': 'items-end justify-start',
-  'bottom-center': 'items-end justify-center',
-  'bottom-right': 'items-end justify-end',
+/** Map dayPosition to CSS grid area name */
+const DAY_AREA: Record<DayPosition, string> = {
+  'top-left': 'tl',
+  'top-center': 'tc',
+  'top-right': 'tr',
+  'middle-left': 'ml',
+  'middle-center': 'mc',
+  'middle-right': 'mr',
+  'bottom-left': 'bl',
+  'bottom-center': 'bc',
+  'bottom-right': 'br',
 }
+
+/** CSS grid-template-areas for the 3×3 cell layout */
+const CELL_GRID_TEMPLATE = `"tl tc tr" "ml mc mr" "bl bc br"`
 
 export default function CalendarGrid({
   year,
@@ -164,7 +169,7 @@ export default function CalendarGrid({
               return (
                 <div
                   key={col}
-                  className={`relative p-1 flex ${POSITION_CLASSES[config.dayPosition]} transition-colors ${
+                  className={`relative transition-colors ${
                     isValid ? 'cursor-pointer hover:bg-primary-50/50' : ''
                   } overflow-hidden`}
                   style={{
@@ -180,102 +185,134 @@ export default function CalendarGrid({
                         <img
                           src={`/uploads/${cell.contentJson.imageFilename}`}
                           alt=""
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="absolute inset-0 w-full h-full object-cover z-0"
                         />
                       )}
 
-                      <span
-                        className="select-none leading-none z-10"
-                        style={{
-                          fontFamily: config.dayFontFamily,
-                          fontSize: `${config.dayFontSize}px`,
-                          color: isHoliday ? '#DC2626' : config.dayFontColor,
-                          fontWeight: isHoliday ? 'bold' : config.dayFontWeight,
-                          textShadow: cell?.contentJson?.imageFilename
-                            ? '0 0 3px rgba(255,255,255,0.8)'
-                            : undefined,
-                        }}
-                      >
-                        {dayNumber}
-                      </span>
-
-                      {/* Sticker asset from library */}
+                      {/* Sticker (absolute, configurable position & size) */}
                       {cell?.contentJson?.stickerFilename && (
                         <img
                           src={`/uploads/${cell.contentJson.stickerFilename}`}
                           alt=""
-                          className="absolute bottom-0.5 right-0.5 w-5 h-5 object-contain z-10"
+                          className="absolute object-contain z-10 pointer-events-none"
+                          style={{
+                            left: `${cell.contentJson.stickerX ?? 50}%`,
+                            top: `${cell.contentJson.stickerY ?? 50}%`,
+                            transform: 'translate(-50%, -50%)',
+                            width: `${cell.contentJson.stickerSize ?? 60}%`,
+                            height: `${cell.contentJson.stickerSize ?? 60}%`,
+                          }}
                         />
                       )}
 
-                      {/* Saint name */}
-                      {config.showSaints && saint && (
-                        <span className="absolute top-0.5 left-0.5 text-[7px] text-neutral-400 leading-tight max-w-[90%] truncate z-10">
-                          {saint}
-                        </span>
-                      )}
-
-                      {/* Holiday label */}
-                      {isHoliday && dayHolidays && (
+                      {/* 3×3 grid layout for text elements */}
+                      <div
+                        className="relative z-10 w-full h-full p-0.5"
+                        style={{
+                          display: 'grid',
+                          gridTemplateAreas: CELL_GRID_TEMPLATE,
+                          gridTemplateRows: 'auto 1fr auto',
+                          gridTemplateColumns: 'auto 1fr auto',
+                        }}
+                      >
+                        {/* TOP-LEFT: Moon phase */}
                         <span
-                          className="absolute bottom-0.5 left-0.5 right-0.5 text-[8px] text-red-600 font-medium truncate leading-tight z-10"
+                          className="select-none text-[10px] leading-none opacity-60"
+                          style={{ gridArea: 'tl' }}
+                        >
+                          {config.showMoonPhase && isNotableMoonPhase(year, month, dayNumber)
+                            ? getMoonEmoji(year, month, dayNumber)
+                            : ''}
+                        </span>
+
+                        {/* TOP-CENTER: Saint name */}
+                        <span
+                          className="text-[7px] text-neutral-400 leading-tight text-center select-none overflow-hidden"
+                          style={{ gridArea: 'tc', wordBreak: 'break-word' }}
+                        >
+                          {config.showSaints && saint ? saint : ''}
+                        </span>
+
+                        {/* TOP-RIGHT: Event dots (when holiday occupies bottom) */}
+                        <span
+                          className="flex items-start justify-end gap-px"
+                          style={{ gridArea: 'tr' }}
+                        >
+                          {hasEvents && isHoliday && dayEvents
+                            ? dayEvents
+                                .slice(0, 3)
+                                .map((ev) => (
+                                  <span
+                                    key={ev.id}
+                                    className="w-1.5 h-1.5 rounded-full inline-block"
+                                    style={{ backgroundColor: ev.color }}
+                                    title={ev.name}
+                                  />
+                                ))
+                            : null}
+                        </span>
+
+                        {/* DAY NUMBER: placed in configured position */}
+                        <span
+                          className="select-none leading-none"
                           style={{
+                            gridArea: DAY_AREA[config.dayPosition],
+                            fontFamily: config.dayFontFamily,
+                            fontSize: `${config.dayFontSize}px`,
+                            color: isHoliday ? '#DC2626' : config.dayFontColor,
+                            fontWeight: isHoliday ? 'bold' : config.dayFontWeight,
+                            textShadow: cell?.contentJson?.imageFilename
+                              ? '0 0 3px rgba(255,255,255,0.8)'
+                              : undefined,
+                            textAlign: config.dayPosition.includes('left')
+                              ? 'left'
+                              : config.dayPosition.includes('right')
+                                ? 'right'
+                                : 'center',
+                            alignSelf: config.dayPosition.startsWith('top')
+                              ? 'start'
+                              : config.dayPosition.startsWith('bottom')
+                                ? 'end'
+                                : 'center',
+                          }}
+                        >
+                          {dayNumber}
+                        </span>
+
+                        {/* BOTTOM-LEFT: Holiday / Event / Cell text */}
+                        <span
+                          className="truncate leading-tight col-span-1"
+                          style={{
+                            gridArea: 'bl',
+                            gridColumnEnd: 'br',
                             textShadow: cell?.contentJson?.imageFilename
                               ? '0 0 2px rgba(255,255,255,0.9)'
                               : undefined,
                           }}
                         >
-                          {dayHolidays[0].nameEs}
+                          {isHoliday && dayHolidays ? (
+                            <span className="text-[8px] text-red-600 font-medium">
+                              {dayHolidays[0].nameEs}
+                            </span>
+                          ) : hasEvents && dayEvents ? (
+                            <span className="text-[8px]" style={{ color: dayEvents[0].color }}>
+                              {dayEvents[0].icon || '•'} {dayEvents[0].name}
+                            </span>
+                          ) : cell?.contentJson?.text ? (
+                            <span className="text-[9px] text-neutral-500">
+                              {cell.contentJson.text}
+                            </span>
+                          ) : null}
                         </span>
-                      )}
 
-                      {/* Events indicators */}
-                      {hasEvents && !isHoliday && dayEvents && (
+                        {/* BOTTOM-RIGHT: Emoji */}
                         <span
-                          className="absolute bottom-0.5 left-0.5 right-0.5 text-[8px] truncate leading-tight z-10"
-                          style={{
-                            color: dayEvents[0].color,
-                            textShadow: cell?.contentJson?.imageFilename
-                              ? '0 0 2px rgba(255,255,255,0.9)'
-                              : undefined,
-                          }}
+                          className="text-xs text-right leading-none select-none"
+                          style={{ gridArea: 'br', alignSelf: 'end' }}
                         >
-                          {dayEvents[0].icon || '•'} {dayEvents[0].name}
+                          {cell?.contentJson?.emoji || ''}
                         </span>
-                      )}
-
-                      {/* Event dots when holiday takes bottom text */}
-                      {hasEvents && isHoliday && dayEvents && (
-                        <div className="absolute top-0.5 right-0.5 flex gap-0.5 z-10">
-                          {dayEvents.slice(0, 3).map((ev) => (
-                            <span
-                              key={ev.id}
-                              className="w-1.5 h-1.5 rounded-full"
-                              style={{ backgroundColor: ev.color }}
-                              title={ev.name}
-                            />
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Cell text (when no holiday/event text shown) */}
-                      {cell?.contentJson?.text && !isHoliday && !hasEvents && (
-                        <span
-                          className="absolute bottom-0.5 left-0.5 right-0.5 text-[9px] text-neutral-500 truncate leading-tight z-10"
-                          style={{
-                            textShadow: cell?.contentJson?.imageFilename
-                              ? '0 0 2px rgba(255,255,255,0.9)'
-                              : undefined,
-                          }}
-                        >
-                          {cell.contentJson.text}
-                        </span>
-                      )}
-                      {cell?.contentJson?.emoji && (
-                        <span className="absolute top-0.5 left-0.5 text-xs z-10">
-                          {cell.contentJson.emoji}
-                        </span>
-                      )}
+                      </div>
                     </>
                   )}
                 </div>
