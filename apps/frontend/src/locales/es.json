@@ -374,7 +374,8 @@
     "image": "Imagen {{n}}",
     "rectangle": "Rectángulo {{n}}",
     "circle": "Círculo {{n}}",
-    "element": "Elemento {{n}}"
+    "element": "Elemento {{n}}",
+    "doubleClickRename": "Doble clic para renombrar"
   },
   "toolbar": {
     "selectMove": "Seleccionar / Mover",

@@ -26,6 +26,8 @@ export default function LayersPanel({ editorRef, selectedObject, refreshKey }: L
   const [objects, setObjects] = useState<fabric.FabricObject[]>([])
   const dragItemRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
+  const [editingName, setEditingName] = useState('')
 
   useEffect(() => {
     const editor = editorRef.current
@@ -106,7 +108,40 @@ export default function LayersPanel({ editorRef, selectedObject, refreshKey }: L
               <GripVertical size={14} className="text-neutral-300" />
             </span>
             <span className="text-sm flex items-center">{getObjectIcon(obj)}</span>
-            <span className="truncate flex-1">{name}</span>
+            {editingIndex === i ? (
+              <input
+                type="text"
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onBlur={() => {
+                  if (editingName.trim()) {
+                    ;(obj as fabric.FabricObject & { customName?: string }).customName =
+                      editingName.trim()
+                  }
+                  setEditingIndex(null)
+                  setObjects([...editorRef.current!.getObjects()].reverse())
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+                  if (e.key === 'Escape') setEditingIndex(null)
+                }}
+                onClick={(e) => e.stopPropagation()}
+                autoFocus
+                className="flex-1 min-w-0 text-xs px-1 py-0 border border-primary-300 rounded outline-none bg-white"
+              />
+            ) : (
+              <span
+                className="truncate flex-1"
+                onDoubleClick={(e) => {
+                  e.stopPropagation()
+                  setEditingIndex(i)
+                  setEditingName(name)
+                }}
+                title={t('layers.doubleClickRename')}
+              >
+                {name}
+              </span>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation()
