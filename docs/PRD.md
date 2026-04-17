@@ -2,13 +2,13 @@
 
 ## Product Summary
 
-Caledit is a self-hosted web platform for building highly customized wall calendars with print-ready exports.
+Kalenda is a self-hosted web platform for building highly customized wall calendars with print-ready exports.
 It targets users who need full creative control, long-term ownership of their data, and predictable output quality.
 
 ## Problem Statement
 
 Commercial services often restrict customization and impose workflow constraints.
-Caledit provides full control over layout, styling, assets, and export quality without vendor lock-in.
+Kalenda provides full control over layout, styling, assets, and export quality without vendor lock-in.
 
 ## Target Users
 
@@ -18,6 +18,7 @@ Caledit provides full control over layout, styling, assets, and export quality w
 ## Core Requirements
 
 ### Must-have
+
 - Multi-project calendar management
 - Full-page visual editing (images, text, stickers, layers)
 - Editable calendar grid and day-cell customization
@@ -28,6 +29,7 @@ Caledit provides full control over layout, styling, assets, and export quality w
 - Authentication and role-based access
 
 ### Should-have
+
 - Advanced onboarding and contextual help
 - Operational monitoring and backup automation
 - End-to-end test coverage for critical flows

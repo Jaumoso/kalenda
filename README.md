@@ -68,7 +68,7 @@ pnpm dev
 ## Monorepo Structure
 
 ```text
-caledit/
+kalenda/
 ├── apps/
 │   ├── frontend/
 │   └── backend/

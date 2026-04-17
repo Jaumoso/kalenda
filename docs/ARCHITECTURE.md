@@ -2,25 +2,25 @@
 
 ## Overview
 
-Caledit uses a containerized architecture with an external reverse proxy for TLS and routing.
+Kalenda uses a containerized architecture with an external reverse proxy for TLS and routing.
 The backend serves both API endpoints and the compiled SPA in production.
 
 ## Runtime topology
 
 - backend (Fastify) on :3000
   - Serves SPA static assets
-  - Serves /api/*
+  - Serves /api/\*
   - Serves uploads and exports
 - postgres on :5432
 - puppeteer service on :4000 for rendering jobs
 
 ## Development vs Production
 
-| Area | Development | Production |
-| --- | --- | --- |
-| Frontend | Vite dev server (:5173) | Compiled SPA served by backend |
-| API | backend :3000 | backend :3000 |
-| Compose behavior | local image build | GHCR prebuilt images |
+| Area             | Development             | Production                     |
+| ---------------- | ----------------------- | ------------------------------ |
+| Frontend         | Vite dev server (:5173) | Compiled SPA served by backend |
+| API              | backend :3000           | backend :3000                  |
+| Compose behavior | local image build       | GHCR prebuilt images           |
 
 ## Data model (high level)
 
@@ -39,8 +39,8 @@ The backend serves both API endpoints and the compiled SPA in production.
 
 Production compose uses prebuilt images:
 
-- ghcr.io/<owner>/caledit-backend:<tag>
-- ghcr.io/<owner>/caledit-puppeteer:<tag>
+- ghcr.io/<owner>/kalenda-backend:<tag>
+- ghcr.io/<owner>/kalenda-puppeteer:<tag>
 
 Images are published by GitHub Actions on release/tag events.
 

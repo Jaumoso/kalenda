@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
 
   puppeteer:
-    image: ghcr.io/${GHCR_OWNER:-jaumec}/caledit-puppeteer:${APP_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-jaumec}/kalenda-puppeteer:${APP_TAG:-latest}
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
       - FRONTEND_URL=http://backend:3000

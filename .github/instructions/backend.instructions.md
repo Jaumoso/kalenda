@@ -71,7 +71,7 @@ Three tiers defined in `config.ts`:
 
 ## Export & Render Pipeline
 
-- Puppeteer runs in a separate Docker container (`caledit-puppeteer`, port 4000)
+- Puppeteer runs in a separate Docker container (`kalenda-puppeteer`, port 4000)
 - `lib/renderer.ts` orchestrates the export: creates render tokens → Puppeteer captures pages → merges into PDF via `pdf-lib`
 - Render tokens are short-lived JWTs that grant Puppeteer access to `/api/render/*` endpoints without user session
 - `RenderMonthPage` and `RenderCoverPage` are public frontend pages consumed by Puppeteer — not user-facing

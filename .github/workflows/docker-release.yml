@@ -2,7 +2,7 @@ name: Docker Image Release
 
 on:
   release:
-    types: [published]
+    types: [ published ]
   push:
     tags:
       - "v*"
@@ -18,9 +18,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - image_name: caledit-backend
+          - image_name: kalenda-backend
             dockerfile: docker/Dockerfile.backend
-          - image_name: caledit-puppeteer
+          - image_name: kalenda-puppeteer
             dockerfile: docker/puppeteer/Dockerfile
 
     steps:
