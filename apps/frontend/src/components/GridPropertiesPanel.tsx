@@ -154,6 +154,19 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
             </select>
           </div>
         </div>
+        <div className="mt-2">
+          <label className="text-xs text-neutral-500 block mb-1">
+            {t('grid.borderRadius', { value: config.borderRadius })}
+          </label>
+          <input
+            type="range"
+            min={0}
+            max={24}
+            value={config.borderRadius}
+            onChange={(e) => update('borderRadius', Number(e.target.value))}
+            className="w-full accent-primary-500"
+          />
+        </div>
       </section>
 
       {/* Day numbers */}

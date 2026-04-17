@@ -11,6 +11,7 @@ export interface GridConfig {
   borderColor: string
   borderWidth: number
   borderStyle: 'solid' | 'dashed' | 'dotted' | 'none'
+  borderRadius: number
   dayFontFamily: string
   dayFontSize: number
   dayFontColor: string
@@ -125,6 +126,7 @@ export const DEFAULT_GRID_CONFIG: GridConfig = {
   borderColor: '#E2DDD6',
   borderWidth: 1,
   borderStyle: 'solid',
+  borderRadius: 8,
   dayFontFamily: 'Inter Variable',
   dayFontSize: 14,
   dayFontColor: '#1A1A1A',

@@ -10,6 +10,7 @@ const gridConfigSchema = z.object({
   borderColor: z.string().optional(),
   borderWidth: z.number().min(0).max(10).optional(),
   borderStyle: z.enum(['solid', 'dashed', 'dotted', 'none']).optional(),
+  borderRadius: z.number().min(0).max(24).optional(),
   dayFontFamily: z.string().optional(),
   dayFontSize: z.number().min(8).max(72).optional(),
   dayFontColor: z.string().optional(),
@@ -32,6 +33,7 @@ const gridConfigSchema = z.object({
   headerFontSize: z.number().min(8).max(72).optional(),
   headerFontColor: z.string().optional(),
   headerBgColor: z.string().optional(),
+  headerFormat: z.enum(['short', 'medium', 'long']).optional(),
 })
 
 const updateMonthSchema = z.object({

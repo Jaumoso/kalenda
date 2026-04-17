@@ -82,10 +82,11 @@ export default function CalendarGrid({
 
   return (
     <div
-      className="rounded-lg overflow-hidden flex flex-col h-full"
+      className="overflow-hidden flex flex-col h-full"
       style={{
         backgroundColor: config.bgColor,
         opacity: config.bgOpacity / 100,
+        borderRadius: `${config.borderRadius}px`,
       }}
     >
       {/* Weekday headers */}

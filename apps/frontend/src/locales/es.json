@@ -292,6 +292,7 @@
     "styleDashed": "Discontinuo",
     "styleDotted": "Punteado",
     "styleNone": "Ninguno",
+    "borderRadius": "Esquinas redondeadas: {{value}}px",
     "dayNumbers": "Números de día",
     "font": "Fuente",
     "size": "Tamaño",

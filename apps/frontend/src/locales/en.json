@@ -292,6 +292,7 @@
     "styleDashed": "Dashed",
     "styleDotted": "Dotted",
     "styleNone": "None",
+    "borderRadius": "Rounded corners: {{value}}px",
     "dayNumbers": "Day numbers",
     "font": "Font",
     "size": "Size",
