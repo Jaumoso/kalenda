@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuthStore } from '../stores/authStore'
 import { useTranslation } from 'react-i18next'
+import KalendaLogo from '../components/KalendaLogo'
 
 interface LoginForm {
   email: string
@@ -34,20 +35,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
-            <svg
-              className="h-6 w-6 text-primary-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10a2 2 0 002 2h4a2 2 0 002-2V11M9 11h6"
-              />
-            </svg>
+          <div className="mx-auto h-12 w-12 flex items-center justify-center">
+            <KalendaLogo size={48} className="text-primary-600" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">Kalenda</h2>
           <p className="mt-2 text-center text-sm text-neutral-600">{t('auth.signInToAccount')}</p>

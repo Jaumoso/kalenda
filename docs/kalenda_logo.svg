@@ -1,0 +1,79 @@
+<svg width="100%" viewBox="0 0 680 260" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Kalenda logo</title>
+  <desc>Kalenda wordmark with a wall calendar icon in orange</desc>
+
+  <!-- Calendar icon (shifted down to align with text) -->
+  <g transform="translate(0, 30)">
+    <!-- Page curl / shadow -->
+    <rect x="138" y="62" width="112" height="120" rx="6" fill="#B84000" opacity="0.25"/>
+
+    <!-- Main page -->
+    <rect x="132" y="56" width="112" height="120" rx="8" fill="#FFF4ED" stroke="#E8520A" stroke-width="3"/>
+
+    <!-- Header bar -->
+    <rect x="132" y="56" width="112" height="32" rx="8" fill="#E8520A"/>
+    <rect x="132" y="76" width="112" height="12" fill="#E8520A"/>
+
+    <!-- Pins -->
+    <circle cx="160" cy="56" r="5" fill="#C74300"/>
+    <circle cx="160" cy="56" r="2.5" fill="#FFF4ED"/>
+    <circle cx="216" cy="56" r="5" fill="#C74300"/>
+    <circle cx="216" cy="56" r="2.5" fill="#FFF4ED"/>
+
+    <!-- Header dots (weekday indicators) -->
+    <circle cx="148" cy="72" r="1.5" fill="white" fill-opacity="0.6"/>
+    <circle cx="160" cy="72" r="1.5" fill="white" fill-opacity="0.6"/>
+    <circle cx="172" cy="72" r="1.5" fill="white" fill-opacity="0.6"/>
+    <circle cx="184" cy="72" r="1.5" fill="white" fill-opacity="0.6"/>
+    <circle cx="196" cy="72" r="1.5" fill="white" fill-opacity="0.6"/>
+    <circle cx="208" cy="72" r="1.5" fill="white" fill-opacity="0.6"/>
+    <circle cx="220" cy="72" r="1.5" fill="white" fill-opacity="0.6"/>
+
+    <!-- Day numbers grid — 5x7 -->
+    <!-- Row 1 -->
+    <rect x="144" y="94"  width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="156" y="94"  width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="168" y="94"  width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="180" y="94"  width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.15"/>
+    <rect x="192" y="94"  width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="204" y="94"  width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="216" y="94"  width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.08"/>
+    <!-- Row 2 -->
+    <rect x="144" y="108" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.08"/>
+    <rect x="156" y="108" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="168" y="108" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="180" y="108" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="192" y="108" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.15"/>
+    <rect x="204" y="108" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="216" y="108" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.08"/>
+    <!-- Row 3 -->
+    <rect x="144" y="122" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.08"/>
+    <rect x="156" y="122" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="168" y="122" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.15"/>
+    <rect x="180" y="122" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="192" y="122" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="204" y="122" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="216" y="122" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.08"/>
+    <!-- Row 4 -->
+    <rect x="144" y="136" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.08"/>
+    <rect x="156" y="136" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="168" y="136" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="180" y="136" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="192" y="136" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.12"/>
+    <rect x="204" y="136" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.15"/>
+    <rect x="216" y="136" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.08"/>
+    <!-- Row 5 (partial) -->
+    <rect x="144" y="150" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.06"/>
+    <rect x="156" y="150" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.06"/>
+    <rect x="168" y="150" width="9" height="9" rx="2" fill="#E8520A" fill-opacity="0.06"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="278" y="158" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="#FF7A3D">Kalenda</text>
+
+  <!-- Tagline -->
+  <text x="280" y="195" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#E8520A">YOUR WALL, YOUR YEAR</text>
+
+  <!-- Baseline rule -->
+  <line x1="278" y1="204" x2="625" y2="204" stroke="#E8520A" stroke-width="1.5" stroke-opacity="0.35"/>
+</svg>

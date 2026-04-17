@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Sun, Moon, Monitor } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { useThemeStore } from '../stores/themeStore'
+import KalendaLogo from './KalendaLogo'
 
 export default function AppLayout() {
   const { user, logout } = useAuthStore()
@@ -31,7 +32,8 @@ export default function AppLayout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-6">
-              <Link to="/" className="text-lg font-bold text-primary-700">
+              <Link to="/" className="flex items-center gap-2 text-lg font-bold text-primary-700">
+                <KalendaLogo size={28} className="text-primary-600" />
                 Kalenda
               </Link>
               <nav className="flex gap-1">

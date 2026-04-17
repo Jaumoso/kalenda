@@ -1,4 +1,6 @@
-# Kalenda
+<p align="center">
+  <img src="docs/kalenda_logo.svg" alt="Kalenda" width="500" />
+</p>
 
 Kalenda is a self-hosted web application for designing fully customizable wall calendars.
 Create 12-month calendars with photos, stickers, text, and visual styles, then export production-ready PDF/PNG files.
@@ -23,15 +25,6 @@ pnpm dev
 
 - Admin: admin@kalenda.app / admin123
 - User: user@kalenda.app / user123
-
-### API endpoints
-
-- POST /api/auth/login
-- POST /api/auth/logout
-- POST /api/auth/refresh
-- GET /api/auth/me
-- POST /api/users (admin)
-- GET /api/users (admin)
 
 ## Technology Stack
 
