@@ -32,7 +32,19 @@ async function createServer() {
   })
 
   // Register plugins
-  await fastify.register(fastifyHelmet)
+  await fastify.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'", 'blob:'],
+        workerSrc: ["'self'", 'blob:'],
+      },
+    },
+  })
   await fastify.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET || 'default-secret-change-in-production',
   })
