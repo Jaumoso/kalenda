@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   MousePointer2,
@@ -15,6 +16,11 @@ import {
   ZoomIn,
   Scan,
   Trash2,
+  Shapes,
+  Square,
+  Circle,
+  Triangle,
+  Minus,
 } from 'lucide-react'
 import type { CanvasEditorHandle } from './CanvasEditor'
 
@@ -62,6 +68,7 @@ export default function CanvasToolbar({
         icon={<Smile size={16} />}
         onClick={onAddSticker}
       />
+      <ShapesDropdown editor={editor} />
 
       <Separator />
 
@@ -179,4 +186,69 @@ function ToolButton({
 
 function Separator() {
   return <div className="w-px h-5 bg-neutral-200 mx-1" />
+}
+
+function ShapesDropdown({ editor }: { editor: CanvasEditorHandle | null }) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handle = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [open])
+
+  const add = (shape: 'rect' | 'circle' | 'triangle' | 'line') => {
+    editor?.addShape(shape)
+    setOpen(false)
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        title={t('toolbar.addShape')}
+        onClick={() => setOpen(!open)}
+        className={`w-8 h-8 flex items-center justify-center rounded text-sm transition-colors cursor-pointer
+          ${open ? 'bg-primary-100 text-primary-700' : 'hover:bg-neutral-100 text-neutral-700'}`}
+      >
+        <Shapes size={16} />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1 bg-surface border border-neutral-200 rounded-lg shadow-lg p-1 z-50 flex gap-1">
+          <button
+            title={t('toolbar.shapeRect')}
+            onClick={() => add('rect')}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-neutral-100 text-neutral-700 cursor-pointer"
+          >
+            <Square size={16} />
+          </button>
+          <button
+            title={t('toolbar.shapeCircle')}
+            onClick={() => add('circle')}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-neutral-100 text-neutral-700 cursor-pointer"
+          >
+            <Circle size={16} />
+          </button>
+          <button
+            title={t('toolbar.shapeTriangle')}
+            onClick={() => add('triangle')}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-neutral-100 text-neutral-700 cursor-pointer"
+          >
+            <Triangle size={16} />
+          </button>
+          <button
+            title={t('toolbar.shapeLine')}
+            onClick={() => add('line')}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-neutral-100 text-neutral-700 cursor-pointer"
+          >
+            <Minus size={16} />
+          </button>
+        </div>
+      )}
+    </div>
+  )
 }

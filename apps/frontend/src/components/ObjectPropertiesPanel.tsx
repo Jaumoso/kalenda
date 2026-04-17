@@ -1,10 +1,24 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import type * as fabric from 'fabric'
+import * as fabric from 'fabric'
 import type { CanvasEditorHandle } from './CanvasEditor'
+import { patchClipBorder } from './CanvasEditor'
 import FontSelector from './FontSelector'
 import ColorPicker from './ColorPicker'
-import { AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline } from 'lucide-react'
+import {
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Bold,
+  Italic,
+  Underline,
+  Ban,
+  Circle,
+  Heart,
+  Star,
+  Hexagon,
+  Sun,
+} from 'lucide-react'
 
 interface ObjectPropertiesPanelProps {
   editorRef: React.RefObject<CanvasEditorHandle | null>
@@ -205,6 +219,184 @@ export default function ObjectPropertiesPanel({
                 )
               }
             />
+          </div>
+
+          {/* Clip mask */}
+          <div>
+            <label className="text-xs text-neutral-500 block mb-1">
+              {t('objectProps.clipMask')}
+            </label>
+            <div className="flex gap-1">
+              {(
+                [
+                  ['none', <Ban size={14} key="none" />],
+                  ['circle', <Circle size={14} key="circle" />],
+                  ['heart', <Heart size={14} key="heart" />],
+                  ['star', <Star size={14} key="star" />],
+                  ['hexagon', <Hexagon size={14} key="hexagon" />],
+                ] as [ClipMaskType, React.ReactNode][]
+              ).map(([mask, icon]) => (
+                <ToggleButton
+                  key={mask}
+                  active={getClipMaskType(selectedObject) === mask}
+                  onClick={() => {
+                    const canvas = editorRef.current?.getCanvas()
+                    if (!canvas) return
+                    applyClipMask(selectedObject, mask, canvas)
+                    onModified()
+                    readProps()
+                  }}
+                  title={t(`objectProps.mask${mask.charAt(0).toUpperCase() + mask.slice(1)}`)}
+                >
+                  {icon}
+                </ToggleButton>
+              ))}
+            </div>
+          </div>
+
+          {/* Drop shadow */}
+          <div>
+            <label className="text-xs text-neutral-500 flex items-center gap-1.5 mb-1">
+              <input
+                type="checkbox"
+                checked={!!selectedObject.shadow}
+                onChange={(e) => {
+                  const canvas = editorRef.current?.getCanvas()
+                  if (!canvas) return
+                  if (e.target.checked) {
+                    selectedObject.shadow = new fabric.Shadow({
+                      color: 'rgba(0,0,0,0.35)',
+                      blur: 12,
+                      offsetX: 4,
+                      offsetY: 4,
+                    })
+                  } else {
+                    selectedObject.shadow = null
+                  }
+                  selectedObject.dirty = true
+                  canvas.renderAll()
+                  onModified()
+                  readProps()
+                }}
+                className="rounded"
+              />
+              <Sun size={12} />
+              {t('objectProps.dropShadow')}
+            </label>
+            {selectedObject.shadow &&
+              (() => {
+                const shadow = selectedObject.shadow
+                const updateShadow = (
+                  key: 'blur' | 'offsetX' | 'offsetY' | 'color',
+                  val: number | string
+                ) => {
+                  const canvas = editorRef.current?.getCanvas()
+                  if (!canvas) return
+                  Object.assign(shadow, { [key]: val })
+                  selectedObject.dirty = true
+                  canvas.renderAll()
+                  onModified()
+                  readProps()
+                }
+                return (
+                  <div className="space-y-1.5 pl-1">
+                    <div>
+                      <label className="text-xs text-neutral-400">
+                        {t('objectProps.shadowBlur')}
+                      </label>
+                      <input
+                        type="range"
+                        min={0}
+                        max={60}
+                        step={1}
+                        value={shadow.blur ?? 12}
+                        onChange={(e) => updateShadow('blur', parseInt(e.target.value))}
+                        className="w-full"
+                      />
+                      <span className="text-xs text-neutral-400">{shadow.blur}px</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-neutral-400">
+                          {t('objectProps.shadowOffsetX')}
+                        </label>
+                        <input
+                          type="range"
+                          min={-30}
+                          max={30}
+                          step={1}
+                          value={shadow.offsetX ?? 4}
+                          onChange={(e) => updateShadow('offsetX', parseInt(e.target.value))}
+                          className="w-full"
+                        />
+                        <span className="text-xs text-neutral-400">{shadow.offsetX}px</span>
+                      </div>
+                      <div>
+                        <label className="text-xs text-neutral-400">
+                          {t('objectProps.shadowOffsetY')}
+                        </label>
+                        <input
+                          type="range"
+                          min={-30}
+                          max={30}
+                          step={1}
+                          value={shadow.offsetY ?? 4}
+                          onChange={(e) => updateShadow('offsetY', parseInt(e.target.value))}
+                          className="w-full"
+                        />
+                        <span className="text-xs text-neutral-400">{shadow.offsetY}px</span>
+                      </div>
+                    </div>
+                    <ColorPicker
+                      label={t('objectProps.shadowColor')}
+                      color={shadow.color ?? 'rgba(0,0,0,0.35)'}
+                      onChange={(v) => updateShadow('color', v)}
+                    />
+                  </div>
+                )
+              })()}
+          </div>
+
+          {/* Image border / frame */}
+          <div>
+            <label className="text-xs text-neutral-500 block mb-1">{t('objectProps.border')}</label>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-neutral-400">{t('objectProps.borderWidth')}</label>
+                <input
+                  type="range"
+                  min={0}
+                  max={40}
+                  step={1}
+                  value={selectedObject.strokeWidth ?? 0}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value)
+                    selectedObject.set('strokeWidth', v)
+                    selectedObject.set('strokeUniform', true)
+                    if (v > 0 && !selectedObject.stroke) {
+                      selectedObject.set('stroke', '#ffffff')
+                    }
+                    editorRef.current?.getCanvas()?.renderAll()
+                    onModified()
+                    readProps()
+                  }}
+                  className="w-full mt-0.5"
+                />
+                <span className="text-xs text-neutral-400">
+                  {selectedObject.strokeWidth ?? 0}px
+                </span>
+              </div>
+              <ColorPicker
+                label={t('objectProps.borderColor')}
+                color={(selectedObject.stroke as string) || '#ffffff'}
+                onChange={(v) => {
+                  selectedObject.set('stroke', v)
+                  editorRef.current?.getCanvas()?.renderAll()
+                  onModified()
+                  readProps()
+                }}
+              />
+            </div>
           </div>
         </>
       )}
@@ -480,4 +672,62 @@ async function toggleSepia(img: fabric.FabricImage, canvas: fabric.Canvas, onMod
   img.applyFilters()
   canvas.renderAll()
   onModified()
+}
+
+// ── Clip mask types ──────────────────────────────────────────────────────────
+
+type ClipMaskType = 'none' | 'circle' | 'heart' | 'star' | 'hexagon'
+
+function getClipMaskType(obj: fabric.FabricObject): ClipMaskType {
+  return (obj as fabric.FabricObject & { clipMaskType?: ClipMaskType }).clipMaskType || 'none'
+}
+
+function buildClipPath(type: ClipMaskType, w: number, h: number): fabric.FabricObject | undefined {
+  const r = Math.min(w, h) / 2
+  switch (type) {
+    case 'circle':
+      return new fabric.Circle({ radius: r, originX: 'center', originY: 'center' })
+    case 'heart': {
+      // Heart path in a 20×20 viewBox centred at (10,10), scaled to fit
+      const s = (r * 2) / 20
+      return new fabric.Path(
+        'M 10,17 C 10,17 2,11 2,6.5 C 2,3.5 4.5,1 7,1 C 8.7,1 10,2.2 10,2.2 C 10,2.2 11.3,1 13,1 C 15.5,1 18,3.5 18,6.5 C 18,11 10,17 10,17 Z',
+        { originX: 'center', originY: 'center', scaleX: s, scaleY: s, left: 0, top: 0 }
+      )
+    }
+    case 'star': {
+      const pts: { x: number; y: number }[] = []
+      const outer = r,
+        inner = r * 0.4
+      for (let i = 0; i < 10; i++) {
+        const angle = (Math.PI * i) / 5 - Math.PI / 2
+        const rad = i % 2 === 0 ? outer : inner
+        pts.push({ x: rad * Math.cos(angle), y: rad * Math.sin(angle) })
+      }
+      return new fabric.Polygon(pts, { originX: 'center', originY: 'center' })
+    }
+    case 'hexagon': {
+      const pts: { x: number; y: number }[] = []
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI * i) / 3 - Math.PI / 6
+        pts.push({ x: r * Math.cos(angle), y: r * Math.sin(angle) })
+      }
+      return new fabric.Polygon(pts, { originX: 'center', originY: 'center' })
+    }
+    default:
+      return undefined
+  }
+}
+
+function applyClipMask(obj: fabric.FabricObject, type: ClipMaskType, canvas: fabric.Canvas) {
+  const w = obj.width
+  const h = obj.height
+  obj.clipPath = buildClipPath(type, w, h)
+  ;(obj as fabric.FabricObject & { clipMaskType?: ClipMaskType }).clipMaskType = type
+  // Patch rendering so stroke/border draws outside the clip path
+  if (type !== 'none') {
+    patchClipBorder(obj)
+  }
+  obj.dirty = true
+  canvas.renderAll()
 }

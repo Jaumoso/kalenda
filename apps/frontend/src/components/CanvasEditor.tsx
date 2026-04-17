@@ -2,6 +2,121 @@ import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHand
 import * as fabric from 'fabric'
 import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
 
+// ── Clip-border rendering patch ──────────────────────────────────────────────
+// Fabric.js clipPath clips the stroke too. This patch draws the border
+// outline AFTER the clipped render so it remains visible on masked images.
+
+type ClipMaskName = 'circle' | 'heart' | 'star' | 'hexagon'
+type ObjWithClip = fabric.FabricObject & {
+  clipMaskType?: string
+  __clipBorderPatched?: boolean
+}
+
+/** Draw the outline matching a clip-mask shape (canvas 2D, centered at 0,0). */
+function drawMaskBorder(
+  ctx: CanvasRenderingContext2D,
+  maskType: ClipMaskName,
+  w: number,
+  h: number,
+  strokeWidth: number,
+  strokeColor: string
+) {
+  const r = Math.min(w, h) / 2
+  ctx.save()
+  ctx.strokeStyle = strokeColor
+  ctx.lineWidth = strokeWidth
+  ctx.lineJoin = 'round'
+
+  switch (maskType) {
+    case 'circle':
+      ctx.beginPath()
+      ctx.arc(0, 0, r, 0, Math.PI * 2)
+      ctx.stroke()
+      break
+    case 'heart': {
+      const s = (r * 2) / 20
+      const heart = new Path2D(
+        'M 10,17 C 10,17 2,11 2,6.5 C 2,3.5 4.5,1 7,1 C 8.7,1 10,2.2 10,2.2 C 10,2.2 11.3,1 13,1 C 15.5,1 18,3.5 18,6.5 C 18,11 10,17 10,17 Z'
+      )
+      ctx.save()
+      // Compensate lineWidth for the scale so stroke looks uniform
+      ctx.lineWidth = strokeWidth / s
+      ctx.scale(s, s)
+      ctx.translate(-10, -9)
+      ctx.stroke(heart)
+      ctx.restore()
+      break
+    }
+    case 'star': {
+      const outer = r,
+        inner = r * 0.4
+      ctx.beginPath()
+      for (let i = 0; i < 10; i++) {
+        const angle = (Math.PI * i) / 5 - Math.PI / 2
+        const rad = i % 2 === 0 ? outer : inner
+        const x = rad * Math.cos(angle)
+        const y = rad * Math.sin(angle)
+        if (i === 0) ctx.moveTo(x, y)
+        else ctx.lineTo(x, y)
+      }
+      ctx.closePath()
+      ctx.stroke()
+      break
+    }
+    case 'hexagon': {
+      ctx.beginPath()
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI * i) / 3 - Math.PI / 6
+        const x = r * Math.cos(angle)
+        const y = r * Math.sin(angle)
+        if (i === 0) ctx.moveTo(x, y)
+        else ctx.lineTo(x, y)
+      }
+      ctx.closePath()
+      ctx.stroke()
+      break
+    }
+  }
+  ctx.restore()
+}
+
+/**
+ * Patch an object so its stroke renders outside the clipPath.
+ * Safe to call multiple times (idempotent).
+ */
+export function patchClipBorder(obj: fabric.FabricObject): void {
+  const o = obj as ObjWithClip
+  if (o.__clipBorderPatched) return
+  o.__clipBorderPatched = true
+
+  const origDrawObject = obj.drawObject.bind(obj)
+  obj.drawObject = function (
+    this: ObjWithClip,
+    ctx: CanvasRenderingContext2D,
+    forClipping: boolean | undefined,
+    context: fabric.DrawContext
+  ) {
+    const maskType = this.clipMaskType
+    const hasBorder =
+      maskType && maskType !== 'none' && this.clipPath && this.strokeWidth && this.strokeWidth > 0
+
+    if (!hasBorder || forClipping) {
+      origDrawObject.call(this, ctx, forClipping, context)
+      return
+    }
+
+    // Hide stroke → clipped render → restore → draw border outside clip
+    const sw = this.strokeWidth
+    const sc = this.stroke
+    this.strokeWidth = 0
+    origDrawObject.call(this, ctx, forClipping, context)
+    this.strokeWidth = sw
+    this.stroke = sc
+
+    drawMaskBorder(ctx, maskType as ClipMaskName, this.width, this.height, sw, sc as string)
+  }
+}
+
 /**
  * Normalize image `src` in canvas JSON to relative paths.
  * Fabric.js stores the resolved absolute URL (e.g. http://localhost:5173/uploads/file.jpg)
@@ -81,6 +196,15 @@ async function safeLoadFromJSON(canvas: fabric.Canvas, json: object): Promise<vo
   canvas.renderOnAddRemove = false
   canvas.clear()
   if (loaded.length) canvas.add(...loaded)
+
+  // Re-patch clip-border rendering for objects that have a mask
+  for (const obj of loaded) {
+    const o = obj as ObjWithClip
+    if (o.clipMaskType && o.clipMaskType !== 'none') {
+      patchClipBorder(obj)
+    }
+  }
+
   // Set canvas props WITHOUT backgroundImage/overlayImage (those were extracted above)
   canvas.set(canvasProps)
   // Set deserialized FabricImage instances for bg/overlay
@@ -96,6 +220,7 @@ export interface CanvasEditorHandle {
   addImageFromURL: (url: string, name?: string) => Promise<void>
   addText: (text?: string) => void
   addSticker: (emoji: string) => void
+  addShape: (shape: 'rect' | 'circle' | 'triangle' | 'line') => void
   setBackground: (type: 'color' | 'image', value: string) => Promise<void>
   undo: () => void
   redo: () => void
@@ -134,6 +259,13 @@ const CANVAS_HEIGHT = PAGE_HEIGHT
 
 const MAX_HISTORY = 50
 
+/** Serialize canvas including custom properties (customName, clipMaskType) */
+const EXTRA_PROPS = ['customName', 'clipMaskType']
+function canvasToJSON(canvas: fabric.Canvas) {
+  // Fabric.js accepts propertiesToInclude at runtime; TS types don't declare it
+  return (canvas as unknown as { toJSON: (p: string[]) => object }).toJSON(EXTRA_PROPS)
+}
+
 const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
   (
     { width = CANVAS_WIDTH, height = CANVAS_HEIGHT, onModified, onSelectionChange, onReady },
@@ -152,8 +284,7 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
       if (isLoadingRef.current) return
       const canvas = fabricRef.current
       if (!canvas) return
-      const json = JSON.stringify(canvas.toJSON())
-      // Truncate forward history
+      const json = JSON.stringify(canvasToJSON(canvas))
       historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1)
       historyRef.current.push(json)
       if (historyRef.current.length > MAX_HISTORY) {
@@ -228,7 +359,7 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
       })
 
       // Start with empty canvas — data will be loaded via loadFromJSON after fetch
-      const jsonStr = JSON.stringify(canvas.toJSON())
+      const jsonStr = JSON.stringify(canvasToJSON(canvas))
       historyRef.current = [jsonStr]
       historyIndexRef.current = 0
 
@@ -305,7 +436,7 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
         getCanvas: () => fabricRef.current,
         toJSON: () => {
           if (!fabricRef.current) return null
-          const json = fabricRef.current.toJSON() as Record<string, unknown>
+          const json = canvasToJSON(fabricRef.current) as Record<string, unknown>
           return normalizeCanvasJson(json)
         },
         loadFromJSON: async (json: object) => {
@@ -317,7 +448,7 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
           isLoadingRef.current = false
           // Reset history for the newly loaded state
           try {
-            const jsonStr = JSON.stringify(canvas.toJSON())
+            const jsonStr = JSON.stringify(canvasToJSON(canvas))
             historyRef.current = [jsonStr]
             historyIndexRef.current = 0
           } catch (err) {
@@ -375,6 +506,45 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
             `Sticker: ${emoji}`
           canvas.add(textObj)
           canvas.setActiveObject(textObj)
+          canvas.renderAll()
+        },
+        addShape: (shape: 'rect' | 'circle' | 'triangle' | 'line') => {
+          const canvas = fabricRef.current
+          if (!canvas) return
+          let obj: fabric.FabricObject
+          const common = { left: 100, top: 100, fill: '#3B82F6', stroke: '#1E40AF', strokeWidth: 2 }
+          switch (shape) {
+            case 'rect':
+              obj = new fabric.Rect({ ...common, width: 150, height: 100, rx: 0, ry: 0 })
+              ;(obj as fabric.FabricObject & { customName?: string }).customName = 'Rectangle'
+              break
+            case 'circle':
+              obj = new fabric.Circle({ ...common, radius: 60 })
+              ;(obj as fabric.FabricObject & { customName?: string }).customName = 'Circle'
+              break
+            case 'triangle':
+              obj = new fabric.Triangle({ ...common, width: 120, height: 100 })
+              ;(obj as fabric.FabricObject & { customName?: string }).customName = 'Triangle'
+              break
+            case 'line':
+              obj = new fabric.Polyline(
+                [
+                  { x: 0, y: 0 },
+                  { x: 200, y: 0 },
+                ],
+                {
+                  left: 100,
+                  top: 100,
+                  stroke: '#1E40AF',
+                  strokeWidth: 3,
+                  fill: '',
+                }
+              )
+              ;(obj as fabric.FabricObject & { customName?: string }).customName = 'Line'
+              break
+          }
+          canvas.add(obj)
+          canvas.setActiveObject(obj)
           canvas.renderAll()
         },
         setBackground: async (type: 'color' | 'image', value: string) => {
