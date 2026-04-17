@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from 'react'
 import * as fabric from 'fabric'
 import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
+import { useClipboardStore } from '../stores/clipboardStore'
 
 // ── Clip-border rendering patch ──────────────────────────────────────────────
 // Fabric.js clipPath clips the stroke too. This patch draws the border
@@ -239,6 +240,8 @@ export interface CanvasEditorHandle {
   getObjects: () => fabric.FabricObject[]
   getActiveObject: () => fabric.FabricObject | null
   selectObject: (obj: fabric.FabricObject) => void
+  copySelected: () => void
+  paste: () => Promise<void>
   toDataURL: (options?: {
     format?: 'jpeg' | 'png' | 'webp'
     quality?: number
@@ -265,6 +268,9 @@ const EXTRA_PROPS = ['customName', 'clipMaskType', 'selectable', 'evented']
 function canvasToJSON(canvas: fabric.Canvas) {
   // Fabric.js accepts propertiesToInclude at runtime; TS types don't declare it
   return (canvas as unknown as { toJSON: (p: string[]) => object }).toJSON(EXTRA_PROPS)
+}
+function objectToJSON(obj: fabric.FabricObject) {
+  return (obj as unknown as { toJSON: (p: string[]) => object }).toJSON(EXTRA_PROPS)
 }
 
 const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
@@ -442,6 +448,38 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
             canvas.discardActiveObject()
             canvas.renderAll()
           }
+        } else if ((e.metaKey || e.ctrlKey) && e.key === 'c') {
+          if (!canvas) return
+          const active = canvas.getActiveObject()
+          if (active) {
+            e.preventDefault()
+            const cloned = objectToJSON(active)
+            useClipboardStore.getState().copy(JSON.stringify(cloned))
+          }
+        } else if ((e.metaKey || e.ctrlKey) && e.key === 'v') {
+          const json = useClipboardStore.getState().objectJson
+          if (!json || !canvas) return
+          e.preventDefault()
+          const parsed = JSON.parse(json)
+          if (parsed.left != null) parsed.left += 20
+          if (parsed.top != null) parsed.top += 20
+          fabric.util.enlivenObjects<fabric.FabricObject>([parsed]).then((objects) => {
+            for (const obj of objects) {
+              if (parsed.customName) {
+                ;(obj as fabric.FabricObject & { customName?: string }).customName =
+                  parsed.customName
+              }
+              if (parsed.clipMaskType) {
+                ;(obj as ObjWithClip).clipMaskType = parsed.clipMaskType
+                patchClipBorder(obj)
+              }
+              canvas.add(obj)
+              canvas.setActiveObject(obj)
+            }
+            canvas.renderAll()
+            saveHistory()
+            onModified?.()
+          })
         }
       }
       window.addEventListener('keydown', handleKeyDown)
@@ -681,6 +719,40 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
           if (!canvas) return
           canvas.setActiveObject(obj)
           canvas.renderAll()
+        },
+        copySelected: () => {
+          const canvas = fabricRef.current
+          if (!canvas) return
+          const active = canvas.getActiveObject()
+          if (!active) return
+          const cloned = objectToJSON(active)
+          useClipboardStore.getState().copy(JSON.stringify(cloned))
+        },
+        paste: async () => {
+          const canvas = fabricRef.current
+          if (!canvas) return
+          const json = useClipboardStore.getState().objectJson
+          if (!json) return
+          const parsed = JSON.parse(json)
+          // Offset pasted object so it doesn't overlap exactly
+          if (parsed.left != null) parsed.left += 20
+          if (parsed.top != null) parsed.top += 20
+          const objects = await fabric.util.enlivenObjects<fabric.FabricObject>([parsed])
+          for (const obj of objects) {
+            // Restore custom props that enlivenObjects may drop
+            if (parsed.customName) {
+              ;(obj as fabric.FabricObject & { customName?: string }).customName = parsed.customName
+            }
+            if (parsed.clipMaskType) {
+              ;(obj as ObjWithClip).clipMaskType = parsed.clipMaskType
+              patchClipBorder(obj)
+            }
+            canvas.add(obj)
+            canvas.setActiveObject(obj)
+          }
+          canvas.renderAll()
+          saveHistory()
+          onModified?.()
         },
         toDataURL: (options?: {
           format?: 'jpeg' | 'png' | 'webp'

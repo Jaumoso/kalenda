@@ -21,6 +21,8 @@ import {
   Circle,
   Triangle,
   Minus,
+  Copy,
+  ClipboardPaste,
 } from 'lucide-react'
 import type { CanvasEditorHandle } from './CanvasEditor'
 
@@ -139,6 +141,20 @@ export default function CanvasToolbar({
         title={t('toolbar.zoomReset')}
         icon={<Scan size={16} />}
         onClick={() => editor?.zoomReset()}
+      />
+
+      <Separator />
+
+      {/* Copy / Paste */}
+      <ToolButton
+        title={t('toolbar.copy')}
+        icon={<Copy size={16} />}
+        onClick={() => editor?.copySelected()}
+      />
+      <ToolButton
+        title={t('toolbar.paste')}
+        icon={<ClipboardPaste size={16} />}
+        onClick={() => editor?.paste()}
       />
 
       <Separator />

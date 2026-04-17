@@ -397,6 +397,8 @@
     "zoomOut": "Zoom out",
     "zoomIn": "Zoom in",
     "zoomReset": "Zoom 100%",
+    "copy": "Copy (Ctrl+C)",
+    "paste": "Paste (Ctrl+V)",
     "deleteSelected": "Delete selected"
   },
   "cell": {
