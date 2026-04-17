@@ -20,7 +20,7 @@ WORKDIR /app
 
 # Copy package files and install
 COPY docker/puppeteer/package.json ./
-RUN npm install --production
+RUN npm install --omit=dev
 
 # Copy service source
 COPY docker/puppeteer/index.js ./
