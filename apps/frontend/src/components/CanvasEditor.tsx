@@ -22,6 +22,7 @@ export interface CanvasEditorHandle {
   sendBackward: () => void
   bringToFront: () => void
   sendToBack: () => void
+  moveObjectTo: (obj: fabric.FabricObject, newIndex: number) => void
   deleteSelected: () => void
   getObjects: () => fabric.FabricObject[]
   getActiveObject: () => fabric.FabricObject | null
@@ -382,6 +383,14 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
             saveHistory()
             onModified?.()
           }
+        },
+        moveObjectTo: (obj: fabric.FabricObject, newIndex: number) => {
+          const canvas = fabricRef.current
+          if (!canvas) return
+          canvas.moveObjectTo(obj, newIndex)
+          canvas.renderAll()
+          saveHistory()
+          onModified?.()
         },
         deleteSelected: () => {
           const canvas = fabricRef.current

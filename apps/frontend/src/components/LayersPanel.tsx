@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import type * as fabric from 'fabric'
 import type { CanvasEditorHandle } from './CanvasEditor'
@@ -12,12 +12,51 @@ interface LayersPanelProps {
 export default function LayersPanel({ editorRef, selectedObject, refreshKey }: LayersPanelProps) {
   const { t } = useTranslation()
   const [objects, setObjects] = useState<fabric.FabricObject[]>([])
+  const dragItemRef = useRef<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   useEffect(() => {
     const editor = editorRef.current
     if (!editor) return
     setObjects([...editor.getObjects()].reverse())
   }, [editorRef, selectedObject, refreshKey])
+
+  const handleDragStart = (index: number) => {
+    dragItemRef.current = index
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (dragItemRef.current === null) return
+    setDragOverIndex(index)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = (targetIndex: number) => {
+    const sourceIndex = dragItemRef.current
+    dragItemRef.current = null
+    setDragOverIndex(null)
+    if (sourceIndex === null || sourceIndex === targetIndex) return
+
+    const editor = editorRef.current
+    if (!editor) return
+
+    // objects is reversed (top layer first), canvas uses bottom-first indexing
+    const obj = objects[sourceIndex]
+    const totalObjects = objects.length
+    // Convert reversed panel index to canvas index
+    const newCanvasIndex = totalObjects - 1 - targetIndex
+    editor.moveObjectTo(obj, newCanvasIndex)
+    setObjects([...editor.getObjects()].reverse())
+  }
+
+  const handleDragEnd = () => {
+    dragItemRef.current = null
+    setDragOverIndex(null)
+  }
 
   if (objects.length === 0) {
     return <div className="text-xs text-neutral-400 text-center py-4">{t('layers.noElements')}</div>
@@ -31,18 +70,27 @@ export default function LayersPanel({ editorRef, selectedObject, refreshKey }: L
       {objects.map((obj, i) => {
         const isActive = selectedObject === obj
         const name = getObjectName(obj, objects.length - i, t)
+        const isDragOver = dragOverIndex === i && dragItemRef.current !== i
         return (
           <div
             key={`layer-${objects.length - i}`}
+            draggable
+            onDragStart={() => handleDragStart(i)}
+            onDragOver={(e) => handleDragOver(e, i)}
+            onDragLeave={handleDragLeave}
+            onDrop={() => handleDrop(i)}
+            onDragEnd={handleDragEnd}
             onClick={() => editorRef.current?.selectObject(obj)}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter') editorRef.current?.selectObject(obj)
             }}
-            className={`w-full text-left px-2 py-1.5 rounded text-xs flex items-center gap-2 transition-colors cursor-pointer
-              ${isActive ? 'bg-primary-100 text-primary-800' : 'hover:bg-neutral-100 text-neutral-700'}`}
+            className={`w-full text-left px-2 py-1.5 rounded text-xs flex items-center gap-2 transition-colors cursor-grab active:cursor-grabbing
+              ${isActive ? 'bg-primary-100 text-primary-800' : 'hover:bg-neutral-100 text-neutral-700'}
+              ${isDragOver ? 'border-t-2 border-primary-400' : 'border-t-2 border-transparent'}`}
           >
+            <span className="text-neutral-300 cursor-grab select-none">⠿</span>
             <span className="text-sm">{getObjectIcon(obj)}</span>
             <span className="truncate flex-1">{name}</span>
             <button
