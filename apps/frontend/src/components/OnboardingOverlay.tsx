@@ -52,7 +52,7 @@ export default function OnboardingOverlay() {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9990]">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div className="p-8 text-center">
           <span className="text-5xl block mb-4">{current.icon}</span>
           <h2 className="text-xl font-bold text-neutral-900 mb-2">{current.title}</h2>

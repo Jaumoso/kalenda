@@ -152,7 +152,7 @@ export default function CoverEditorPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
       {/* Top bar */}
-      <div className="bg-white border-b border-neutral-200 px-4 py-2 flex items-center justify-between shrink-0">
+      <div className="bg-surface border-b border-neutral-200 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <Link
             to={`/projects/${projectId}`}
@@ -199,7 +199,7 @@ export default function CoverEditorPage() {
       </div>
 
       {/* Canvas toolbar */}
-      <div className="bg-white border-b border-neutral-200 px-4 py-1.5 flex items-center gap-2 shrink-0">
+      <div className="bg-surface border-b border-neutral-200 px-4 py-1.5 flex items-center gap-2 shrink-0">
         <span className="text-xs font-medium text-neutral-500 mr-2">
           {isFront ? t('cover.frontLabel') : t('cover.backLabel')}
         </span>
@@ -235,7 +235,7 @@ export default function CoverEditorPage() {
         </div>
 
         {/* Right panel */}
-        <div className="w-72 bg-white border-l border-neutral-200 overflow-y-auto p-4 shrink-0">
+        <div className="w-72 bg-surface border-l border-neutral-200 overflow-y-auto p-4 shrink-0">
           <div className="space-y-6">
             <ObjectPropertiesPanel
               editorRef={canvasEditorRef}

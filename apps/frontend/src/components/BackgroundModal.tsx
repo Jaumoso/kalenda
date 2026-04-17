@@ -53,7 +53,10 @@ export default function BackgroundModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onClose}
     >
-      <div className="bg-white rounded-xl shadow-xl w-96 p-5" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="bg-surface rounded-xl shadow-xl w-96 p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="font-semibold text-neutral-900 mb-4">{t('background.title')}</h2>
 
         {/* Solid color */}

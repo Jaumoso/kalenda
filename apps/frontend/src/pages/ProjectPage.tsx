@@ -156,7 +156,7 @@ export default function ProjectPage() {
         {/* Cover (front) */}
         <Link
           to={`/projects/${project.id}/cover/front`}
-          className="bg-white rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
+          className="bg-surface rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
         >
           <span className="text-3xl mb-2">📖</span>
           <h3 className="font-semibold text-primary-700 text-sm">{t('project.frontCover')}</h3>
@@ -171,7 +171,7 @@ export default function ProjectPage() {
             <Link
               key={m.id}
               to={`/projects/${project.id}/months/${m.id}`}
-              className={`bg-white rounded-lg border p-4 hover:shadow-md transition-shadow ${
+              className={`bg-surface rounded-lg border p-4 hover:shadow-md transition-shadow ${
                 m.isCustomized ? 'border-primary-200' : 'border-neutral-200'
               }`}
             >
@@ -212,7 +212,7 @@ export default function ProjectPage() {
         {/* Back cover */}
         <Link
           to={`/projects/${project.id}/cover/back`}
-          className="bg-white rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
+          className="bg-surface rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
         >
           <span className="text-3xl mb-2">📘</span>
           <h3 className="font-semibold text-primary-700 text-sm">{t('project.backCover')}</h3>

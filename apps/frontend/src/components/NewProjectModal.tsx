@@ -83,7 +83,7 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
+      <div className="relative bg-surface rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">{t('newProject.title')}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">

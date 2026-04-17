@@ -409,6 +409,11 @@
     "previous": "Anterior",
     "next": "Siguiente"
   },
+  "theme": {
+    "light": "☀️ Claro",
+    "dark": "🌙 Oscuro",
+    "system": "🖥️ Sistema"
+  },
   "app": {
     "loading": "Cargando..."
   }

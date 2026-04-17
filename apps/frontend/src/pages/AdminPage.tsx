@@ -100,7 +100,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-neutral-200">
+      <header className="bg-surface shadow-sm border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-neutral-900">CalendApp</h1>
@@ -150,7 +150,7 @@ export default function AdminPage() {
 
         {/* Create user form */}
         {showCreateForm && (
-          <div className="mb-6 bg-white rounded-lg shadow p-6 border border-neutral-200">
+          <div className="mb-6 bg-surface rounded-lg shadow p-6 border border-neutral-200">
             <h3 className="text-md font-semibold text-neutral-800 mb-4">{t('admin.newUser')}</h3>
             <form onSubmit={handleCreateUser} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -248,7 +248,7 @@ export default function AdminPage() {
             <p className="mt-2 text-sm text-neutral-500">{t('admin.loading')}</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden border border-neutral-200">
+          <div className="bg-surface rounded-lg shadow overflow-hidden border border-neutral-200">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
                 <tr>
@@ -269,7 +269,7 @@ export default function AdminPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-neutral-200">
+              <tbody className="bg-surface divide-y divide-neutral-200">
                 {users.map((u) => (
                   <tr key={u.id} className={!u.isActive ? 'opacity-50' : ''}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">

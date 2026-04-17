@@ -18,7 +18,7 @@ export default function CanvasToolbar({
   const editor = editorRef.current
 
   return (
-    <div className="flex items-center gap-1 bg-white rounded-lg border border-neutral-200 px-2 py-1.5 shadow-sm flex-wrap">
+    <div className="flex items-center gap-1 bg-surface rounded-lg border border-neutral-200 px-2 py-1.5 shadow-sm flex-wrap">
       {/* Selection / Move (default) */}
       <ToolButton title={t('toolbar.selectMove')} icon="↖" onClick={() => {}} active />
 

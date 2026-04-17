@@ -112,7 +112,7 @@ export default function TemplatesPage() {
             return (
               <div
                 key={tpl.id}
-                className="bg-white rounded-lg border border-neutral-200 p-4 flex items-center justify-between"
+                className="bg-surface rounded-lg border border-neutral-200 p-4 flex items-center justify-between"
               >
                 <div className="flex-1 min-w-0">
                   {editingId === tpl.id ? (

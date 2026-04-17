@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary-50: #fef7f4;
   --color-primary-100: #fdeae2;
@@ -22,6 +24,37 @@
   --color-neutral-700: #4a4540;
   --color-neutral-800: #2e2a27;
   --color-neutral-900: #1a1a1a;
+
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8f7f4;
+}
+
+.dark {
+  --color-primary-50: #2a1f1a;
+  --color-primary-100: #3a2820;
+  --color-primary-200: #4a3528;
+
+  --color-neutral-50: #1a1817;
+  --color-neutral-100: #24211f;
+  --color-neutral-200: #363230;
+  --color-neutral-300: #4a4542;
+  --color-neutral-400: #7a7370;
+  --color-neutral-500: #9c9490;
+  --color-neutral-600: #b5ada8;
+  --color-neutral-700: #cec6c0;
+  --color-neutral-800: #e0d8d2;
+  --color-neutral-900: #f0ebe6;
+
+  --color-surface: #221f1d;
+  --color-surface-alt: #1e1c1a;
+
+  --color-red-50: #2a1a1a;
+  --color-red-100: #3a2020;
+  --color-green-50: #1a2a1a;
+  --color-green-100: #1f3320;
+  --color-blue-50: #1a1e2a;
+  --color-blue-100: #1e2535;
+  --color-amber-50: #2a251a;
 }
 
 @layer base {
@@ -29,8 +62,8 @@
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
-    color: #1a1a1a;
-    background-color: #f8f7f4;
+    color: var(--color-neutral-900);
+    background-color: var(--color-neutral-50);
   }
 
   body {
@@ -42,6 +75,11 @@
   #root {
     width: 100%;
     margin: 0 auto;
+  }
+
+  select option {
+    background-color: var(--color-surface);
+    color: var(--color-neutral-900);
   }
 }
 

@@ -124,7 +124,7 @@ export default function DashboardPage() {
             return (
               <div
                 key={project.id}
-                className="bg-white rounded-lg border border-neutral-200 hover:shadow-md transition-shadow"
+                className="bg-surface rounded-lg border border-neutral-200 hover:shadow-md transition-shadow"
               >
                 <Link to={`/projects/${project.id}`} className="block p-5">
                   <div className="flex items-start justify-between mb-3">

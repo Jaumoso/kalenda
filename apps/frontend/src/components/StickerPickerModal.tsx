@@ -76,7 +76,7 @@ export default function StickerPickerModal({ isOpen, onClose, onSelect }: Sticke
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl w-96 max-h-[60vh] flex flex-col"
+        className="bg-surface rounded-xl shadow-xl w-96 max-h-[60vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">

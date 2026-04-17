@@ -267,7 +267,7 @@ export default function DraggableGridOverlay({
             const distTop = y
             const distBottom = PAGE_HEIGHT - y - height
             const labelClass =
-              'absolute text-[9px] font-mono text-blue-600 bg-white/80 px-1 rounded shadow-sm pointer-events-none whitespace-nowrap'
+              'absolute text-[9px] font-mono text-blue-600 bg-surface/80 px-1 rounded shadow-sm pointer-events-none whitespace-nowrap'
             const lineColor = '#93C5FD' // blue-300
 
             return (

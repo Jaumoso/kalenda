@@ -299,7 +299,7 @@ export default function LibraryPage() {
               {currentSubfolders.map((folder) => (
                 <div
                   key={folder.id}
-                  className="group bg-white border border-neutral-200 rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer relative"
+                  className="group bg-surface border border-neutral-200 rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer relative"
                   onClick={() => setCurrentFolderId(folder.id)}
                 >
                   <div className="text-2xl mb-1">📁</div>
@@ -353,7 +353,7 @@ export default function LibraryPage() {
                   {assets.map((asset) => (
                     <div
                       key={asset.id}
-                      className="group bg-white border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow relative"
+                      className="group bg-surface border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow relative"
                     >
                       <div className="aspect-square bg-neutral-100 flex items-center justify-center">
                         {asset.thumbPath ? (

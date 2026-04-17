@@ -1,9 +1,11 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../stores/authStore'
+import { useThemeStore } from '../stores/themeStore'
 
 export default function AppLayout() {
   const { user, logout } = useAuthStore()
+  const { theme, setTheme } = useThemeStore()
   const location = useLocation()
   const { t, i18n } = useTranslation()
 
@@ -24,7 +26,7 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <header className="bg-white border-b border-neutral-200">
+      <header className="bg-surface border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-6">
@@ -48,6 +50,15 @@ export default function AppLayout() {
               </nav>
             </div>
             <div className="flex items-center gap-4">
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
+                className="text-sm text-neutral-500 bg-transparent border border-neutral-200 rounded px-2 py-1 cursor-pointer hover:border-neutral-400 transition-colors focus:outline-none focus:ring-1 focus:ring-primary-500"
+              >
+                <option value="light">{t('theme.light')}</option>
+                <option value="dark">{t('theme.dark')}</option>
+                <option value="system">{t('theme.system')}</option>
+              </select>
               <select
                 value={currentLang.code}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}

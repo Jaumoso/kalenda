@@ -409,6 +409,11 @@
     "previous": "Previous",
     "next": "Next"
   },
+  "theme": {
+    "light": "☀️ Light",
+    "dark": "🌙 Dark",
+    "system": "🖥️ System"
+  },
   "app": {
     "loading": "Loading..."
   }

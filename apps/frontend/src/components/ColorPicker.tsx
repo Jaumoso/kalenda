@@ -39,7 +39,7 @@ export default function ColorPicker({ color, onChange, label }: Props) {
         />
       </div>
       {open && (
-        <div className="absolute z-50 top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-xl border border-neutral-200">
+        <div className="absolute z-50 top-full left-0 mt-1 p-2 bg-surface rounded-lg shadow-xl border border-neutral-200">
           <HexColorPicker color={color} onChange={onChange} />
         </div>
       )}

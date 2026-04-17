@@ -67,7 +67,7 @@ export default function AssetPickerModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl w-[700px] max-h-[80vh] flex flex-col"
+        className="bg-surface rounded-xl shadow-xl w-[700px] max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

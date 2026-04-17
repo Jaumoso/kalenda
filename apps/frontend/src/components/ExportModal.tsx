@@ -100,7 +100,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="bg-surface rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-200">
           <h2 className="text-lg font-bold text-neutral-900">{t('exportModal.title')}</h2>

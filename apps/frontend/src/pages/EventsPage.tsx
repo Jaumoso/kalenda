@@ -102,7 +102,7 @@ export default function EventsPage() {
                 <h2 className="text-sm font-semibold text-neutral-700 uppercase tracking-wider mb-2">
                   {monthNames[m - 1]}
                 </h2>
-                <div className="bg-white rounded-lg border border-neutral-200 divide-y divide-neutral-100">
+                <div className="bg-surface rounded-lg border border-neutral-200 divide-y divide-neutral-100">
                   {grouped[m]
                     .sort((a, b) => a.day - b.day)
                     .map((event) => (
@@ -226,7 +226,7 @@ function EventForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40" />
       <div
-        className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6"
+        className="relative bg-surface rounded-xl shadow-2xl w-full max-w-md mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">
