@@ -67,7 +67,7 @@ done
 # Commit and tag
 git add -A
 git commit -m "release: v${NEXT}"
-git tag "v${NEXT}"
+git tag -a "v${NEXT}" -m "release: v${NEXT}"
 
 echo ""
 echo -e "${GREEN}✓ Bumped to v${NEXT}${NC}"
