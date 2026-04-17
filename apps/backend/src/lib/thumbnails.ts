@@ -17,6 +17,15 @@ const PAGE_HEIGHT = 1123
 const THUMB_WIDTH = 240
 const THUMB_HEIGHT = Math.round(THUMB_WIDTH * (PAGE_HEIGHT / PAGE_WIDTH))
 
+// cuid format: starts with 'c', followed by alphanumeric chars (typically 25 total)
+const CUID_RE = /^c[a-z0-9]{20,30}$/
+
+function assertCuid(value: string, label: string): void {
+  if (!CUID_RE.test(value)) {
+    throw new Error(`Invalid ${label}: must be a valid cuid`)
+  }
+}
+
 let browser: Browser | null = null
 
 async function getBrowser(): Promise<Browser> {
@@ -46,6 +55,7 @@ function ensureThumbsDir() {
  * the full page via Puppeteer and scaling it down.
  */
 export async function generateMonthThumbnail(monthId: string, userId: string): Promise<void> {
+  assertCuid(monthId, 'monthId')
   ensureThumbsDir()
 
   const token = jwt.sign({ monthId, purpose: 'render' }, JWT_SECRET, { expiresIn: '2m' })
@@ -82,6 +92,7 @@ export async function generateCoverThumbnail(
   projectId: string,
   side: 'front' | 'back'
 ): Promise<void> {
+  assertCuid(projectId, 'projectId')
   ensureThumbsDir()
 
   const token = jwt.sign({ projectId, purpose: 'render-cover' }, JWT_SECRET, { expiresIn: '2m' })
