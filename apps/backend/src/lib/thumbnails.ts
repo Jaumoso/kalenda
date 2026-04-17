@@ -6,7 +6,10 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const THUMBS_DIR = path.join(__dirname, '../../uploads/thumbs')
+const THUMBS_DIR = path.join(
+  process.env.UPLOAD_PATH || path.join(__dirname, '../../uploads'),
+  'thumbs'
+)
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
 

@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: kalenda-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-kalenda}
       POSTGRES_USER: ${POSTGRES_USER:-kalenda}
@@ -24,6 +25,8 @@ services:
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-change-in-production}
       - UPLOAD_PATH=/data/uploads
       - EXPORT_PATH=/data/exports
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@kalenda.app}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
     volumes:
       - ./data:/data
     ports:

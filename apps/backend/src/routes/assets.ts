@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url'
 import { rateLimitConfig } from '@/config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const UPLOADS_DIR = path.join(__dirname, '../../uploads')
+const UPLOADS_DIR = process.env.UPLOAD_PATH || path.join(__dirname, '../../uploads')
 const THUMBS_DIR = path.join(UPLOADS_DIR, 'thumbs')
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']

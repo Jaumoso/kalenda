@@ -56,7 +56,7 @@ async function createServer() {
   await fastify.register(authPlugin)
 
   // Serve uploaded files (must be first static registration to own decorateReply)
-  const uploadsDir = path.join(__dirname, '../uploads')
+  const uploadsDir = process.env.UPLOAD_PATH || path.join(__dirname, '../uploads')
   if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
   await fastify.register(fastifyStatic, {
     root: uploadsDir,

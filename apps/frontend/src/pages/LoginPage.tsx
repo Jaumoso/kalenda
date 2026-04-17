@@ -172,14 +172,16 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="text-center">
-            <div className="text-sm text-neutral-600">{t('auth.demoCredentials')}</div>
-            <div className="mt-2 text-xs text-neutral-500">
-              Admin: admin@kalenda.app / admin123
-              <br />
-              User: user@kalenda.app / user123
+          {import.meta.env.DEV && (
+            <div className="text-center">
+              <div className="text-sm text-neutral-600">{t('auth.demoCredentials')}</div>
+              <div className="mt-2 text-xs text-neutral-500">
+                Admin: admin@kalenda.app / admin123
+                <br />
+                User: user@kalenda.app / user123
+              </div>
             </div>
-          </div>
+          )}
         </form>
       </div>
     </div>
