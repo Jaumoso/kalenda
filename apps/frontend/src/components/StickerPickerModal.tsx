@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { X } from 'lucide-react'
 
 const EMOJI_CATEGORIES: { name: string; emojis: string[] }[] = [
   {
@@ -82,7 +83,7 @@ export default function StickerPickerModal({ isOpen, onClose, onSelect }: Sticke
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
           <h2 className="font-semibold text-neutral-900">{t('stickerPicker.title')}</h2>
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600 text-xl">
-            ×
+            <X size={18} />
           </button>
         </div>
 

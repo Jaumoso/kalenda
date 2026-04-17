@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { X, Folder } from 'lucide-react'
 import api from '../lib/api'
 
 interface Asset {
@@ -79,7 +80,7 @@ export default function AssetPickerModal({
                 : t('assetPicker.selectImage'))}
           </h2>
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600 text-xl">
-            ×
+            <X size={18} />
           </button>
         </div>
 
@@ -111,7 +112,7 @@ export default function AssetPickerModal({
                 onClick={() => setCurrentFolder(f.id)}
                 className="px-3 py-1 text-xs bg-neutral-100 hover:bg-neutral-200 rounded-full text-neutral-700 transition-colors"
               >
-                📁 {f.name}
+                <Folder size={14} className="inline mr-1" />{f.name}
               </button>
             ))}
           </div>

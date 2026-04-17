@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ArrowLeft, ClipboardList, FileDown, BookOpen, Book } from 'lucide-react'
 import api from '../lib/api'
 import ApplyTemplateModal from '../components/ApplyTemplateModal'
 import ExportModal from '../components/ExportModal'
@@ -116,7 +117,7 @@ export default function ProjectPage() {
             className="text-neutral-400 hover:text-neutral-600 transition-colors"
             title={t('project.goBack')}
           >
-            ←
+            <ArrowLeft size={16} className="inline mr-1" />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-neutral-900">{project.name}</h1>
@@ -124,7 +125,7 @@ export default function ProjectPage() {
               {project.year}
               {project.templateId && (
                 <span className="ml-2 text-xs bg-primary-50 text-primary-600 px-1.5 py-0.5 rounded">
-                  {'📋 ' + t('project.withTemplate')}
+                  <ClipboardList size={14} className="inline mr-1" />{t('project.withTemplate')}
                 </span>
               )}
             </p>
@@ -132,10 +133,10 @@ export default function ProjectPage() {
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowExport(true)} className="btn btn-primary text-sm">
-            {'📄 ' + t('project.export')}
+            <FileDown size={14} className="inline mr-1" />{t('project.export')}
           </button>
           <button onClick={() => setShowApplyTemplate(true)} className="btn btn-secondary text-sm">
-            {'📋 ' + t('project.applyTemplate')}
+            <ClipboardList size={14} className="inline mr-1" />{t('project.applyTemplate')}
           </button>
           <select
             value={project.status}
@@ -158,7 +159,7 @@ export default function ProjectPage() {
           to={`/projects/${project.id}/cover/front`}
           className="bg-surface rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
         >
-          <span className="text-3xl mb-2">📖</span>
+          <span className="text-3xl mb-2"><BookOpen size={20} /></span>
           <h3 className="font-semibold text-primary-700 text-sm">{t('project.frontCover')}</h3>
           <p className="text-[10px] text-neutral-400 mt-1">{t('project.fullA4')}</p>
         </Link>
@@ -214,7 +215,7 @@ export default function ProjectPage() {
           to={`/projects/${project.id}/cover/back`}
           className="bg-surface rounded-lg border border-dashed border-primary-300 p-4 hover:shadow-md transition-shadow flex flex-col items-center justify-center min-h-[14rem]"
         >
-          <span className="text-3xl mb-2">📘</span>
+          <span className="text-3xl mb-2"><Book size={20} /></span>
           <h3 className="font-semibold text-primary-700 text-sm">{t('project.backCover')}</h3>
           <p className="text-[10px] text-neutral-400 mt-1">{t('project.fullA4')}</p>
         </Link>

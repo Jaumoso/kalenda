@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Building2, CalendarDays, Image, X, Smile, Palette, Cake, Heart, Pin } from 'lucide-react'
 import type { DayCell, Holiday, CalEvent } from '../lib/calendarTypes'
 import { MONTH_NAMES } from '../lib/calendarTypes'
 import ColorPicker from './ColorPicker'
@@ -136,13 +137,13 @@ export default function CellModal({
         <h2 className="text-lg font-semibold text-neutral-900 mb-1">
           {t('cell.dayTitle', { day: dayNumber, month: MONTH_NAMES[month - 1], year })}
         </h2>
-        {saint && <p className="text-xs text-neutral-400 mb-1">🕊️ {saint}</p>}
+        {saint && <p className="text-xs text-neutral-400 mb-1">{saint}</p>}
         <hr className="my-3 border-neutral-200" />
 
         {/* Holidays */}
         {holidays.length > 0 && (
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-red-600 mb-1">{t('cell.holidays')}</h3>
+            <h3 className="text-sm font-medium text-red-600 mb-1"><Building2 size={14} className="inline mr-1" />{t('cell.holidays')}</h3>
             {holidays.map((h) => (
               <div key={h.id} className="text-xs bg-red-50 text-red-700 rounded px-2 py-1 mb-1">
                 {h.nameEs}
@@ -157,7 +158,7 @@ export default function CellModal({
         {/* Events */}
         {events.length > 0 && (
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-neutral-700 mb-1">{t('cell.events')}</h3>
+            <h3 className="text-sm font-medium text-neutral-700 mb-1"><CalendarDays size={14} className="inline mr-1" />{t('cell.events')}</h3>
             {events.map((ev) => (
               <div
                 key={ev.id}
@@ -175,7 +176,7 @@ export default function CellModal({
                   className="text-neutral-400 hover:text-red-500 ml-2"
                   title={t('cell.deleteEvent')}
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               </div>
             ))}
@@ -198,9 +199,9 @@ export default function CellModal({
               />
               <div className="flex gap-1">
                 {[
-                  { v: 'BIRTHDAY' as const, l: '🎂' },
-                  { v: 'ANNIVERSARY' as const, l: '💍' },
-                  { v: 'CUSTOM' as const, l: '📌' },
+                  { v: 'BIRTHDAY' as const, l: <Cake size={14} /> },
+                  { v: 'ANNIVERSARY' as const, l: <Heart size={14} /> },
+                  { v: 'CUSTOM' as const, l: <Pin size={14} /> },
                 ].map((opt) => (
                   <button
                     key={opt.v}
@@ -246,7 +247,7 @@ export default function CellModal({
 
         {/* Cell image */}
         <div className="mb-4">
-          <h3 className="text-sm font-medium text-neutral-700 mb-2">{t('cell.cellImage')}</h3>
+          <h3 className="text-sm font-medium text-neutral-700 mb-2"><Image size={14} className="inline mr-1" />{t('cell.cellImage')}</h3>
           {imageFilename ? (
             <div className="flex items-center gap-3">
               <div className="w-16 h-16 rounded-lg overflow-hidden border border-neutral-200 bg-neutral-50">
@@ -263,7 +264,7 @@ export default function CellModal({
                 }}
                 className="text-xs text-red-500 hover:text-red-700 transition-colors"
               >
-                {t('cell.removeImage')}
+                <X size={12} className="inline mr-1" />{t('cell.removeImage')}
               </button>
             </div>
           ) : (
@@ -288,7 +289,7 @@ export default function CellModal({
                   onClick={() => setEmoji('')}
                   className="text-xs text-neutral-400 hover:text-red-500 ml-1"
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               </div>
             )}
@@ -307,7 +308,7 @@ export default function CellModal({
                   }}
                   className="text-xs text-neutral-400 hover:text-red-500 ml-1"
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               </div>
             )}
@@ -315,13 +316,13 @@ export default function CellModal({
               onClick={() => setShowStickerPicker(true)}
               className="px-3 py-1.5 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50 transition-colors"
             >
-              {t('cell.emojiButton')}
+              <Smile size={14} className="inline mr-1" />{t('cell.emojiButton')}
             </button>
             <button
               onClick={() => setShowStickerAssetPicker(true)}
               className="px-3 py-1.5 text-sm border border-neutral-300 rounded-md hover:bg-neutral-50 transition-colors"
             >
-              {t('cell.stickerButton')}
+              <Palette size={14} className="inline mr-1" />{t('cell.stickerButton')}
             </button>
           </div>
         </div>

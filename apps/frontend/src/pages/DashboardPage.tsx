@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { Calendar } from 'lucide-react'
 import api from '../lib/api'
 import NewProjectModal from '../components/NewProjectModal'
 
@@ -107,7 +108,7 @@ export default function DashboardPage() {
 
       {projects.length === 0 ? (
         <div className="text-center py-16">
-          <div className="text-5xl mb-4">📅</div>
+          <Calendar size={48} className="text-neutral-300 mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-neutral-700 mb-2">
             {t('dashboard.noCalendars')}
           </h2>

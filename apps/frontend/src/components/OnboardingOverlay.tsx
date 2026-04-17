@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Hand, Calendar, Image, Paintbrush, FileDown } from 'lucide-react'
 
 const ONBOARDING_KEY = 'calendapp-onboarding-done'
 
@@ -22,27 +23,27 @@ export default function OnboardingOverlay() {
 
   const steps = [
     {
-      icon: '👋',
+      icon: <Hand size={32} />,
       title: t('onboarding.welcome'),
       text: t('onboarding.welcomeText'),
     },
     {
-      icon: '📅',
+      icon: <Calendar size={32} />,
       title: t('onboarding.createProject'),
       text: t('onboarding.createProjectText'),
     },
     {
-      icon: '🖼️',
+      icon: <Image size={32} />,
       title: t('onboarding.uploadPhotos'),
       text: t('onboarding.uploadPhotosText'),
     },
     {
-      icon: '🎨',
+      icon: <Paintbrush size={32} />,
       title: t('onboarding.designPages'),
       text: t('onboarding.designPagesText'),
     },
     {
-      icon: '📄',
+      icon: <FileDown size={32} />,
       title: t('onboarding.exportPrint'),
       text: t('onboarding.exportPrintText'),
     },
@@ -54,7 +55,7 @@ export default function OnboardingOverlay() {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9990]">
       <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div className="p-8 text-center">
-          <span className="text-5xl block mb-4">{current.icon}</span>
+          <div className="flex justify-center mb-4">{current.icon}</div>
           <h2 className="text-xl font-bold text-neutral-900 mb-2">{current.title}</h2>
           <p className="text-sm text-neutral-600 leading-relaxed">{current.text}</p>
         </div>

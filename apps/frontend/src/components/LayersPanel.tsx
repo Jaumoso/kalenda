@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import type * as fabric from 'fabric'
 import type { CanvasEditorHandle } from './CanvasEditor'
+import { GripVertical, Eye, EyeOff, Type, Image, Square, Circle, Diamond } from 'lucide-react'
 
 interface LayersPanelProps {
   editorRef: React.RefObject<CanvasEditorHandle | null>
@@ -90,8 +91,8 @@ export default function LayersPanel({ editorRef, selectedObject, refreshKey }: L
               ${isActive ? 'bg-primary-100 text-primary-800' : 'hover:bg-neutral-100 text-neutral-700'}
               ${isDragOver ? 'border-t-2 border-primary-400' : 'border-t-2 border-transparent'}`}
           >
-            <span className="text-neutral-300 cursor-grab select-none">⠿</span>
-            <span className="text-sm">{getObjectIcon(obj)}</span>
+            <span className="text-neutral-300 cursor-grab select-none"><GripVertical size={14} className="text-neutral-300" /></span>
+            <span className="text-sm flex items-center">{getObjectIcon(obj)}</span>
             <span className="truncate flex-1">{name}</span>
             <button
               onClick={(e) => {
@@ -103,7 +104,7 @@ export default function LayersPanel({ editorRef, selectedObject, refreshKey }: L
               className="text-neutral-400 hover:text-neutral-600"
               title={obj.visible !== false ? t('layers.hide') : t('layers.show')}
             >
-              {obj.visible !== false ? '👁' : '👁‍🗨'}
+              {obj.visible !== false ? <Eye size={14} /> : <EyeOff size={14} />}
             </button>
           </div>
         )
@@ -129,10 +130,10 @@ function getObjectName(
   return t('layers.element', { n: layerNum })
 }
 
-function getObjectIcon(obj: fabric.FabricObject): string {
-  if (obj.type === 'i-text' || obj.type === 'text' || obj.type === 'textbox') return '📝'
-  if (obj.type === 'image') return '🖼️'
-  if (obj.type === 'rect') return '⬜'
-  if (obj.type === 'circle') return '⭕'
-  return '◆'
+function getObjectIcon(obj: fabric.FabricObject): React.ReactNode {
+  if (obj.type === 'i-text' || obj.type === 'text' || obj.type === 'textbox') return <Type size={14} />
+  if (obj.type === 'image') return <Image size={14} />
+  if (obj.type === 'rect') return <Square size={14} />
+  if (obj.type === 'circle') return <Circle size={14} />
+  return <Diamond size={14} />
 }

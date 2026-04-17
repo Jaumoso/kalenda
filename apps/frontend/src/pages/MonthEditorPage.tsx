@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Save, Paintbrush, Grid3X3, ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '../lib/api'
 import type { GridConfig, DayCell, MonthData, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
 import { DEFAULT_GRID_CONFIG, PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
@@ -281,7 +282,7 @@ export default function MonthEditorPage() {
               className="text-neutral-400 hover:text-neutral-700 disabled:opacity-30 transition-colors"
               title={t('editor.previousMonth')}
             >
-              ◀
+              <ChevronLeft size={16} />
             </button>
             <h1 className="text-lg font-bold text-neutral-900">
               {monthName} {monthData.year}
@@ -292,7 +293,7 @@ export default function MonthEditorPage() {
               className="text-neutral-400 hover:text-neutral-700 disabled:opacity-30 transition-colors"
               title={t('editor.nextMonth')}
             >
-              ▶
+              <ChevronRight size={16} />
             </button>
           </div>
         </div>
@@ -319,7 +320,7 @@ export default function MonthEditorPage() {
             className="btn btn-secondary text-sm"
             title={t('editor.saveTemplate')}
           >
-            {t('editor.templateButton')}
+            <Save size={14} className="inline mr-1" />{t('editor.templateButton')}
           </button>
         </div>
       </div>
@@ -334,7 +335,7 @@ export default function MonthEditorPage() {
               : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
           }`}
         >
-          {t('editor.decoratePage')}
+          <Paintbrush size={14} className="inline mr-1" />{t('editor.decoratePage')}
         </button>
         <button
           onClick={() => setEditorMode('grid')}
@@ -344,7 +345,7 @@ export default function MonthEditorPage() {
               : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
           }`}
         >
-          {t('editor.editGrid')}
+          <Grid3X3 size={14} className="inline mr-1" />{t('editor.editGrid')}
         </button>
 
         {editorMode === 'canvas' && (

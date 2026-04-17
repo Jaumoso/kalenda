@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ClipboardList, Star } from 'lucide-react'
 import api from '../lib/api'
 
 interface Template {
@@ -96,7 +97,7 @@ export default function TemplatesPage() {
 
       {templates.length === 0 ? (
         <div className="text-center py-16">
-          <div className="text-5xl mb-4">📋</div>
+          <ClipboardList size={48} className="text-neutral-300 mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-neutral-700 mb-2">
             {t('templates.noTemplates')}
           </h2>
@@ -147,7 +148,7 @@ export default function TemplatesPage() {
                         <h3 className="font-medium text-neutral-900 text-sm">{tpl.name}</h3>
                         {tpl.isDefault && (
                           <span className="text-[10px] bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full font-medium">
-                            {t('templates.default')}
+                            <Star size={14} className="inline mr-1" />{t('templates.default')}
                           </span>
                         )}
                       </div>

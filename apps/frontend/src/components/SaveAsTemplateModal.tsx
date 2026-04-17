@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Save } from 'lucide-react'
 import api from '../lib/api'
 
 interface Props {
@@ -33,7 +34,7 @@ export default function SaveAsTemplateModal({ monthId, onClose, onSaved }: Props
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-surface rounded-lg shadow-xl w-full max-w-sm mx-4 p-5">
-        <h2 className="text-base font-semibold text-neutral-900 mb-3">{t('saveTemplate.title')}</h2>
+        <h2 className="text-base font-semibold text-neutral-900 mb-3"><Save size={18} className="inline mr-2" />{t('saveTemplate.title')}</h2>
         <p className="text-xs text-neutral-500 mb-4">{t('saveTemplate.description')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-3">

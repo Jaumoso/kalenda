@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Sun, Moon, Monitor } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { useThemeStore } from '../stores/themeStore'
 
@@ -10,8 +11,8 @@ export default function AppLayout() {
   const { t, i18n } = useTranslation()
 
   const languages = [
-    { code: 'es', label: '🇪🇸 Español' },
-    { code: 'en', label: '🇬🇧 English' },
+    { code: 'es', label: 'ES' },
+    { code: 'en', label: 'EN' },
   ]
 
   const currentLang = languages.find((l) => i18n.language.startsWith(l.code)) ?? languages[0]
@@ -50,15 +51,22 @@ export default function AppLayout() {
               </nav>
             </div>
             <div className="flex items-center gap-4">
-              <select
-                value={theme}
-                onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
-                className="text-sm text-neutral-500 bg-transparent border border-neutral-200 rounded px-2 py-1 cursor-pointer hover:border-neutral-400 transition-colors focus:outline-none focus:ring-1 focus:ring-primary-500"
-              >
-                <option value="light">{t('theme.light')}</option>
-                <option value="dark">{t('theme.dark')}</option>
-                <option value="system">{t('theme.system')}</option>
-              </select>
+              <div className="flex items-center border border-neutral-200 rounded overflow-hidden">
+                {([['light', Sun], ['dark', Moon], ['system', Monitor]] as const).map(([value, Icon]) => (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    title={t(`theme.${value}`)}
+                    className={`p-1.5 transition-colors ${
+                      theme === value
+                        ? 'bg-primary-100 text-primary-700'
+                        : 'text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100'
+                    }`}
+                  >
+                    <Icon size={14} />
+                  </button>
+                ))}
+              </div>
               <select
                 value={currentLang.code}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}

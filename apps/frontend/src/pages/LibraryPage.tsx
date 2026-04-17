@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Folder, X, Image } from 'lucide-react'
 import api from '../lib/api'
 
 interface Asset {
@@ -302,7 +303,7 @@ export default function LibraryPage() {
                   className="group bg-surface border border-neutral-200 rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer relative"
                   onClick={() => setCurrentFolderId(folder.id)}
                 >
-                  <div className="text-2xl mb-1">📁</div>
+                  <div className="text-2xl mb-1"><Folder size={20} /></div>
                   <p className="text-sm font-medium text-neutral-800 truncate">{folder.name}</p>
                   <p className="text-xs text-neutral-400">
                     {folder._count.assets === 1
@@ -317,7 +318,7 @@ export default function LibraryPage() {
                     className="absolute top-1 right-1 text-neutral-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs p-1"
                     title={t('library.deleteThisFolder')}
                   >
-                    ✕
+                    <X size={14} />
                   </button>
                 </div>
               ))}
@@ -334,7 +335,7 @@ export default function LibraryPage() {
           </div>
         ) : assets.length === 0 && currentSubfolders.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-5xl mb-4">🖼️</div>
+            <Image size={48} className="text-neutral-300 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-neutral-700 mb-2">
               {search ? t('library.noResults') : t('library.noFiles')}
             </h2>
@@ -386,7 +387,7 @@ export default function LibraryPage() {
                         className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                         title={t('common.delete')}
                       >
-                        ✕
+                        <X size={14} />
                       </button>
                     </div>
                   ))}

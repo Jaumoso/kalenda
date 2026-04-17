@@ -1,10 +1,11 @@
+import { CheckCircle2, XCircle, Info, AlertTriangle, X } from 'lucide-react'
 import { useToastStore } from '../stores/toastStore'
 
-const ICONS: Record<string, string> = {
-  success: '✅',
-  error: '❌',
-  info: 'ℹ️',
-  warning: '⚠️',
+const ICONS: Record<string, React.ReactNode> = {
+  success: <CheckCircle2 size={18} className="text-green-600" />,
+  error: <XCircle size={18} className="text-red-600" />,
+  info: <Info size={18} className="text-blue-600" />,
+  warning: <AlertTriangle size={18} className="text-amber-600" />,
 }
 
 const BG_CLASSES: Record<string, string> = {
@@ -32,7 +33,7 @@ export default function ToastContainer() {
             onClick={() => removeToast(t.id)}
             className="shrink-0 opacity-50 hover:opacity-100 text-xs ml-2"
           >
-            ✕
+            <X size={14} />
           </button>
         </div>
       ))}

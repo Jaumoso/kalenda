@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Cake, Heart, Pin, Calendar, Pencil, Trash2 } from 'lucide-react'
 import api from '../lib/api'
 import type { CalEvent } from '../lib/calendarTypes'
 
 const EVENT_TYPES = [
-  { value: 'BIRTHDAY', label: 'events.birthday', icon: '🎂' },
-  { value: 'ANNIVERSARY', label: 'events.anniversary', icon: '💍' },
-  { value: 'CUSTOM', label: 'events.custom', icon: '📌' },
+  { value: 'BIRTHDAY', label: 'events.birthday', icon: <Cake size={16} /> },
+  { value: 'ANNIVERSARY', label: 'events.anniversary', icon: <Heart size={16} /> },
+  { value: 'CUSTOM', label: 'events.custom', icon: <Pin size={16} /> },
 ] as const
 
 export default function EventsPage() {
@@ -63,7 +64,7 @@ export default function EventsPage() {
     {} as Record<number, CalEvent[]>
   )
 
-  const typeIcon = (type: string) => EVENT_TYPES.find((t) => t.value === type)?.icon || '📌'
+  const typeIcon = (type: string) => EVENT_TYPES.find((t) => t.value === type)?.icon || <Pin size={16} />
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
@@ -89,7 +90,7 @@ export default function EventsPage() {
         </div>
       ) : events.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-4xl mb-3">📅</p>
+          <Calendar size={48} className="text-neutral-300 mx-auto mb-3" />
           <p className="text-neutral-500">{t('events.noEvents')}</p>
           <p className="text-sm text-neutral-400">{t('events.noEventsHint')}</p>
         </div>
@@ -134,13 +135,13 @@ export default function EventsPage() {
                             onClick={() => handleEdit(event)}
                             className="p-1.5 text-neutral-400 hover:text-primary-600 rounded transition-colors text-sm"
                           >
-                            ✏️
+                            <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => handleDelete(event.id)}
                             className="p-1.5 text-neutral-400 hover:text-red-500 rounded transition-colors text-sm"
                           >
-                            🗑️
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>

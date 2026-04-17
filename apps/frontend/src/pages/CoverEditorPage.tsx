@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { ChevronRight, ChevronLeft } from 'lucide-react'
 import api from '../lib/api'
 import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
 import CanvasEditor, { type CanvasEditorHandle } from '../components/CanvasEditor'
@@ -170,7 +171,7 @@ export default function CoverEditorPage() {
               className="text-neutral-400 hover:text-neutral-700 transition-colors"
               title={isFront ? t('cover.goToBack') : t('cover.goToFront')}
             >
-              {isFront ? '▶' : '◀'}
+              {isFront ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             </button>
             <h1 className="text-lg font-bold text-neutral-900">
               {label} — {coverData?.name}

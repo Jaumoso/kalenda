@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { X } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import api from '../lib/api'
 
@@ -131,7 +132,7 @@ export default function AdminPage() {
                 onClick={() => setError('')}
                 className="text-red-500 hover:text-red-700 text-sm"
               >
-                ✕
+                <X size={14} />
               </button>
             </div>
           </div>
