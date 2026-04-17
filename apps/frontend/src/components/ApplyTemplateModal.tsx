@@ -102,40 +102,40 @@ export default function ApplyTemplateModal({ projectId, onClose, onApplied }: Pr
             ) : (
               <>
                 <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
-                  {templates.map((t) => (
+                  {templates.map((tpl) => (
                     <div
-                      key={t.id}
+                      key={tpl.id}
                       className={`flex items-center justify-between border rounded-lg px-3 py-2 cursor-pointer transition-colors ${
-                        selectedId === t.id
+                        selectedId === tpl.id
                           ? 'border-primary-500 bg-primary-50'
                           : 'border-neutral-200 hover:border-neutral-300'
                       }`}
-                      onClick={() => setSelectedId(t.id)}
+                      onClick={() => setSelectedId(tpl.id)}
                     >
                       <div className="flex items-center gap-2">
                         <input
                           type="radio"
                           name="template"
-                          checked={selectedId === t.id}
-                          onChange={() => setSelectedId(t.id)}
+                          checked={selectedId === tpl.id}
+                          onChange={() => setSelectedId(tpl.id)}
                           className="accent-primary-600"
                         />
                         <div>
-                          <span className="text-sm font-medium text-neutral-800">{t.name}</span>
-                          {t.isDefault && (
+                          <span className="text-sm font-medium text-neutral-800">{tpl.name}</span>
+                          {tpl.isDefault && (
                             <span className="ml-2 text-[10px] bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full">
                               {t('applyTemplate.default')}
                             </span>
                           )}
                           <p className="text-[10px] text-neutral-400">
-                            {new Date(t.createdAt).toLocaleDateString(undefined)}
+                            {new Date(tpl.createdAt).toLocaleDateString(undefined)}
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleDelete(t.id)
+                          handleDelete(tpl.id)
                         }}
                         className="text-neutral-400 hover:text-red-500 text-xs transition-colors"
                         title="Delete"

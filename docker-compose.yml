@@ -15,7 +15,7 @@ services:
       retries: 5
 
   backend:
-    image: ghcr.io/${GHCR_OWNER:-jaumec}/kalenda-backend:${APP_TAG:-latest}
+    image: ghcr.io/jaumoso/kalenda-backend:${APP_TAG:-latest}
     container_name: kalenda-backend
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-kalenda}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kalenda}?schema=public
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
 
   puppeteer:
-    image: ghcr.io/${GHCR_OWNER:-jaumec}/kalenda-puppeteer:${APP_TAG:-latest}
+    image: ghcr.io/jaumoso/kalenda-puppeteer:${APP_TAG:-latest}
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
       - FRONTEND_URL=http://backend:3000
