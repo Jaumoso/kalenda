@@ -34,6 +34,7 @@ export interface GridConfig {
   monthTitleAlign: 'left' | 'center' | 'right'
   monthTitlePosition: 'top' | 'bottom'
   monthTitleBgColor: string
+  monthTitleBgOpacity: number
   monthTitleUppercase: boolean
   showHolidays: boolean
   holidayBgColor: string
@@ -165,6 +166,7 @@ export const DEFAULT_GRID_CONFIG: GridConfig = {
   monthTitleAlign: 'center',
   monthTitlePosition: 'top',
   monthTitleBgColor: '#ECE7D8',
+  monthTitleBgOpacity: 100,
   monthTitleUppercase: false,
   showHolidays: true,
   holidayBgColor: '#FECACA',

@@ -330,7 +330,8 @@
     "monthTitlePositionBottom": "Bottom",
     "monthTitleAlignLabel": "Alignment",
     "monthTitleBgColor": "Background color",
-    "monthTitleUppercase": "Uppercase"
+    "monthTitleUppercase": "Uppercase",
+    "monthTitleBgOpacity": "Background opacity"
   },
   "objectProps": {
     "noSelection": "Select an element to view its properties",

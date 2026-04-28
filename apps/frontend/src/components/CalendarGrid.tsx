@@ -93,12 +93,18 @@ export default function CalendarGrid({
       ? undefined
       : `${config.innerBorderWidth}px ${config.innerBorderStyle} ${config.innerBorderColor}`
 
+  // Table background applied per-section so the month title can be independently transparent
+  const tableBg =
+    config.bgOpacity === 0
+      ? 'transparent'
+      : config.bgOpacity < 100
+        ? `color-mix(in srgb, ${config.bgColor} ${config.bgOpacity}%, transparent)`
+        : config.bgColor
+
   return (
     <div
       className="overflow-hidden flex flex-col h-full"
       style={{
-        backgroundColor: config.bgColor,
-        opacity: config.bgOpacity / 100,
         borderRadius: `${config.borderRadius}px`,
         border: outerBorder,
       }}
@@ -114,7 +120,12 @@ export default function CalendarGrid({
             fontWeight: config.monthTitleFontWeight,
             textAlign: config.monthTitleAlign,
             textTransform: config.monthTitleUppercase ? 'uppercase' : 'none',
-            backgroundColor: config.monthTitleBgColor,
+            backgroundColor:
+              config.monthTitleBgOpacity === 0
+                ? 'transparent'
+                : config.monthTitleBgOpacity < 100
+                  ? `color-mix(in srgb, ${config.monthTitleBgColor} ${config.monthTitleBgOpacity}%, transparent)`
+                  : config.monthTitleBgColor,
           }}
         >
           {monthTitle}
@@ -122,7 +133,10 @@ export default function CalendarGrid({
       )}
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 shrink-0" style={{ borderBottom: innerBorder }}>
+      <div
+        className="grid grid-cols-7 shrink-0"
+        style={{ backgroundColor: tableBg, borderBottom: innerBorder }}
+      >
         {weekdays.map((day, i) => (
           <div
             key={i}
@@ -141,7 +155,7 @@ export default function CalendarGrid({
       </div>
 
       {/* Day grid */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col" style={{ backgroundColor: tableBg }}>
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
@@ -333,7 +347,12 @@ export default function CalendarGrid({
             fontWeight: config.monthTitleFontWeight,
             textAlign: config.monthTitleAlign,
             textTransform: config.monthTitleUppercase ? 'uppercase' : 'none',
-            backgroundColor: config.monthTitleBgColor,
+            backgroundColor:
+              config.monthTitleBgOpacity === 0
+                ? 'transparent'
+                : config.monthTitleBgOpacity < 100
+                  ? `color-mix(in srgb, ${config.monthTitleBgColor} ${config.monthTitleBgOpacity}%, transparent)`
+                  : config.monthTitleBgColor,
           }}
         >
           {monthTitle}

@@ -9,9 +9,9 @@
 
 ## Filosofía de desarrollo
 
-- **MVP primero:** Construir lo mínimo que permita a tu madre crear y exportar un calendario completo, aunque con menos opciones de personalización. Añadir funcionalidades iterativamente.
+- **MVP primero:** Construir lo mínimo que permita crear y exportar un calendario completo, aunque con menos opciones de personalización. Añadir funcionalidades iterativamente.
 - **Vertical slices:** Cada fase entrega valor real y usable, no capas horizontales de tecnología.
-- **Feedback continuo:** El usuario principal (tu madre) prueba en cuanto hay algo funcional.
+- **Feedback continuo:** El usuario principal prueba en cuanto hay algo funcional.
 
 ---
 
@@ -44,7 +44,7 @@
 ## Fase 1 — Autenticación y gestión de usuarios
 
 **Duración estimada:** 2-3 días  
-**Objetivo:** Login funcional, dos usuarios (madre + admin).
+**Objetivo:** Login funcional, dos usuarios (user + admin).
 
 ### Tareas:
 
@@ -58,7 +58,7 @@
 - [ ] Frontend: página de admin → gestión de usuarios
 - [ ] Crear los dos usuarios iniciales (seed)
 
-**Entregable:** Login y logout funcionando. La madre puede entrar con su cuenta.
+**Entregable:** Login y logout funcionando.
 
 ---
 
@@ -98,7 +98,7 @@
 - [ ] Frontend: subida drag & drop con barra de progreso
 - [ ] Frontend: búsqueda y filtrado
 
-**Entregable:** La madre puede subir todas sus fotos una vez y acceder a ellas siempre.
+**Entregable:** Puede subir todas sus fotos una vez y acceder a ellas siempre.
 
 ---
 
@@ -273,7 +273,7 @@
 ## Fase 10 — Pulido, UX y producción
 
 **Duración estimada:** 3-4 días  
-**Objetivo:** App lista para uso diario por la madre.
+**Objetivo:** App lista para uso diario.
 
 ### Tareas:
 
@@ -290,7 +290,7 @@
 - [ ] Configurar HTTPS con certificado propio o Let's Encrypt
 - [ ] Revisión completa con el usuario principal (prueba real)
 
-**Entregable:** App en producción, estable y usable por la madre sin ayuda.
+**Entregable:** App en producción, estable y usable sin ayuda.
 
 ---
 
@@ -317,7 +317,7 @@
 
 ## MVP funcional (Fases 0-5 + 9 básico)
 
-Con las fases 0 a 5 más una versión básica de exportación, la madre ya puede:
+Con las fases 0 a 5 más una versión básica de exportación, ya puede:
 
 - Crear un proyecto de calendario
 - Subir sus fotos
@@ -360,6 +360,7 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 - Portada y contraportada personalizadas
 - Exportar como imágenes sueltas (para WhatsApp, redes sociales)
 - Calendario de pared vs. calendario de sobremesa (layouts diferentes)
+- Revisar calendario físico y disposición de páginas. Por delante / detrás, una sola cara, cover y contraportada
 
 ### Plantillas y contenido
 

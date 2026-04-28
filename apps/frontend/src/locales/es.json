@@ -330,7 +330,8 @@
     "monthTitlePositionBottom": "Abajo",
     "monthTitleAlignLabel": "Alineación",
     "monthTitleBgColor": "Color de fondo",
-    "monthTitleUppercase": "Mayúsculas"
+    "monthTitleUppercase": "Mayúsculas",
+    "monthTitleBgOpacity": "Opacidad del fondo"
   },
   "objectProps": {
     "noSelection": "Selecciona un elemento para ver sus propiedades",

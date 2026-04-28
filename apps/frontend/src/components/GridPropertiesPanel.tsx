@@ -310,6 +310,19 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
                 onChange={(c) => update('monthTitleBgColor', c)}
               />
             </div>
+            <div className="mt-2">
+              <label className="text-xs text-neutral-500 block mb-1">
+                {t('grid.monthTitleBgOpacity')} ({config.monthTitleBgOpacity}%)
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={config.monthTitleBgOpacity}
+                onChange={(e) => update('monthTitleBgOpacity', Number(e.target.value))}
+                className="w-full accent-primary-600"
+              />
+            </div>
             <label className="flex items-center gap-2 text-xs text-neutral-700 mt-2">
               <input
                 type="checkbox"
