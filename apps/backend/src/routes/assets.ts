@@ -37,19 +37,19 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
     },
     async (request, reply) => {
       const parts = request.parts()
-      const uploaded: Array<{
-        id: string
-        filename: string
+      const savedFiles: Array<{
+        uniqueName: string
         originalName: string
-        mimeType: string
-        sizeBytes: number
+        mimetype: string
+        buffer: Buffer
+        filePath: string
         width: number | null
         height: number | null
-        thumbPath: string | null
-        type: string
+        thumbName: string | null
       }> = []
       let folderId: string | null = null
 
+      // Phase 1: Read all parts (fields + files) from the multipart stream
       for await (const part of parts) {
         if (part.type === 'field' && part.fieldname === 'folderId') {
           folderId = (part.value as string) || null
@@ -115,39 +115,66 @@ const assetRoutes: FastifyPluginAsync = async (fastify) => {
           await fs.writeFile(filePath, buffer)
         }
 
-        // Verify folder ownership if specified
-        if (folderId) {
-          const folder = await prisma.assetFolder.findFirst({
-            where: { id: folderId, userId: request.user!.id },
-          })
-          if (!folder) {
-            // Clean up uploaded file
-            await fs.unlink(filePath).catch(() => {})
-            if (thumbName) await fs.unlink(path.join(THUMBS_DIR, thumbName)).catch(() => {})
-            return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
-          }
-        }
+        savedFiles.push({
+          uniqueName,
+          originalName,
+          mimetype,
+          buffer,
+          filePath,
+          width,
+          height,
+          thumbName,
+        })
+      }
 
+      if (savedFiles.length === 0) {
+        return reply.code(400).send({ error: 'NO_FILES', message: 'No files were uploaded' })
+      }
+
+      // Phase 2: Verify folder ownership (folderId is now guaranteed to be read)
+      if (folderId) {
+        const folder = await prisma.assetFolder.findFirst({
+          where: { id: folderId, userId: request.user!.id },
+        })
+        if (!folder) {
+          // Clean up all saved files
+          for (const f of savedFiles) {
+            await fs.unlink(f.filePath).catch(() => {})
+            if (f.thumbName) await fs.unlink(path.join(THUMBS_DIR, f.thumbName)).catch(() => {})
+          }
+          return reply.code(404).send({ error: 'NOT_FOUND', message: 'Folder not found' })
+        }
+      }
+
+      // Phase 3: Create DB records with the correct folderId
+      const uploaded: Array<{
+        id: string
+        filename: string
+        originalName: string
+        mimeType: string
+        sizeBytes: number
+        width: number | null
+        height: number | null
+        thumbPath: string | null
+        type: string
+      }> = []
+
+      for (const f of savedFiles) {
         const asset = await prisma.asset.create({
           data: {
-            filename: uniqueName,
-            originalName,
-            mimeType: mimetype,
-            sizeBytes: buffer.length,
-            width,
-            height,
-            thumbPath: thumbName ? `thumbs/${thumbName}` : null,
+            filename: f.uniqueName,
+            originalName: f.originalName,
+            mimeType: f.mimetype,
+            sizeBytes: f.buffer.length,
+            width: f.width,
+            height: f.height,
+            thumbPath: f.thumbName ? `thumbs/${f.thumbName}` : null,
             type: 'IMAGE',
             folderId,
             userId: request.user!.id,
           },
         })
-
         uploaded.push(asset)
-      }
-
-      if (uploaded.length === 0) {
-        return reply.code(400).send({ error: 'NO_FILES', message: 'No files were uploaded' })
       }
 
       reply.code(201).send({ assets: uploaded })

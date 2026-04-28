@@ -171,11 +171,16 @@
     "deleteFolder": "Delete folder \"{{name}}\"? Files will be moved to root.",
     "dropToUpload": "Drop files to upload",
     "deleteThisFolder": "Delete folder",
+    "renameFolder": "Rename folder",
     "errorLoading": "Error loading assets",
     "errorUploading": "Error uploading files",
     "errorDeleting": "Error deleting",
     "errorCreatingFolder": "Error creating folder",
-    "errorDeletingFolder": "Error deleting folder"
+    "errorDeletingFolder": "Error deleting folder",
+    "errorRenamingFolder": "Error renaming folder",
+    "errorMoving": "Error moving item",
+    "dragToMove": "Drag to a folder or breadcrumb to move",
+    "moveToParent": "Drop here to move to parent folder"
   },
   "events": {
     "title": "My events",

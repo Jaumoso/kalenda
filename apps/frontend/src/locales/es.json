@@ -171,11 +171,16 @@
     "deleteFolder": "¿Eliminar la carpeta \"{{name}}\"? Los archivos se moverán a la raíz.",
     "dropToUpload": "Suelta los archivos para subir",
     "deleteThisFolder": "Eliminar carpeta",
+    "renameFolder": "Renombrar carpeta",
     "errorLoading": "Error al cargar archivos",
     "errorUploading": "Error al subir archivos",
     "errorDeleting": "Error al eliminar",
     "errorCreatingFolder": "Error al crear carpeta",
-    "errorDeletingFolder": "Error al eliminar carpeta"
+    "errorDeletingFolder": "Error al eliminar carpeta",
+    "errorRenamingFolder": "Error al renombrar carpeta",
+    "errorMoving": "Error al mover elemento",
+    "dragToMove": "Arrastra a una carpeta o a la ruta de navegación para mover",
+    "moveToParent": "Soltar aquí para mover a la carpeta superior"
   },
   "events": {
     "title": "Mis eventos",

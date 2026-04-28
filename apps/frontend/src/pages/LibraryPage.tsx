@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Folder, X, Image } from 'lucide-react'
+import { Folder, X, Image, ArrowUpLeft, Pencil } from 'lucide-react'
 import api from '../lib/api'
 
 interface Asset {
@@ -42,6 +42,8 @@ export default function LibraryPage() {
   const [dragOver, setDragOver] = useState(false)
   const [showNewFolder, setShowNewFolder] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null)
+  const [renameFolderName, setRenameFolderName] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchFolders = useCallback(async () => {
@@ -87,11 +89,11 @@ export default function LibraryPage() {
     setError(null)
 
     const formData = new FormData()
-    for (const file of Array.from(files)) {
-      formData.append('files', file)
-    }
     if (currentFolderId) {
       formData.append('folderId', currentFolderId)
+    }
+    for (const file of Array.from(files)) {
+      formData.append('files', file)
     }
 
     try {
@@ -114,6 +116,8 @@ export default function LibraryPage() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setDragOver(false)
+    // Only handle file uploads here; internal drags are handled by folder drop targets
+    if (e.dataTransfer.types.includes('application/x-kalenda-type')) return
     if (e.dataTransfer.files.length > 0) {
       uploadFiles(e.dataTransfer.files)
     }
@@ -144,6 +148,19 @@ export default function LibraryPage() {
     }
   }
 
+  const handleRenameFolder = async (id: string) => {
+    const trimmed = renameFolderName.trim()
+    if (!trimmed) return
+    try {
+      await api.patch(`/folders/${id}`, { name: trimmed })
+      setRenamingFolderId(null)
+      setRenameFolderName('')
+      fetchFolders()
+    } catch {
+      setError(t('library.errorRenamingFolder'))
+    }
+  }
+
   const handleDeleteFolder = async (id: string, name: string) => {
     if (!confirm(t('library.deleteFolder', { name }))) return
     try {
@@ -153,6 +170,70 @@ export default function LibraryPage() {
       fetchAssets()
     } catch {
       setError(t('library.errorDeletingFolder'))
+    }
+  }
+
+  // --- Drag & drop to move assets/folders ---
+  const [dropTargetFolderId, setDropTargetFolderId] = useState<string | null>(null)
+  const [dragging, setDragging] = useState(false)
+  const DROP_ROOT = '__root__'
+  const DROP_PARENT = '__parent__'
+
+  const handleItemDragStart = (e: React.DragEvent, type: 'asset' | 'folder', id: string) => {
+    e.dataTransfer.setData('application/x-kalenda-type', type)
+    e.dataTransfer.setData('application/x-kalenda-id', id)
+    e.dataTransfer.effectAllowed = 'move'
+    setDragging(true)
+  }
+
+  const handleDragEnd = () => {
+    setDragging(false)
+    setDropTargetFolderId(null)
+  }
+
+  const handleFolderDragOver = (e: React.DragEvent, folderId: string) => {
+    // Only accept internal drags (not file uploads)
+    if (e.dataTransfer.types.includes('application/x-kalenda-type')) {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+      setDropTargetFolderId(folderId)
+    }
+  }
+
+  const handleFolderDragLeave = () => {
+    setDropTargetFolderId(null)
+  }
+
+  const handleFolderDrop = async (e: React.DragEvent, targetFolderId: string | null) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDropTargetFolderId(null)
+    setDragging(false)
+
+    const type = e.dataTransfer.getData('application/x-kalenda-type')
+    const id = e.dataTransfer.getData('application/x-kalenda-id')
+    if (!type || !id) return
+
+    // Resolve parent folder: go up one level from currentFolderId
+    let resolvedTarget = targetFolderId
+    if (targetFolderId === DROP_PARENT) {
+      const currentFolder = folders.find((f) => f.id === currentFolderId)
+      resolvedTarget = currentFolder?.parentId ?? null
+    }
+
+    // Prevent dropping a folder into itself
+    if (type === 'folder' && id === resolvedTarget) return
+
+    try {
+      if (type === 'asset') {
+        await api.patch(`/assets/${id}`, { folderId: resolvedTarget })
+      } else if (type === 'folder') {
+        await api.patch(`/folders/${id}`, { parentId: resolvedTarget })
+      }
+      fetchAssets()
+      fetchFolders()
+    } catch {
+      setError(t('library.errorMoving'))
     }
   }
 
@@ -210,7 +291,12 @@ export default function LibraryPage() {
       <div className="flex items-center gap-1 text-sm mb-4">
         <button
           onClick={() => setCurrentFolderId(null)}
-          className={`hover:text-primary-600 transition-colors ${!currentFolderId ? 'font-semibold text-neutral-900' : 'text-neutral-500'}`}
+          onDragOver={(e) => handleFolderDragOver(e, DROP_ROOT)}
+          onDragLeave={handleFolderDragLeave}
+          onDrop={(e) => handleFolderDrop(e, null)}
+          className={`hover:text-primary-600 transition-colors px-1 rounded ${
+            dropTargetFolderId === DROP_ROOT ? 'bg-primary-100 ring-2 ring-primary-400' : ''
+          } ${!currentFolderId ? 'font-semibold text-neutral-900' : 'text-neutral-500'}`}
         >
           {t('library.root')}
         </button>
@@ -219,7 +305,12 @@ export default function LibraryPage() {
             <span className="text-neutral-300">/</span>
             <button
               onClick={() => setCurrentFolderId(f.id)}
-              className={`hover:text-primary-600 transition-colors ${currentFolderId === f.id ? 'font-semibold text-neutral-900' : 'text-neutral-500'}`}
+              onDragOver={(e) => handleFolderDragOver(e, f.id)}
+              onDragLeave={handleFolderDragLeave}
+              onDrop={(e) => handleFolderDrop(e, f.id)}
+              className={`hover:text-primary-600 transition-colors px-1 rounded ${
+                dropTargetFolderId === f.id ? 'bg-primary-100 ring-2 ring-primary-400' : ''
+              } ${currentFolderId === f.id ? 'font-semibold text-neutral-900' : 'text-neutral-500'}`}
             >
               {f.name}
             </button>
@@ -287,11 +378,31 @@ export default function LibraryPage() {
         }`}
         onDragOver={(e) => {
           e.preventDefault()
-          setDragOver(true)
+          // Only show upload overlay for external file drops
+          if (!e.dataTransfer.types.includes('application/x-kalenda-type')) {
+            setDragOver(true)
+          }
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
       >
+        {/* Move to parent drop bar (visible while dragging inside a folder) */}
+        {currentFolderId && dragging && (
+          <div
+            onDragOver={(e) => handleFolderDragOver(e, DROP_PARENT)}
+            onDragLeave={handleFolderDragLeave}
+            onDrop={(e) => handleFolderDrop(e, DROP_PARENT)}
+            className={`mb-4 flex items-center gap-2 rounded-lg border-2 border-dashed px-4 py-3 text-sm font-medium transition-colors ${
+              dropTargetFolderId === DROP_PARENT
+                ? 'border-primary-400 bg-primary-50 text-primary-700'
+                : 'border-neutral-300 text-neutral-500'
+            }`}
+          >
+            <ArrowUpLeft size={18} />
+            {t('library.moveToParent')}
+          </div>
+        )}
+
         {/* Subfolders */}
         {currentSubfolders.length > 0 && (
           <div className="mb-6">
@@ -300,28 +411,81 @@ export default function LibraryPage() {
               {currentSubfolders.map((folder) => (
                 <div
                   key={folder.id}
-                  className="group bg-surface border border-neutral-200 rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer relative"
-                  onClick={() => setCurrentFolderId(folder.id)}
+                  draggable
+                  onDragStart={(e) => handleItemDragStart(e, 'folder', folder.id)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleFolderDragOver(e, folder.id)}
+                  onDragLeave={handleFolderDragLeave}
+                  onDrop={(e) => handleFolderDrop(e, folder.id)}
+                  className={`group bg-surface border rounded-lg p-3 hover:shadow-sm transition-shadow cursor-pointer relative ${
+                    dropTargetFolderId === folder.id
+                      ? 'border-primary-400 bg-primary-50 ring-2 ring-primary-400'
+                      : 'border-neutral-200'
+                  }`}
+                  onClick={() => {
+                    if (renamingFolderId !== folder.id) setCurrentFolderId(folder.id)
+                  }}
                 >
                   <div className="text-2xl mb-1">
                     <Folder size={20} />
                   </div>
-                  <p className="text-sm font-medium text-neutral-800 truncate">{folder.name}</p>
-                  <p className="text-xs text-neutral-400">
-                    {folder._count.assets === 1
-                      ? t('library.fileCount_one', { count: folder._count.assets })
-                      : t('library.fileCount_other', { count: folder._count.assets })}
-                  </p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDeleteFolder(folder.id, folder.name)
-                    }}
-                    className="absolute top-1 right-1 text-neutral-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs p-1"
-                    title={t('library.deleteThisFolder')}
-                  >
-                    <X size={14} />
-                  </button>
+                  {renamingFolderId === folder.id ? (
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        handleRenameFolder(folder.id)
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-1"
+                    >
+                      <input
+                        type="text"
+                        value={renameFolderName}
+                        onChange={(e) => setRenameFolderName(e.target.value)}
+                        onBlur={() => handleRenameFolder(folder.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            setRenamingFolderId(null)
+                            setRenameFolderName('')
+                          }
+                        }}
+                        className="w-full px-1 py-0.5 text-sm border border-primary-400 rounded outline-none focus:ring-1 focus:ring-primary-500"
+                        autoFocus
+                      />
+                    </form>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-neutral-800 truncate">{folder.name}</p>
+                      <p className="text-xs text-neutral-400">
+                        {folder._count.assets === 1
+                          ? t('library.fileCount_one', { count: folder._count.assets })
+                          : t('library.fileCount_other', { count: folder._count.assets })}
+                      </p>
+                    </>
+                  )}
+                  <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setRenamingFolderId(folder.id)
+                        setRenameFolderName(folder.name)
+                      }}
+                      className="text-neutral-300 hover:text-primary-500 text-xs p-1"
+                      title={t('library.renameFolder')}
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteFolder(folder.id, folder.name)
+                      }}
+                      className="text-neutral-300 hover:text-red-500 text-xs p-1"
+                      title={t('library.deleteThisFolder')}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -356,7 +520,10 @@ export default function LibraryPage() {
                   {assets.map((asset) => (
                     <div
                       key={asset.id}
-                      className="group bg-surface border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow relative"
+                      draggable
+                      onDragStart={(e) => handleItemDragStart(e, 'asset', asset.id)}
+                      onDragEnd={handleDragEnd}
+                      className="group bg-surface border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow relative cursor-grab active:cursor-grabbing"
                     >
                       <div className="aspect-square bg-neutral-100 flex items-center justify-center">
                         {asset.thumbPath ? (
