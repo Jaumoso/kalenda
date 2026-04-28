@@ -39,6 +39,7 @@ function ensureThumbsDir() {
  * Capture a screenshot via the external Puppeteer service.
  */
 async function captureScreenshot(pageUrl: string): Promise<Buffer> {
+  console.log(`[thumbnails] Capturing screenshot: ${pageUrl} via ${PUPPETEER_URL}/capture`)
   const res = await fetch(`${PUPPETEER_URL}/capture`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -55,7 +56,9 @@ async function captureScreenshot(pageUrl: string): Promise<Buffer> {
     throw new Error(`Puppeteer capture failed (${res.status}): ${body}`)
   }
 
-  return Buffer.from(await res.arrayBuffer())
+  const buf = Buffer.from(await res.arrayBuffer())
+  console.log(`[thumbnails] Screenshot captured: ${buf.length} bytes`)
+  return buf
 }
 
 /**
@@ -71,10 +74,9 @@ export async function generateMonthThumbnail(monthId: string, userId: string): P
 
   const screenshot = await captureScreenshot(url)
 
-  await sharp(screenshot)
-    .resize(THUMB_WIDTH, THUMB_HEIGHT)
-    .jpeg({ quality: 80 })
-    .toFile(path.join(THUMBS_DIR, `${monthId}.jpg`))
+  const outPath = path.join(THUMBS_DIR, `${monthId}.jpg`)
+  await sharp(screenshot).resize(THUMB_WIDTH, THUMB_HEIGHT).jpeg({ quality: 80 }).toFile(outPath)
+  console.log(`[thumbnails] Month thumbnail saved: ${outPath}`)
 }
 
 /**
@@ -92,8 +94,7 @@ export async function generateCoverThumbnail(
 
   const screenshot = await captureScreenshot(url)
 
-  await sharp(screenshot)
-    .resize(THUMB_WIDTH, THUMB_HEIGHT)
-    .jpeg({ quality: 80 })
-    .toFile(path.join(THUMBS_DIR, `cover-${projectId}-${side}.jpg`))
+  const outPath = path.join(THUMBS_DIR, `cover-${projectId}-${side}.jpg`)
+  await sharp(screenshot).resize(THUMB_WIDTH, THUMB_HEIGHT).jpeg({ quality: 80 }).toFile(outPath)
+  console.log(`[thumbnails] Cover thumbnail saved: ${outPath}`)
 }

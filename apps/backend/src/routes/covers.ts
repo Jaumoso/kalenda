@@ -65,10 +65,20 @@ const coverRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Generate thumbnail asynchronously via Puppeteer (fire-and-forget)
       if (parsed.data.coverJson !== undefined) {
-        generateCoverThumbnail(id, 'front').catch(() => {})
+        generateCoverThumbnail(id, 'front').catch((err) => {
+          fastify.log.error(
+            { err, projectId: id, side: 'front' },
+            'Cover thumbnail generation failed'
+          )
+        })
       }
       if (parsed.data.backCoverJson !== undefined) {
-        generateCoverThumbnail(id, 'back').catch(() => {})
+        generateCoverThumbnail(id, 'back').catch((err) => {
+          fastify.log.error(
+            { err, projectId: id, side: 'back' },
+            'Cover thumbnail generation failed'
+          )
+        })
       }
 
       reply.send({ project })

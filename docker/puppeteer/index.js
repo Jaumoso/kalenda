@@ -34,8 +34,21 @@ async function capture(url, width, height, deviceScaleFactor) {
   const b = await getBrowser()
   const page = await b.newPage()
 
+  // Log browser console messages for debugging
+  page.on('console', (msg) => {
+    console.log(`[browser:${msg.type()}] ${msg.text()}`)
+  })
+  page.on('pageerror', (err) => {
+    console.error(`[browser:error] ${err.message}`)
+  })
+  page.on('requestfailed', (req) => {
+    console.error(`[browser:request-failed] ${req.url()} ${req.failure()?.errorText}`)
+  })
+
   await page.setViewport({ width, height, deviceScaleFactor })
+  console.log(`[capture] Navigating to: ${url}`)
   await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 })
+  console.log('[capture] networkidle0 reached, waiting for __RENDER_READY__...')
   await page.waitForFunction('window.__RENDER_READY__ === true', { timeout: 30000 })
 
   // Small delay for final paint

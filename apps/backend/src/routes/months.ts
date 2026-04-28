@@ -166,7 +166,9 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
 
     // Generate thumbnail asynchronously via Puppeteer (fire-and-forget)
     if (hasContent) {
-      generateMonthThumbnail(id, request.user!.id).catch(() => {})
+      generateMonthThumbnail(id, request.user!.id).catch((err) => {
+        fastify.log.error({ err, monthId: id }, 'Month thumbnail generation failed')
+      })
     }
 
     reply.send({ month })

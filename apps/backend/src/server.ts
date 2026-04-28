@@ -42,8 +42,13 @@ async function createServer() {
         fontSrc: ["'self'", 'data:'],
         connectSrc: ["'self'", 'blob:'],
         workerSrc: ["'self'", 'blob:'],
+        upgradeInsecureRequests: null,
       },
     },
+    // Disable HSTS — the reverse proxy handles TLS termination and sets HSTS.
+    // Without this, Puppeteer's Chromium upgrades internal HTTP requests to HTTPS,
+    // which breaks thumbnail generation (ERR_SSL_PROTOCOL_ERROR).
+    strictTransportSecurity: false,
   })
   await fastify.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET || 'default-secret-change-in-production',
