@@ -21,6 +21,8 @@ interface Project {
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: string
   templateId: string | null
+  coverJson: Record<string, unknown> | null
+  backCoverJson: Record<string, unknown> | null
   months: CalendarMonth[]
 }
 
@@ -156,17 +158,19 @@ export default function ProjectPage() {
         >
           <h3 className="font-semibold text-primary-700 text-sm mb-2">{t('project.frontCover')}</h3>
           <div className="flex-1 flex flex-col items-center justify-center">
-            <img
-              src={`/uploads/thumbs/cover-${project.id}-front.jpg?v=${thumbVersion}`}
-              alt={t('project.frontCover')}
-              className="w-full aspect-[3/4] object-cover rounded bg-neutral-100"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-                e.currentTarget.nextElementSibling?.classList.remove('hidden')
-              }}
-            />
+            {project.coverJson ? (
+              <img
+                src={`/uploads/thumbs/cover-${project.id}-front.jpg?v=${thumbVersion}`}
+                alt={t('project.frontCover')}
+                className="w-full aspect-[3/4] object-cover rounded bg-neutral-100"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                }}
+              />
+            ) : null}
             <div
-              className="hidden flex-col items-center justify-center text-neutral-400"
+              className={`${project.coverJson ? 'hidden' : ''} flex-col items-center justify-center text-neutral-400`}
               style={{ aspectRatio: '3/4' }}
             >
               <BookOpen size={32} className="mb-2" />
@@ -229,17 +233,19 @@ export default function ProjectPage() {
         >
           <h3 className="font-semibold text-primary-700 text-sm mb-2">{t('project.backCover')}</h3>
           <div className="flex-1 flex flex-col items-center justify-center">
-            <img
-              src={`/uploads/thumbs/cover-${project.id}-back.jpg?v=${thumbVersion}`}
-              alt={t('project.backCover')}
-              className="w-full aspect-[3/4] object-cover rounded bg-neutral-100"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-                e.currentTarget.nextElementSibling?.classList.remove('hidden')
-              }}
-            />
+            {project.backCoverJson ? (
+              <img
+                src={`/uploads/thumbs/cover-${project.id}-back.jpg?v=${thumbVersion}`}
+                alt={t('project.backCover')}
+                className="w-full aspect-[3/4] object-cover rounded bg-neutral-100"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                }}
+              />
+            ) : null}
             <div
-              className="hidden flex-col items-center justify-center text-neutral-400"
+              className={`${project.backCoverJson ? 'hidden' : ''} flex-col items-center justify-center text-neutral-400`}
               style={{ aspectRatio: '3/4' }}
             >
               <Book size={32} className="mb-2" />
