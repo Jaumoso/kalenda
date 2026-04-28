@@ -28,12 +28,11 @@ COPY docker/puppeteer/index.js ./
 # Create exports directory
 RUN mkdir -p /data/exports
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S pptruser -u 1001 -G nodejs && \
-    chown -R pptruser:nodejs /app /data
+# Use built-in node user (UID 1000) — same as backend for shared volume compatibility
+RUN chown -R node:node /app /data
 
-USER pptruser
+# Run as non-root user
+USER node
 
 EXPOSE 4000
 

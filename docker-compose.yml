@@ -18,6 +18,7 @@ services:
   backend:
     image: ghcr.io/jaumoso/kalenda-backend:${APP_TAG:-latest}
     container_name: kalenda-backend
+    user: "1000:1000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-kalenda}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kalenda}?schema=public
       - NODE_ENV=production
@@ -25,6 +26,8 @@ services:
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-change-in-production}
       - UPLOAD_PATH=/data/uploads
       - EXPORT_PATH=/data/exports
+      - FRONTEND_URL=http://backend:3000
+      - PUPPETEER_URL=http://puppeteer:4000
       - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@kalenda.app}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
     volumes:
@@ -38,6 +41,7 @@ services:
 
   puppeteer:
     image: ghcr.io/jaumoso/kalenda-puppeteer:${APP_TAG:-latest}
+    user: "1000:1000"
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
       - FRONTEND_URL=http://backend:3000
@@ -46,7 +50,8 @@ services:
     volumes:
       - ./data/exports:/data/exports
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

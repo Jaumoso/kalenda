@@ -128,11 +128,3 @@ docker compose up -d
 ## License
 
 MIT License. See LICENSE.
-
-## Project Status
-
-- Phase 0: Completed
-- Phase 1: Completed
-- Phase 2: Completed
-- Phase 3: Completed
-- Phase 4+: In progress

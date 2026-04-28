@@ -49,10 +49,14 @@ COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 COPY --from=builder /app/apps/frontend/dist ./apps/backend/frontend/dist
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 
-# Create data directories
-RUN mkdir -p /data/uploads /data/exports
+# Create data directories with correct ownership for non-root user
+RUN mkdir -p /data/uploads/thumbs /data/exports && \
+    chown -R node:node /data
 
 WORKDIR /app/apps/backend
+
+# Run as non-root user
+USER node
 
 # Expose port
 EXPOSE 3000

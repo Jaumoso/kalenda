@@ -1,4 +1,3 @@
-import puppeteer from 'puppeteer'
 import { PDFDocument, rgb } from 'pdf-lib'
 import fs from 'fs'
 import path from 'path'
@@ -13,6 +12,7 @@ const A4_WIDTH_PT = 595.28
 const A4_HEIGHT_PT = 841.89
 
 const EXPORTS_DIR = process.env.EXPORT_PATH || path.join(process.cwd(), 'exports')
+const PUPPETEER_URL = process.env.PUPPETEER_URL || 'http://localhost:4000'
 
 interface RenderToken {
   monthId: string
@@ -45,24 +45,11 @@ export async function renderProject(
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
   const scaleFactor = options.dpi / 96
 
-  let browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null
-
   try {
     // Update job status to PROCESSING
     await prisma.exportJob.update({
       where: { id: jobId },
       data: { status: 'PROCESSING' },
-    })
-
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--font-render-hinting=none',
-      ],
     })
 
     const pngPaths: string[] = []
@@ -71,29 +58,32 @@ export async function renderProject(
 
     const totalPages = renderTokens.length + 2 // +2 for covers
 
-    // Helper to capture a single page
+    // Helper to capture a single page via the Puppeteer service
     async function capturePage(url: string, pngPath: string, pageNum: number) {
       await prisma.exportJob.update({
         where: { id: jobId },
         data: { currentPage: pageNum, progress: Math.round(((pageNum - 1) / totalPages) * 100) },
       })
 
-      const page = await browser!.newPage()
-      await page.setViewport({
-        width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
-        deviceScaleFactor: scaleFactor,
+      const res = await fetch(`${PUPPETEER_URL}/capture`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          width: PAGE_WIDTH,
+          height: PAGE_HEIGHT,
+          deviceScaleFactor: scaleFactor,
+        }),
       })
-      await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 })
-      await page.waitForFunction('window.__RENDER_READY__ === true', { timeout: 30000 })
-      await new Promise((r) => setTimeout(r, 500))
-      await page.screenshot({
-        path: pngPath,
-        type: 'png',
-        clip: { x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT },
-      })
+
+      if (!res.ok) {
+        const body = await res.text()
+        throw new Error(`Puppeteer capture failed (${res.status}): ${body}`)
+      }
+
+      const buffer = Buffer.from(await res.arrayBuffer())
+      fs.writeFileSync(pngPath, buffer)
       pngPaths.push(pngPath)
-      await page.close()
     }
 
     // 1. Front cover
@@ -156,10 +146,6 @@ export async function renderProject(
         error: message,
       },
     })
-  } finally {
-    if (browser) {
-      await browser.close()
-    }
   }
 }
 

@@ -20,6 +20,9 @@ COPY apps/backend ./apps/backend
 # Generate Prisma client
 RUN cd apps/backend && npx prisma generate
 
+# Ensure data directories exist
+RUN mkdir -p /data/uploads/thumbs /data/exports
+
 WORKDIR /app/apps/backend
 
 EXPOSE 3000
