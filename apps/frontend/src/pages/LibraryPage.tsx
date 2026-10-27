@@ -50,8 +50,9 @@ export default function LibraryPage() {
     try {
       const { data } = await api.get('/folders')
       setFolders(data.folders)
+      setError(null)
     } catch {
-      // silent
+      setError(t('library.errorLoading'))
     }
   }, [])
 

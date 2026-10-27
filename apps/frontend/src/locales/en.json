@@ -124,6 +124,7 @@
     "customized": "Customized",
     "noDesignYet": "No design yet",
     "errorUpdatingStatus": "Error updating status",
+    "errorRefreshing": "Error refreshing project",
     "statusDraft": "Draft",
     "statusInProgress": "In progress",
     "statusCompleted": "Completed"
@@ -198,6 +199,8 @@
     "repeatsEveryYear": "Repeats every year",
     "iconLabel": "Icon/emoji (optional)",
     "confirmDelete": "Delete this event?",
+    "errorLoading": "Error loading events",
+    "errorDeleting": "Error deleting event",
     "errorSaving": "Error saving event",
     "birthday": "Birthday",
     "anniversary": "Anniversary",
@@ -237,7 +240,8 @@
     "exportError": "Export error",
     "starting": "Starting...",
     "exportFormat": "Export {{format}}",
-    "errorStarting": "Error starting export"
+    "errorStarting": "Error starting export",
+    "errorCheckingStatus": "Unable to update export status. Retrying..."
   },
   "newProject": {
     "title": "New calendar",
@@ -261,7 +265,9 @@
     "selectSticker": "Select sticker",
     "search": "Search...",
     "allFolders": "← All folders",
-    "noImages": "No images found"
+    "noImages": "No images found",
+    "errorLoading": "Error loading library assets",
+    "retry": "Retry"
   },
   "stickerPicker": {
     "title": "Stickers & emojis",
