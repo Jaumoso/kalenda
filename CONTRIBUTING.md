@@ -1,43 +1,48 @@
-# Contribuir a Kalenda
+# Contributing to Kalenda
 
-Gracias por contribuir a Kalenda. La rama `main` contiene el código estable y
-solo recibe cambios mediante pull requests. La rama `dev` es la rama de
-integración para el trabajo diario.
+Thank you for contributing to Kalenda. The `main` and `dev` branches are
+protected and only accept changes through pull requests. `main` contains the
+stable code, while `dev` is the integration branch for ongoing work.
 
-## Flujo de trabajo
+## Workflow
 
-1. Crea una rama descriptiva a partir de `dev`, por ejemplo
-   `fix/export-timeout` o `feat/calendar-filters`.
-2. Mantén los cambios centrados en un objetivo y evita incluir cambios
-   generados o formateados sin relación.
-3. Abre una pull request contra `dev`. Los cambios destinados a una release se
-   promocionan después mediante otra pull request hacia `main`.
-4. Espera a que todos los checks de CI terminen correctamente y responde a las
-   revisiones antes de fusionar.
+1. Create a descriptive branch from `dev`, for example
+   `fix/export-timeout` or `feat/calendar-filters`.
+2. Keep changes focused on one objective and avoid unrelated generated or
+   formatting-only changes.
+3. Open a pull request against `dev`. New features, behavior changes, and
+   refactors must go through this review; bug fixes must also use pull requests
+   to preserve traceability.
+4. Promote release-bound changes through a separate pull request from `dev` to
+   `main`. Production hotfixes must also use a dedicated pull request into
+   `main`.
+5. Wait for all CI checks to complete successfully and address review comments
+   before merging.
 
-No se deben hacer pushes directos a `main`, ni force-pushes sobre ramas
-protegidas. Las ramas de trabajo pueden eliminarse después de fusionar la pull
-request.
+Direct pushes to `main` or `dev`, as well as force-pushes to protected branches,
+are not allowed. Both branches require an approval, all mandatory CI checks,
+resolved conversations, and a linear history. Working branches may be deleted
+after their pull request is merged.
 
-## Requisitos para una pull request
+## Pull request requirements
 
-Cada pull request debe:
+Every pull request must:
 
-- Explicar el problema y la solución propuesta.
-- Indicar cómo se ha probado el cambio.
-- Incluir tests para la lógica nueva o modificada cuando sea posible.
-- Actualizar la documentación y el roadmap si cambia el comportamiento o el
-  flujo de operación.
-- No introducir secretos, credenciales ni datos de usuario.
-- Mantener compatibilidad con Docker Compose y las versiones soportadas.
+- Explain the problem and the proposed solution.
+- Describe how the change was tested.
+- Include tests for new or modified logic when practical.
+- Update the documentation and roadmap when behavior or operational workflows
+  change.
+- Avoid introducing secrets, credentials, or user data.
+- Preserve compatibility with Docker Compose and supported versions.
 
-El CI ejecuta instalación reproducible, auditoría de dependencias, lint, build,
-tests unitarios y un smoke test del stack Docker Compose. Todos esos checks son
-obligatorios para fusionar cambios en `main`.
+CI runs a reproducible installation, dependency audits, linting, the build,
+unit tests, and a Docker Compose smoke test. All of these checks are required
+to merge changes into `dev` and `main`.
 
 ## Commits
 
-Usa mensajes breves y descriptivos, preferiblemente con un prefijo:
+Use short, descriptive messages, preferably with a prefix:
 
 ```text
 feat: add recurring events
@@ -46,20 +51,19 @@ docs: update compose installation
 ci: require generated Prisma client
 ```
 
-Los commits mantenidos por el responsable del proyecto deben conservar la
-identidad y firma configuradas para Jaumoso. Los cambios automáticos de
-Dependabot pueden conservar su autoría cuando correspondan a actualizaciones
-de seguridad.
+Commits maintained by the project owner must preserve the identity and signing
+configuration for Jaumoso. Dependabot may retain its author attribution for
+security-related dependency updates.
 
-## Dependencias y seguridad
+## Dependencies and security
 
-No actualices dependencias ignorando el lockfile. Ejecuta `pnpm install` y
-comprueba `pnpm audit` antes de abrir la pull request. Para vulnerabilidades,
-no publiques detalles explotables en una pull request pública: utiliza el
-proceso de security advisories de GitHub.
+Do not update dependencies while ignoring the lockfile. Run `pnpm install` and
+check `pnpm audit` before opening a pull request. For vulnerabilities, do not
+publish exploitable details in a public pull request; use GitHub's security
+advisory process instead.
 
 ## Releases
 
-Las releases se preparan desde `dev`, se promocionan a `main` y se etiquetan
-con SemVer (`vMAJOR.MINOR.PATCH`). Las imágenes Docker se publican únicamente
-desde una release publicada y con tag válido.
+Releases are prepared from `dev`, promoted to `main`, and tagged using
+Semantic Versioning (`vMAJOR.MINOR.PATCH`). Docker images are published only
+from a published release with a valid tag.
