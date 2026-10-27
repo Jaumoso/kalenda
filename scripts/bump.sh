@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: ./scripts/bump.sh <patch|minor|major> [--prerelease <label>] [--dry-run]
-# Bumps version in all package.json files, commits, tags, and pushes.
+# Usage: ./scripts/bump.sh <patch|minor|major> [--prerelease <label>] [--prepare] [--dry-run]
+# Updates all package versions and optionally creates the release tag.
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -12,12 +12,17 @@ NC='\033[0m'
 BUMP_TYPE="${1:-}"
 DRY_RUN=false
 PRERELEASE=""
+PREPARE=false
 
 shift || true
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=true
+      shift
+      ;;
+    --prepare)
+      PREPARE=true
       shift
       ;;
     --prerelease)
@@ -36,22 +41,22 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ! "$BUMP_TYPE" =~ ^(patch|minor|major)$ ]]; then
-  echo -e "${RED}Usage: $0 <patch|minor|major> [--prerelease <label>] [--dry-run]${NC}"
+  echo -e "${RED}Usage: $0 <patch|minor|major> [--prerelease <label>] [--prepare] [--dry-run]${NC}"
   exit 1
 fi
 
 # Stable releases must come from main. Development releases must be explicitly
 # marked as prereleases so they cannot be mistaken for production versions.
 BRANCH=$(git branch --show-current)
-if [[ "$BRANCH" == "main" && -n "$PRERELEASE" ]]; then
+if [[ "$BRANCH" == "main" && -n "$PRERELEASE" && "$PREPARE" == false ]]; then
   echo -e "${RED}Error: stable production releases from main cannot use --prerelease.${NC}"
   exit 1
 fi
-if [[ "$BRANCH" == "dev" && -z "$PRERELEASE" ]]; then
+if [[ "$BRANCH" == "dev" && -z "$PRERELEASE" && "$PREPARE" == false ]]; then
   echo -e "${RED}Error: releases from dev must use --prerelease <label>.${NC}"
   exit 1
 fi
-if [[ "$BRANCH" != "main" && "$BRANCH" != "dev" ]]; then
+if [[ "$PREPARE" == false && "$BRANCH" != "main" && "$BRANCH" != "dev" ]]; then
   echo -e "${RED}Error: releases can only be created from main or dev (current: $BRANCH).${NC}"
   exit 1
 fi
@@ -103,16 +108,22 @@ for f in "${FILES[@]}"; do
   fi
 done
 
-# Commit and tag
+# Commit the version preparation. Tags are created only after the preparation
+# commit has been merged into the protected release branch.
 git add -A
-git commit -m "release: v${NEXT}"
-git tag -a "v${NEXT}" -m "release: v${NEXT}"
+git commit -m "chore: prepare release v${NEXT}"
 
 echo ""
-echo -e "${GREEN}✓ Bumped to v${NEXT}${NC}"
+if [[ "$PREPARE" == true ]]; then
+  echo -e "${GREEN}✓ Prepared version v${NEXT}${NC}"
+  echo "Open a pull request, merge it into the target release branch, then create the tag from that branch."
+else
+  git tag -a "v${NEXT}" -m "release: v${NEXT}"
+  echo -e "${GREEN}✓ Bumped and tagged v${NEXT}${NC}"
+fi
 echo ""
 echo "To publish, run:"
-echo -e "  ${YELLOW}git push && git push origin v${NEXT}${NC}"
+echo -e "  ${YELLOW}git push origin v${NEXT}${NC}"
 if [[ -n "$PRERELEASE" ]]; then
   echo -e "  ${YELLOW}gh release create v${NEXT} --prerelease${NC}"
 else

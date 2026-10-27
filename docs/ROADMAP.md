@@ -14,7 +14,7 @@ Las fases 0 a 5, 6a, 6b, 7, 8 y la implementación base de la 9 están funcional
 1. Endurecimiento del despliegue de producción: secretos obligatorios, aislamiento de servicios, healthchecks, migraciones y backups.
 2. Fiabilidad de exportaciones: recuperación y reintentos de trabajos interrumpidos.
 3. Efectos de imagen en el editor.
-4. Tests E2E, documentación de usuario y validación con el usuario principal.
+4. Documentación de usuario y validación con el usuario principal.
 
 Las casillas marcadas como completadas reflejan funcionalidad presente en el código; las tareas de endurecimiento y validación permanecen abiertas aunque el flujo principal ya funcione.
 
