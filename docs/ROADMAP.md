@@ -3,20 +3,21 @@
 ## Kalenda
 
 **Versión:** 1.0  
-**Fecha:** Abril 2026
+**Fecha:** Octubre 2026
 
 ---
 
 ## Estado actual
 
-Las fases 0 a 5, 6a, 6b, 7, 8 y la implementación base de la 9 están funcionalmente construidas. La base de calidad y releases ya está operativa: CI para PRs y ramas principales, auditorías de dependencias, tests unitarios obligatorios y smoke tests de Docker Compose. El trabajo pendiente se concentra en:
+Las fases 0 a 5, 6a, 6b, 7, 8, 9 y la implementación base de la 10 están funcionalmente construidas. La aplicación está desplegada en el servidor con Docker Compose detrás de Pangolin, y el flujo de releases distingue entre imágenes estables de `main` e imágenes de validación de `dev`. El trabajo pendiente se concentra en:
 
-1. Endurecimiento del despliegue de producción: secretos obligatorios, aislamiento de servicios, healthchecks, migraciones y backups.
-2. Fiabilidad de exportaciones: recuperación y reintentos de trabajos interrumpidos.
-3. Efectos de imagen en el editor.
-4. Tests E2E, documentación de usuario y validación con el usuario principal.
+1. Documentación de uso básico para que el usuario pueda trabajar sin asistencia.
+2. Revisión completa con el usuario principal sobre el servidor real.
+3. Validación operativa de restauración de backups y actualización entre canales `dev` y releases estables.
+4. Permitir subir un medio nuevo a la biblioteca directamente desde el editor al añadir una imagen.
+5. Incluir el estado personalizado de portada y contraportada en la vista de "Mis Calendarios".
 
-Las casillas marcadas como completadas reflejan funcionalidad presente en el código; las tareas de endurecimiento y validación permanecen abiertas aunque el flujo principal ya funcione.
+Las casillas marcadas como completadas reflejan funcionalidad presente en el código o validada en el entorno de despliegue actual. Las tareas restantes son de documentación, validación de uso y operación continuada.
 
 ---
 
@@ -45,8 +46,8 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Configurar Prisma + schema inicial de base de datos
 - [x] Crear docker-compose.yml y docker-compose.dev.yml
 - [x] Configurar ESLint + Prettier
-- [ ] Deploy del esqueleto vacío en el servidor Ubuntu
-- [ ] Verificar que nginx sirve el frontend y proxea `/api/*` al backend
+- [x] Desplegar la aplicación en el servidor Ubuntu mediante Docker Compose
+- [x] Verificar el acceso externo mediante Pangolin como reverse proxy
 - [x] Crear paquete `shared/` con tipos TypeScript base
 
 **Entregable:** `https://kalenda.tuservidor.com` muestra "Hola mundo" en producción.
@@ -89,6 +90,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Frontend: modal "Nuevo proyecto"
 - [x] Frontend: Vista general de proyecto (12 meses en grid)
 - [x] Frontend: estado visual de cada mes (vacío/con contenido/personalizado)
+- [ ] Frontend: reflejar en "Mis Calendarios" si la portada y la contraportada están personalizadas
 
 **Entregable:** Se pueden crear y organizar proyectos. La vista de 12 meses es navegable.
 
@@ -105,10 +107,11 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Backend: subida de archivos con validación (MIME, tamaño)
 - [x] Backend: procesamiento con Sharp (miniaturas, optimización)
 - [x] Backend: CRUD de carpetas y assets
-- [x] Backend: servicio de `/uploads/` desde el backend; integración directa con Nginx queda pendiente de validar en producción
+- [x] Backend: servicio de `/uploads/`; acceso externo validado a través del reverse proxy de Pangolin
 - [x] Frontend: página de Biblioteca (grid de imágenes, árbol de carpetas)
 - [x] Frontend: subida drag & drop con barra de progreso
 - [x] Frontend: búsqueda y filtrado
+- [ ] Permitir subir un medio nuevo desde el selector de imágenes del editor y reutilizarlo inmediatamente
 
 **Entregable:** Puede subir todas sus fotos una vez y acceder a ellas siempre.
 
@@ -176,7 +179,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Herramienta: redimensionar manteniendo proporciones
 - [x] Herramienta: control de capa Z (traer al frente, enviar al fondo)
 - [x] Panel de capas (lista de objetos del canvas)
-- [ ] Herramienta: efectos de imagen (opacidad, brillo, contraste, escala de grises, sepia)
+- [x] Herramienta: efectos de imagen (opacidad, brillo, contraste, escala de grises, sepia)
 - [x] Herramienta: añadir texto decorativo libre con control de fuente/tamaño/color
 - [x] Herramienta: fondo de zona (color, degradado, imagen)
 - [x] Herramienta: añadir sticker/emoji como objeto del canvas
@@ -303,11 +306,15 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] CI para PRs y pushes a `main`/`dev` (lint, auditorías, build y tests)
 - [x] Tests unitarios iniciales para configuración, schemas compartidos y helpers del calendario
 - [x] Smoke test del stack de desarrollo con Docker Compose
-- [ ] Tests de los flujos principales (Playwright)
+- [x] Tests de los flujos principales (Playwright)
 - [ ] Documentación de uso básico (guía de usuario en PDF)
 - [x] Configurar backup automático del volumen de datos y de los archivos persistentes
-- [ ] Configurar HTTPS con certificado propio o Let's Encrypt
+- [x] Configurar HTTPS mediante el reverse proxy de Pangolin
 - [ ] Revisión completa con el usuario principal (prueba real)
+- [x] Publicar imágenes de validación de `dev` (`dev` y `dev-<short-sha>`)
+- [x] Mantener imágenes estables separadas (`vX.Y.Z` y `latest`) y validadas desde `main`
+- [ ] Probar restauración de backups en un entorno controlado
+- [ ] Validar el procedimiento completo de actualización y rollback entre `dev` y releases estables
 - [x] Ejecutar migraciones de Prisma automáticamente durante el despliegue
 - [x] Recuperar y reintentar exportaciones interrumpidas al reiniciar el backend
 - [x] Sustituir silencios de error en frontend por feedback accionable
@@ -318,19 +325,19 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 
 ## Resumen de fases y estimaciones
 
-| Fase | Descripción                   | Estado                                                   |
-| ---- | ----------------------------- | -------------------------------------------------------- |
-| 0    | Setup e infraestructura       | Funcional; despliegue real pendiente                     |
-| 1    | Autenticación                 | Funcional                                                |
-| 2    | Gestión de proyectos          | Funcional                                                |
-| 3    | Biblioteca de assets          | Funcional                                                |
-| 4    | Editor grid (zona inferior)   | Funcional                                                |
-| 5    | Festivos y eventos            | Funcional                                                |
-| 6    | Editor canvas (zona superior) | Funcional; efectos de imagen pendientes                  |
-| 7    | Celdas avanzadas              | Funcional                                                |
-| 8    | Plantillas                    | Funcional                                                |
-| 9    | Exportación PDF/PNG           | Funcional; recuperación pendiente                        |
-| 10   | Pulido y producción           | En curso; CI, migraciones, backups y feedback frontend completados; despliegue real, HTTPS, E2E y validación de usuario pendientes |
+| Fase | Descripción                   | Estado                                                                                |
+| ---- | ----------------------------- | ------------------------------------------------------------------------------------- |
+| 0    | Setup e infraestructura       | Funcional; despliegue Ubuntu y acceso externo validados                               |
+| 1    | Autenticación                 | Funcional                                                                             |
+| 2    | Gestión de proyectos          | Funcional                                                                             |
+| 3    | Biblioteca de assets          | Funcional                                                                             |
+| 4    | Editor grid (zona inferior)   | Funcional                                                                             |
+| 5    | Festivos y eventos            | Funcional                                                                             |
+| 6    | Editor canvas (zona superior) | Funcional; efectos de imagen implementados                                            |
+| 7    | Celdas avanzadas              | Funcional                                                                             |
+| 8    | Plantillas                    | Funcional                                                                             |
+| 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                                                  |
+| 10   | Pulido y producción           | En curso; guía, validación con usuario, restauración de backups y rollback pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 
