@@ -298,6 +298,8 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Corrección build frontend para TypeScript 6
 - [x] Endpoints de health básicos
 - [x] Endurecimiento inicial de secretos: el compose de producción exige `COOKIE_SECRET`, `JWT_SECRET` y credenciales de administrador
+- [x] Healthchecks de backend y Puppeteer en Compose de producción
+- [x] Aislamiento de Puppeteer: sin puerto publicado fuera de la red Docker
 - [x] CI para PRs y pushes a `main`/`dev` (lint, auditorías, build y tests)
 - [x] Tests unitarios iniciales para configuración, schemas compartidos y helpers del calendario
 - [x] Smoke test del stack de desarrollo con Docker Compose
@@ -306,8 +308,6 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [ ] Configurar backup automático del volumen de datos
 - [ ] Configurar HTTPS con certificado propio o Let's Encrypt
 - [ ] Revisión completa con el usuario principal (prueba real)
-- [ ] Aislar Puppeteer de los puertos públicos
-- [ ] Añadir healthchecks de backend y Puppeteer
 - [ ] Ejecutar migraciones de Prisma automáticamente durante el despliegue
 - [ ] Recuperar y reintentar exportaciones interrumpidas
 - [ ] Sustituir silencios de error en frontend por feedback accionable
