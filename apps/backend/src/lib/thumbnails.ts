@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import { getSecret } from '@/config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const THUMBS_DIR = path.join(
@@ -11,7 +12,7 @@ const THUMBS_DIR = path.join(
 )
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 const PUPPETEER_URL = process.env.PUPPETEER_URL || 'http://localhost:4000'
-const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
+const JWT_SECRET = getSecret('JWT_SECRET', 'dev-jwt-secret')
 
 // A4 at 96 DPI (matches frontend)
 const PAGE_WIDTH = 794
@@ -65,7 +66,7 @@ async function captureScreenshot(pageUrl: string): Promise<Buffer> {
  * Generate a thumbnail for a calendar month by rendering
  * the full page via the Puppeteer service and scaling it down.
  */
-export async function generateMonthThumbnail(monthId: string, userId: string): Promise<void> {
+export async function generateMonthThumbnail(monthId: string, _userId: string): Promise<void> {
   assertCuid(monthId, 'monthId')
   ensureThumbsDir()
 

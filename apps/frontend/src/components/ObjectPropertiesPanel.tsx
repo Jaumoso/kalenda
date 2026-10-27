@@ -201,23 +201,19 @@ export default function ObjectPropertiesPanel({
           <div className="flex gap-1 flex-wrap">
             <FilterButton
               label={t('objectProps.grayscale')}
-              onClick={() =>
-                toggleGrayscale(
-                  selectedObject as fabric.FabricImage,
-                  editorRef.current?.getCanvas()!,
-                  onModified
-                )
-              }
+              onClick={() => {
+                const canvas = editorRef.current?.getCanvas()
+                if (!canvas) return
+                toggleGrayscale(selectedObject as fabric.FabricImage, canvas, onModified)
+              }}
             />
             <FilterButton
               label={t('objectProps.sepia')}
-              onClick={() =>
-                toggleSepia(
-                  selectedObject as fabric.FabricImage,
-                  editorRef.current?.getCanvas()!,
-                  onModified
-                )
-              }
+              onClick={() => {
+                const canvas = editorRef.current?.getCanvas()
+                if (!canvas) return
+                toggleSepia(selectedObject as fabric.FabricImage, canvas, onModified)
+              }}
             />
           </div>
 

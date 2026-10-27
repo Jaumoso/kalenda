@@ -1,6 +1,7 @@
 import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify'
 import fp from 'fastify-plugin'
 import jwt from 'jsonwebtoken'
+import { getSecret } from '@/config.js'
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -24,7 +25,7 @@ declare module 'fastify' {
 
 const authPlugin: FastifyPluginAsync = async (fastify) => {
   // JWT secret
-  const jwtSecret = process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
+  const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
 
   // Authentication middleware
   fastify.decorate('authenticate', async (request: FastifyRequest, reply: FastifyReply) => {

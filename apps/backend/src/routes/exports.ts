@@ -4,9 +4,9 @@ import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import { prisma } from '../prisma.js'
 import { renderProject } from '../lib/renderer.js'
-import { rateLimitConfig } from '@/config.js'
+import { getSecret, rateLimitConfig } from '@/config.js'
 
-const jwtSecret = process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
+const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
 const rateLimit = rateLimitConfig.strict
 
 const createExportSchema = z.object({

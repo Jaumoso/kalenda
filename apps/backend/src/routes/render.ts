@@ -2,9 +2,9 @@ import { FastifyPluginAsync } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { prisma } from '@/prisma.js'
 import { getSaintsForMonth } from '@/data/saints.js'
-import { rateLimitConfig } from '@/config.js'
+import { getSecret, rateLimitConfig } from '@/config.js'
 
-const jwtSecret = process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
+const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
 
 const rateLimit = rateLimitConfig.strict
 

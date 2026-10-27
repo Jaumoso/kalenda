@@ -39,7 +39,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false })
           if (error instanceof Error && 'response' in error) {
             const axiosError = error as { response?: { data?: { message?: string } } }
-            throw new Error(axiosError.response?.data?.message || 'Login failed')
+            const loginError = new Error(axiosError.response?.data?.message || 'Login failed')
+            Object.assign(loginError, { cause: error })
+            throw loginError
           }
           throw error
         }

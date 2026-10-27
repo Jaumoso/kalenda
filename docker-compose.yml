@@ -22,14 +22,14 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-kalenda}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kalenda}?schema=public
       - NODE_ENV=production
-      - COOKIE_SECRET=${COOKIE_SECRET:-default-secret-change-in-production}
-      - JWT_SECRET=${JWT_SECRET:-default-jwt-secret-change-in-production}
+      - COOKIE_SECRET=${COOKIE_SECRET:?COOKIE_SECRET is required}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - UPLOAD_PATH=/data/uploads
       - EXPORT_PATH=/data/exports
       - FRONTEND_URL=http://backend:3000
       - PUPPETEER_URL=http://puppeteer:4000
-      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@kalenda.app}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:?ADMIN_EMAIL is required}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
     volumes:
       - ./data:/data
     ports:
