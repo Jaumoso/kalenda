@@ -9,12 +9,12 @@
 
 ## Estado actual
 
-Las fases 0 a 5, 6a, 6b, 7, 8 y la implementación base de la 9 están funcionalmente construidas. La base de calidad y releases ya está operativa: CI para PRs y ramas principales, auditorías de dependencias, tests unitarios obligatorios y smoke tests de Docker Compose. El trabajo pendiente se concentra en:
+Las fases 0 a 5, 6a, 6b, 7, 8 y 9 están funcionalmente construidas. La base de calidad y releases ya está operativa: CI para PRs y ramas principales, auditorías de dependencias, tests unitarios obligatorios, smoke tests de Docker Compose y tests E2E con Playwright. El trabajo pendiente se concentra en:
 
 1. Endurecimiento del despliegue de producción: secretos obligatorios, aislamiento de servicios, healthchecks, migraciones y backups.
 2. Fiabilidad de exportaciones: recuperación y reintentos de trabajos interrumpidos.
 3. Efectos de imagen en el editor.
-4. Tests E2E, documentación de usuario y validación con el usuario principal.
+4. Efectos de imagen, documentación de usuario, despliegue real, HTTPS y validación con el usuario principal.
 
 Las casillas marcadas como completadas reflejan funcionalidad presente en el código; las tareas de endurecimiento y validación permanecen abiertas aunque el flujo principal ya funcione.
 
@@ -303,7 +303,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] CI para PRs y pushes a `main`/`dev` (lint, auditorías, build y tests)
 - [x] Tests unitarios iniciales para configuración, schemas compartidos y helpers del calendario
 - [x] Smoke test del stack de desarrollo con Docker Compose
-- [ ] Tests de los flujos principales (Playwright)
+- [x] Tests de los flujos principales (Playwright)
 - [ ] Documentación de uso básico (guía de usuario en PDF)
 - [x] Configurar backup automático del volumen de datos y de los archivos persistentes
 - [ ] Configurar HTTPS con certificado propio o Let's Encrypt
@@ -329,8 +329,8 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 | 6    | Editor canvas (zona superior) | Funcional; efectos de imagen pendientes                  |
 | 7    | Celdas avanzadas              | Funcional                                                |
 | 8    | Plantillas                    | Funcional                                                |
-| 9    | Exportación PDF/PNG           | Funcional; recuperación pendiente                        |
-| 10   | Pulido y producción           | En curso; CI, migraciones, backups y feedback frontend completados; despliegue real, HTTPS, E2E y validación de usuario pendientes |
+| 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                       |
+| 10   | Pulido y producción           | En curso; CI, migraciones, backups, feedback frontend y E2E completados; despliegue real, HTTPS, documentación y validación de usuario pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 
