@@ -251,26 +251,35 @@ kalenda/
 - Release commits are signed and authored by the project maintainer. Dependabot may author
   security-only dependency update commits.
 
-To prepare a stable release from a clean `main` branch:
+Because `main` and `dev` are protected, prepare version changes in a pull request first:
 
 ```bash
-./scripts/bump.sh patch
-git push
+git switch -c chore/prepare-release-0.1.10
+./scripts/bump.sh patch --prepare
+git push -u origin chore/prepare-release-0.1.10
+```
+
+After merging the pull request into `main`, create and publish the stable tag from the updated
+`main` checkout:
+
+```bash
+git switch main
+git pull --ff-only
+git tag -a v0.1.10 -m "release: v0.1.10"
 git push origin v0.1.10
 gh release create v0.1.10
 ```
 
-For a development prerelease, use a clean `dev` branch and an explicit prerelease label:
+For a development prerelease, prepare the version in a pull request from `dev` with an explicit
+prerelease label:
 
 ```bash
-./scripts/bump.sh patch --prerelease dev.1
-git push
-git push origin v0.1.9-dev.1
-gh release create v0.1.9-dev.1 --prerelease
+git switch -c chore/prepare-release-0.1.10-dev.1
+./scripts/bump.sh patch --prerelease dev.1 --prepare
 ```
 
-The script updates all workspace package versions, creates the signed release commit and
-tag, and rejects release attempts from feature branches or unmarked releases from `dev`.
+The script updates all workspace package versions. Without `--prepare`, it creates the release
+tag and only permits stable releases from `main` or explicitly marked prereleases from `dev`.
 
 ## License
 
