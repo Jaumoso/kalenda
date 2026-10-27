@@ -149,6 +149,4 @@ export interface AuthTokens {
   refreshToken: string
 }
 
-export interface AuthUser extends User {
-  // Additional fields if needed
-}
+export type AuthUser = User

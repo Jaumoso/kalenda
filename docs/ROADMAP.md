@@ -7,6 +7,19 @@
 
 ---
 
+## Estado actual
+
+Las fases 0 a 5, 6a, 6b, 7, 8 y la implementación base de la 9 están funcionalmente construidas. El trabajo pendiente se concentra en:
+
+1. Endurecimiento del despliegue de producción: secretos obligatorios, aislamiento de servicios, healthchecks, migraciones y backups.
+2. Fiabilidad de exportaciones: recuperación y reintentos de trabajos interrumpidos.
+3. Efectos de imagen en el editor.
+4. Tests E2E, documentación de usuario y validación con el usuario principal.
+
+Las casillas marcadas como completadas reflejan funcionalidad presente en el código; las tareas de endurecimiento y validación permanecen abiertas aunque el flujo principal ya funcione.
+
+---
+
 ## Filosofía de desarrollo
 
 - **MVP primero:** Construir lo mínimo que permita crear y exportar un calendario completo, aunque con menos opciones de personalización. Añadir funcionalidades iterativamente.
@@ -26,16 +39,15 @@
 
 ### Tareas:
 
-- [ ] Inicializar monorepo con pnpm workspaces
-- [ ] Configurar TypeScript en frontend (Vite + React) y backend (Fastify)
-- [ ] Configurar Tailwind CSS y shadcn/ui
-- [ ] Configurar Prisma + schema inicial de base de datos
-- [ ] Crear docker-compose.yml (nginx, frontend, backend, postgres)
-- [ ] Crear docker-compose.dev.yml (con hot reload)
-- [ ] Configurar ESLint + Prettier
+- [x] Inicializar monorepo con pnpm workspaces
+- [x] Configurar TypeScript en frontend (Vite + React) y backend (Fastify)
+- [x] Configurar Tailwind CSS y sistema de estilos de la aplicación
+- [x] Configurar Prisma + schema inicial de base de datos
+- [x] Crear docker-compose.yml y docker-compose.dev.yml
+- [x] Configurar ESLint + Prettier
 - [ ] Deploy del esqueleto vacío en el servidor Ubuntu
 - [ ] Verificar que nginx sirve el frontend y proxea `/api/*` al backend
-- [ ] Crear paquete `shared/` con tipos TypeScript base
+- [x] Crear paquete `shared/` con tipos TypeScript base
 
 **Entregable:** `https://kalenda.tuservidor.com` muestra "Hola mundo" en producción.
 
@@ -48,15 +60,15 @@
 
 ### Tareas:
 
-- [ ] Schema Prisma: tabla `users`
-- [ ] Backend: POST `/auth/login`, POST `/auth/logout`, POST `/auth/refresh`, GET `/auth/me`
-- [ ] Backend: middleware de autenticación JWT
-- [ ] Backend: CRUD básico de usuarios (solo admin)
-- [ ] Frontend: pantalla de Login con i18next (ES/EN)
-- [ ] Frontend: authStore (Zustand)
-- [ ] Frontend: rutas protegidas (redirect a login si no autenticado)
-- [ ] Frontend: página de admin → gestión de usuarios
-- [ ] Crear los dos usuarios iniciales (seed)
+- [x] Schema Prisma: tabla `users`
+- [x] Backend: POST `/auth/login`, POST `/auth/logout`, POST `/auth/refresh`, GET `/auth/me`
+- [x] Backend: middleware de autenticación JWT
+- [x] Backend: CRUD básico de usuarios (solo admin)
+- [x] Frontend: pantalla de Login con i18next (ES/EN)
+- [x] Frontend: authStore (Zustand)
+- [x] Frontend: rutas protegidas (redirect a login si no autenticado)
+- [x] Frontend: página de admin → gestión de usuarios
+- [x] Crear usuarios iniciales mediante seed de desarrollo y seed de producción
 
 **Entregable:** Login y logout funcionando.
 
@@ -69,14 +81,14 @@
 
 ### Tareas:
 
-- [ ] Schema Prisma: tablas `projects`, `calendar_months`
-- [ ] Backend: CRUD de proyectos (`/projects`)
-- [ ] Backend: al crear proyecto, generar automáticamente 12 registros `calendar_months`
-- [ ] Backend: duplicar proyecto
-- [ ] Frontend: Dashboard con tarjetas de proyectos
-- [ ] Frontend: modal "Nuevo proyecto"
-- [ ] Frontend: Vista general de proyecto (12 meses en grid)
-- [ ] Frontend: estado visual de cada mes (vacío/con contenido/personalizado)
+- [x] Schema Prisma: tablas `projects`, `calendar_months`
+- [x] Backend: CRUD de proyectos (`/projects`)
+- [x] Backend: al crear proyecto, generar automáticamente 12 registros `calendar_months`
+- [x] Backend: duplicar proyecto
+- [x] Frontend: Dashboard con tarjetas de proyectos
+- [x] Frontend: modal "Nuevo proyecto"
+- [x] Frontend: Vista general de proyecto (12 meses en grid)
+- [x] Frontend: estado visual de cada mes (vacío/con contenido/personalizado)
 
 **Entregable:** Se pueden crear y organizar proyectos. La vista de 12 meses es navegable.
 
@@ -89,14 +101,14 @@
 
 ### Tareas:
 
-- [ ] Schema Prisma: tablas `assets`, `asset_folders`
-- [ ] Backend: subida de archivos con validación (MIME, tamaño)
-- [ ] Backend: procesamiento con Sharp (miniaturas, optimización)
-- [ ] Backend: CRUD de carpetas y assets
-- [ ] Backend: Nginx configurado para servir `/uploads/` directamente
-- [ ] Frontend: página de Biblioteca (grid de imágenes, árbol de carpetas)
-- [ ] Frontend: subida drag & drop con barra de progreso
-- [ ] Frontend: búsqueda y filtrado
+- [x] Schema Prisma: tablas `assets`, `asset_folders`
+- [x] Backend: subida de archivos con validación (MIME, tamaño)
+- [x] Backend: procesamiento con Sharp (miniaturas, optimización)
+- [x] Backend: CRUD de carpetas y assets
+- [x] Backend: servicio de `/uploads/` desde el backend; integración directa con Nginx queda pendiente de validar en producción
+- [x] Frontend: página de Biblioteca (grid de imágenes, árbol de carpetas)
+- [x] Frontend: subida drag & drop con barra de progreso
+- [x] Frontend: búsqueda y filtrado
 
 **Entregable:** Puede subir todas sus fotos una vez y acceder a ellas siempre.
 
@@ -109,18 +121,18 @@
 
 ### Tareas:
 
-- [ ] Schema Prisma: actualizar `calendar_months` con `gridConfigJson`, `dayCells`
-- [ ] Backend: GET/PUT del mes (cargar y guardar estado)
-- [ ] Frontend: MonthEditorPage con layout básico (zonas superior/inferior)
-- [ ] Frontend: componente CalendarGrid (renderizado del mes correcto con días correctos)
-- [ ] Frontend: lógica de días (Gregoriano, primer día semana configurable)
-- [ ] Frontend: panel de propiedades del Grid (colores, bordes, fuentes)
-- [ ] Frontend: FontSelector con preview de fuentes (Fontsource)
-- [ ] Frontend: ColorPicker (react-colorful)
-- [ ] Frontend: posición del número en la celda (9 posiciones)
-- [ ] Frontend: modal de celda (color fondo, texto básico)
-- [ ] Frontend: auto-save cada 30 segundos
-- [ ] Frontend: botón Guardar manual
+- [x] Schema Prisma: actualizar `calendar_months` con `gridConfigJson`, `dayCells`
+- [x] Backend: GET/PUT del mes (cargar y guardar estado)
+- [x] Frontend: MonthEditorPage con layout básico (zonas superior/inferior)
+- [x] Frontend: componente CalendarGrid (renderizado del mes correcto con días correctos)
+- [x] Frontend: lógica de días (Gregoriano, primer día semana configurable)
+- [x] Frontend: panel de propiedades del Grid (colores, bordes, fuentes)
+- [x] Frontend: FontSelector con preview de fuentes (Fontsource)
+- [x] Frontend: ColorPicker (react-colorful)
+- [x] Frontend: posición del número en la celda (9 posiciones)
+- [x] Frontend: modal de celda (color fondo, texto básico)
+- [x] Frontend: auto-save cada 30 segundos
+- [x] Frontend: botón Guardar manual
 
 **Entregable:** Se puede personalizar el grid del calendario con colores, fuentes y bordes.
 
@@ -133,17 +145,17 @@
 
 ### Tareas:
 
-- [ ] Schema Prisma: tablas `holidays`, `events`
-- [ ] Importar base de datos de festivos nacionales ES (2025-2030) y por CCAA
-- [ ] Importar calendario de santos español
-- [ ] Backend: `/holidays`, `/saints`, `/events` (CRUD)
-- [ ] Backend: al cargar un mes, inyectar festivos y eventos en la respuesta
-- [ ] Frontend: página de gestión de eventos personalizados
-- [ ] Frontend: indicación visual de festivos en celdas (color diferente)
-- [ ] Frontend: indicación visual de eventos en celdas (icono + color)
-- [ ] Frontend: selector de CCAA en configuración del proyecto
-- [ ] Frontend: mostrar santo del día en celda (activable/desactivable)
-- [ ] Frontend: modal de celda ampliado → ver y añadir eventos del día
+- [x] Schema Prisma: tablas `holidays`, `events`
+- [x] Importar base de datos de festivos nacionales ES (2025-2030) y por CCAA
+- [x] Importar calendario de santos español
+- [x] Backend: `/holidays`, `/saints`, `/events` (CRUD)
+- [x] Backend: al cargar un mes, inyectar festivos y eventos en la respuesta
+- [x] Frontend: página de gestión de eventos personalizados
+- [x] Frontend: indicación visual de festivos en celdas (color diferente)
+- [x] Frontend: indicación visual de eventos en celdas (icono + color)
+- [x] Frontend: selector de CCAA en configuración del proyecto
+- [x] Frontend: mostrar santo del día en celda
+- [x] Frontend: modal de celda ampliado → ver y añadir eventos del día
 
 **Entregable:** Los festivos aparecen automáticamente. Cumpleaños y aniversarios se pueden añadir.
 
@@ -220,11 +232,11 @@
 
 ### Tareas:
 
-- [ ] Modal de celda: seleccionar imagen de biblioteca → se muestra en la celda
-- [ ] Modal de celda: seleccionar sticker/emoji → se muestra en la celda
-- [ ] Panel de Stickers y Emojis (con búsqueda)
-- [ ] Renderizado de celdas con contenido (imagen de fondo + sticker + texto + número)
-- [ ] Posicionamiento relativo dentro de la celda
+- [x] Modal de celda: seleccionar imagen de biblioteca → se muestra en la celda
+- [x] Modal de celda: seleccionar sticker/emoji → se muestra en la celda
+- [x] Panel de Stickers y Emojis (con búsqueda)
+- [x] Renderizado de celdas con contenido (imagen de fondo + sticker + texto + número)
+- [x] Posicionamiento relativo dentro de la celda
 
 **Entregable:** Las celdas se pueden decorar individualmente con fotos y stickers.
 
@@ -258,7 +270,7 @@
 
 - [x] Contenedor Docker para Puppeteer (sin sandbox, usuario no-root)
 - [x] Ruta interna de renderizado (URL que Puppeteer abre para cada mes)
-- [x] Backend: cola de trabajos de exportación con estado
+- [x] Backend: trabajos de exportación persistidos con estado y progreso
 - [x] Puppeteer: captura PNG a 300 DPI (deviceScaleFactor)
 - [x] Puppeteer: generación de PDF multipágina A4
 - [x] Opción de guía de encuadernación (línea central)
@@ -284,11 +296,18 @@
 - [x] Rate limiting en rutas de autenticación y API (`@fastify/rate-limit`)
 - [x] Toggle mostrar/ocultar contraseña en login
 - [x] Corrección build frontend para TypeScript 6
+- [x] Endpoints de health básicos
+- [x] Endurecimiento inicial de secretos: el compose de producción exige `COOKIE_SECRET`, `JWT_SECRET` y credenciales de administrador
 - [ ] Tests de los flujos principales (Playwright)
 - [ ] Documentación de uso básico (guía de usuario en PDF)
 - [ ] Configurar backup automático del volumen de datos
 - [ ] Configurar HTTPS con certificado propio o Let's Encrypt
 - [ ] Revisión completa con el usuario principal (prueba real)
+- [ ] Aislar Puppeteer de los puertos públicos
+- [ ] Añadir healthchecks de backend y Puppeteer
+- [ ] Ejecutar migraciones de Prisma automáticamente durante el despliegue
+- [ ] Recuperar y reintentar exportaciones interrumpidas
+- [ ] Sustituir silencios de error en frontend por feedback accionable
 
 **Entregable:** App en producción, estable y usable sin ayuda.
 
@@ -296,20 +315,19 @@
 
 ## Resumen de fases y estimaciones
 
-| Fase      | Descripción                   | Estimación      |
-| --------- | ----------------------------- | --------------- |
-| 0         | Setup e infraestructura       | 1-2 días        |
-| 1         | Autenticación                 | 2-3 días        |
-| 2         | Gestión de proyectos          | 2-3 días        |
-| 3         | Biblioteca de assets          | 3-4 días        |
-| 4         | Editor grid (zona inferior)   | 5-7 días        |
-| 5         | Festivos y eventos            | 3-4 días        |
-| 6         | Editor canvas (zona superior) | 7-10 días       |
-| 7         | Celdas avanzadas              | 3-4 días        |
-| 8         | Plantillas                    | 2-3 días        |
-| 9         | Exportación PDF/PNG           | 4-5 días        |
-| 10        | Pulido y producción           | 3-4 días        |
-| **Total** |                               | **~35-49 días** |
+| Fase      | Descripción                   | Estado                                      |
+| --------- | ----------------------------- | ------------------------------------------- |
+| 0         | Setup e infraestructura       | Funcional; despliegue real pendiente        |
+| 1         | Autenticación                 | Funcional                                   |
+| 2         | Gestión de proyectos          | Funcional                                   |
+| 3         | Biblioteca de assets          | Funcional                                   |
+| 4         | Editor grid (zona inferior)   | Funcional                                   |
+| 5         | Festivos y eventos            | Funcional                                   |
+| 6         | Editor canvas (zona superior) | Funcional; efectos de imagen pendientes     |
+| 7         | Celdas avanzadas              | Funcional                                   |
+| 8         | Plantillas                    | Funcional                                   |
+| 9         | Exportación PDF/PNG           | Funcional; recuperación pendiente           |
+| 10        | Pulido y producción           | En curso; validación y operación pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 

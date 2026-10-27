@@ -21,10 +21,14 @@ pnpm db:seed
 pnpm dev
 ```
 
-### Demo credentials
+### Demo credentials (development only)
 
 - Admin: admin@kalenda.app / admin123
 - User: user@kalenda.app / user123
+
+These credentials are created by the development seed only. Production deployments must provide
+their own `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `COOKIE_SECRET`, and `JWT_SECRET` values; the
+production compose file fails if any of them is missing.
 
 ## Technology Stack
 
@@ -106,6 +110,10 @@ export APP_TAG=v1.0.0
 export POSTGRES_DB=kalenda
 export POSTGRES_USER=kalenda
 export POSTGRES_PASSWORD=CHANGE_THIS_PASSWORD
+export ADMIN_EMAIL=admin@example.com
+export ADMIN_PASSWORD=CHANGE_THIS_PASSWORD
+export COOKIE_SECRET=$(openssl rand -base64 32)
+export JWT_SECRET=$(openssl rand -base64 32)
 
 docker compose pull
 docker compose up -d
@@ -124,6 +132,20 @@ docker compose up -d
 3. Commit your changes
 4. Push your branch
 5. Open a Pull Request
+
+## Versioning and branches
+
+- `main` is the stable branch.
+- `dev` collects the next development changes.
+- Releases use Semantic Versioning (`MAJOR.MINOR.PATCH`) and tags in the form `vX.Y.Z`.
+- To prepare the next patch/minor/major release from a clean branch, run:
+
+```bash
+./scripts/bump.sh patch
+```
+
+The script updates all workspace package versions, creates the release commit and tag, and
+prints the commands needed to publish them.
 
 ## License
 

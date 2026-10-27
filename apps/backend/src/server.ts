@@ -22,6 +22,7 @@ import templateRoutes from './routes/templates.js'
 import renderRoutes from './routes/render.js'
 import exportRoutes from './routes/exports.js'
 import coverRoutes from './routes/covers.js'
+import { getSecret } from './config.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 config({ path: path.resolve(__dirname, '..', '.env') })
@@ -51,7 +52,7 @@ async function createServer() {
     strictTransportSecurity: false,
   })
   await fastify.register(fastifyCookie, {
-    secret: process.env.COOKIE_SECRET || 'default-secret-change-in-production',
+    secret: getSecret('COOKIE_SECRET', 'dev-cookie-secret'),
   })
   await fastify.register(fastifyCors, {
     origin: process.env.NODE_ENV !== 'production',

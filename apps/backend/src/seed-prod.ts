@@ -6,8 +6,7 @@ async function main() {
   const email = process.env.ADMIN_EMAIL || 'admin@kalenda.app'
   const password = process.env.ADMIN_PASSWORD
   if (!password) {
-    console.log('⚠️  ADMIN_PASSWORD not set, skipping admin seed.')
-    return
+    throw new Error('ADMIN_PASSWORD must be configured to seed the production administrator')
   }
 
   const existing = await prisma.user.findUnique({ where: { email } })

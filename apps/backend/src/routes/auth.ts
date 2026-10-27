@@ -3,10 +3,11 @@ import { z } from 'zod'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../prisma.js'
-import { rateLimitConfig } from '@/config.js'
+import { getSecret, rateLimitConfig } from '@/config.js'
 
 const loginRateLimit = rateLimitConfig.login
 const authRateLimit = rateLimitConfig.strict
+const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
   const loginSchema = z.object({
@@ -95,10 +96,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       try {
-        const decoded = jwt.verify(
-          refreshToken,
-          process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
-        ) as { id: string }
+        const decoded = jwt.verify(refreshToken, jwtSecret) as { id: string }
 
         const user = await prisma.user.findUnique({ where: { id: decoded.id } })
 

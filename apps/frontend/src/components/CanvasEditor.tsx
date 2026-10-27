@@ -407,7 +407,6 @@ const CanvasEditor = forwardRef<CanvasEditorHandle, CanvasEditorProps>(
           /* Strict mode race */
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Keyboard shortcuts

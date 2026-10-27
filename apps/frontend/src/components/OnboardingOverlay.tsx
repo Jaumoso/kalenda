@@ -61,7 +61,6 @@ export default function OnboardingOverlay() {
         </div>
 
         {/* Progress dots */}
-        {/* eslint-disable-next-line react/no-array-index-key */}
         <div className="flex justify-center gap-1.5 pb-4">
           {steps.map((s, i) => (
             <div
