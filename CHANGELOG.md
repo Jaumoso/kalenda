@@ -4,6 +4,16 @@ All notable changes to Kalenda are documented here.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.8] - 2026-10-27
+
+### Security
+
+- Declared Fabric.js `^7.4.0` directly in the frontend manifest so Dependabot can verify the patched version and no longer reports the two Fabric.js XSS advisories.
+
+### Maintenance
+
+- Revalidated the workspace with dependency audits, lint, build and tests.
+
 ## [0.1.7] - 2026-10-27
 
 ### Security
@@ -33,4 +43,5 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Fixed existing lint issues across the shared, backend and frontend packages.
 
 [0.1.7]: https://github.com/Jaumoso/kalenda/releases/tag/v0.1.7
+[0.1.8]: https://github.com/Jaumoso/kalenda/releases/tag/v0.1.8
 [0.1.6]: https://github.com/Jaumoso/kalenda/releases/tag/v0.1.6
