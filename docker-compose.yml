@@ -72,5 +72,25 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  backup:
+    image: postgres:16-alpine
+    container_name: kalenda-backup
+    user: '0:0'
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-kalenda}
+      - POSTGRES_USER=${POSTGRES_USER:-kalenda}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      - BACKUP_INTERVAL_SECONDS=${BACKUP_INTERVAL_SECONDS:-86400}
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
+    volumes:
+      - ./data:/data:ro
+      - ./backups:/backups
+      - ./scripts/backup.sh:/usr/local/bin/kalenda-backup:ro
+    entrypoint: ['/usr/local/bin/kalenda-backup']
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   postgres_data:

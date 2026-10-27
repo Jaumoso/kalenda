@@ -305,10 +305,10 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Smoke test del stack de desarrollo con Docker Compose
 - [ ] Tests de los flujos principales (Playwright)
 - [ ] Documentación de uso básico (guía de usuario en PDF)
-- [ ] Configurar backup automático del volumen de datos
+- [x] Configurar backup automático del volumen de datos y de los archivos persistentes
 - [ ] Configurar HTTPS con certificado propio o Let's Encrypt
 - [ ] Revisión completa con el usuario principal (prueba real)
-- [ ] Ejecutar migraciones de Prisma automáticamente durante el despliegue
+- [x] Ejecutar migraciones de Prisma automáticamente durante el despliegue
 - [ ] Recuperar y reintentar exportaciones interrumpidas
 - [ ] Sustituir silencios de error en frontend por feedback accionable
 
@@ -330,7 +330,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 | 7    | Celdas avanzadas              | Funcional                                                |
 | 8    | Plantillas                    | Funcional                                                |
 | 9    | Exportación PDF/PNG           | Funcional; recuperación pendiente                        |
-| 10   | Pulido y producción           | En curso; CI base completada, operación y E2E pendientes |
+| 10   | Pulido y producción           | En curso; CI, migraciones y backups locales completados; operación y E2E pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 

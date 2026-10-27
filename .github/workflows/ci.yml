@@ -48,6 +48,9 @@ jobs:
       - name: Audit all dependencies
         run: pnpm audit
 
+      - name: Validate operational scripts
+        run: sh -n scripts/backup.sh
+
       - name: Lint
         run: pnpm lint
 
