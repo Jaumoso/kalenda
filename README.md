@@ -200,6 +200,20 @@ pnpm test
 pnpm --filter @kalenda/backend db:generate
 ```
 
+### End-to-end tests
+
+Install Chromium once, start the development stack, seed its database and run Playwright:
+
+```bash
+pnpm exec playwright install chromium
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml exec -T backend pnpm db:seed
+pnpm e2e
+```
+
+The suite expects the frontend at `http://127.0.0.1:5173`. Set `E2E_BASE_URL` to test
+another environment. Stop the stack with `docker compose -f docker-compose.dev.yml down`.
+
 ## Technology stack
 
 - React 19, Vite 6, Tailwind CSS 4 and Fabric.js

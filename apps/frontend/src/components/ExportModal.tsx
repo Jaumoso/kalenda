@@ -123,6 +123,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
           <button
             onClick={onClose}
             disabled={!!isRunning}
+            aria-label={t('common.close')}
             className="text-neutral-400 hover:text-neutral-600 disabled:opacity-30"
           >
             <XCircle size={18} />

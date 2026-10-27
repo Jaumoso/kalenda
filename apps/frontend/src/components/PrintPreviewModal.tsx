@@ -125,7 +125,11 @@ export default function PrintPreviewModal({
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-neutral-400 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            aria-label={t('common.close')}
+            className="text-neutral-400 hover:text-white transition-colors"
+          >
             <X size={20} />
           </button>
         </div>

@@ -93,3 +93,8 @@ postgres_data/
 data/uploads/
 uploads
 backups/
+
+# Playwright artifacts
+playwright/.auth/
+playwright-report/
+test-results/
