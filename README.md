@@ -242,20 +242,35 @@ kalenda/
 
 - `main` is the stable branch.
 - `dev` contains the next development changes.
-- Releases use Semantic Versioning (`MAJOR.MINOR.PATCH`) and tags in the form `vX.Y.Z`.
+- Stable releases use Semantic Versioning (`MAJOR.MINOR.PATCH`) and tags in the form
+  `vX.Y.Z`. They must be created from `main`.
+- Development releases use an explicit prerelease suffix, such as `v0.1.9-dev.1`, and must
+  be created from `dev`.
 - Published releases and their notes are available in the
   [GitHub Releases](https://github.com/Jaumoso/kalenda/releases) section.
 - Release commits are signed and authored by the project maintainer. Dependabot may author
   security-only dependency update commits.
 
-To prepare a release from a clean development branch:
+To prepare a stable release from a clean `main` branch:
 
 ```bash
 ./scripts/bump.sh patch
+git push
+git push origin v0.1.10
+gh release create v0.1.10
+```
+
+For a development prerelease, use a clean `dev` branch and an explicit prerelease label:
+
+```bash
+./scripts/bump.sh patch --prerelease dev.1
+git push
+git push origin v0.1.9-dev.1
+gh release create v0.1.9-dev.1 --prerelease
 ```
 
 The script updates all workspace package versions, creates the signed release commit and
-tag, and prints the commands needed to publish them.
+tag, and rejects release attempts from feature branches or unmarked releases from `dev`.
 
 ## License
 
