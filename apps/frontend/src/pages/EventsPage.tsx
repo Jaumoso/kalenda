@@ -15,6 +15,7 @@ export default function EventsPage() {
   const monthNames = t('months', { returnObjects: true }) as string[]
   const [events, setEvents] = useState<CalEvent[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null)
 
@@ -22,8 +23,9 @@ export default function EventsPage() {
     try {
       const { data } = await api.get('/events')
       setEvents(data.events)
+      setError(null)
     } catch {
-      // ignore
+      setError(t('events.errorLoading'))
     } finally {
       setLoading(false)
     }
@@ -39,7 +41,7 @@ export default function EventsPage() {
       await api.delete(`/events/${id}`)
       setEvents((prev) => prev.filter((e) => e.id !== id))
     } catch {
-      // ignore
+      setError(t('events.errorDeleting'))
     }
   }
 
@@ -84,6 +86,15 @@ export default function EventsPage() {
           {t('events.newEvent')}
         </button>
       </div>
+
+      {error && (
+        <div className="mb-4 flex items-center justify-between gap-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          <span>{error}</span>
+          <button onClick={() => fetchEvents()} className="underline whitespace-nowrap">
+            {t('common.retry')}
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-12">

@@ -266,7 +266,7 @@ export default function ProjectPage() {
             api
               .get(`/projects/${id}`)
               .then(({ data }) => setProject(data.project))
-              .catch(() => {})
+              .catch(() => setError(t('project.errorRefreshing')))
           }}
         />
       )}
