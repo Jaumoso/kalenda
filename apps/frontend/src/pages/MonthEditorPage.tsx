@@ -106,7 +106,7 @@ export default function MonthEditorPage() {
     return () => {
       cancelled = true
     }
-  }, [monthId])
+  }, [monthId, t])
 
   // Handle initial mount: if data arrived before CanvasEditor mounted (first load),
   // the fetch effect couldn't call loadFromJSON. Load now that the canvas exists.
@@ -115,16 +115,21 @@ export default function MonthEditorPage() {
     const editor = canvasEditorRef.current
     if (!editor) return
     const json = canvasTopJsonRef.current ?? { objects: [], backgroundColor: '#ffffff' }
-    editor.loadFromJSON(json).then(() => {
-      loadedMonthIdRef.current = monthId!
-      setCanvasRefreshKey((k) => k + 1)
-      setDirty(false)
-    })
-  }, [monthId, monthData])
+    editor
+      .loadFromJSON(json)
+      .then(() => {
+        loadedMonthIdRef.current = monthId!
+        setCanvasRefreshKey((k) => k + 1)
+        setDirty(false)
+      })
+      .catch(() => {
+        setError(t('editor.errorLoadingCanvas'))
+      })
+  }, [monthId, monthData, t])
 
   // Save function
   const save = useCallback(async () => {
-    if (!monthId || !dirtyRef.current) return
+    if (!monthId || !dirtyRef.current) return true
     setSaving(true)
     try {
       const canvasJson = canvasEditorRef.current?.toJSON() ?? canvasTopJsonRef.current
@@ -136,12 +141,14 @@ export default function MonthEditorPage() {
       })
       setLastSaved(new Date())
       setDirty(false)
+      return true
     } catch {
       setError(t('editor.errorSaving'))
+      return false
     } finally {
       setSaving(false)
     }
-  }, [monthId])
+  }, [monthId, t])
 
   // Auto-save
   useEffect(() => {
@@ -163,7 +170,9 @@ export default function MonthEditorPage() {
             gridConfigJson: gridConfigRef.current,
             canvasTopJson: canvasJson,
           })
-          .catch(() => {})
+          .catch((saveError) => {
+            console.error('[MonthEditorPage] Failed to save changes on unmount:', saveError)
+          })
       }
     }
   }, [monthId])
@@ -230,9 +239,9 @@ export default function MonthEditorPage() {
       })
       setEvents(data.events)
     } catch {
-      // ignore
+      setError(t('editor.errorLoadingEvents'))
     }
-  }, [monthData])
+  }, [monthData, t])
 
   const handleCellSave = async (data: {
     bgColor: string | null
@@ -270,7 +279,7 @@ export default function MonthEditorPage() {
   const handleNavigateMonth = async (direction: -1 | 1) => {
     if (!monthData) return
     // Save current if dirty
-    if (dirty) await save()
+    if (dirty && !(await save())) return
 
     try {
       const { data } = await api.get(`/projects/${projectId}`)
@@ -281,7 +290,7 @@ export default function MonthEditorPage() {
         navigate(`/projects/${projectId}/months/${months[targetIdx].id}`, { replace: true })
       }
     } catch {
-      // ignore navigation error
+      setError(t('editor.errorNavigating'))
     }
   }
 

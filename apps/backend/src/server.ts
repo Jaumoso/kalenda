@@ -23,6 +23,7 @@ import renderRoutes from './routes/render.js'
 import exportRoutes from './routes/exports.js'
 import coverRoutes from './routes/covers.js'
 import { getSecret } from './config.js'
+import { recoverInterruptedExports } from './lib/renderer.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 config({ path: path.resolve(__dirname, '..', '.env') })
@@ -168,6 +169,7 @@ async function start() {
 
     await fastify.listen({ port, host })
     console.log(`Server listening on http://${host}:${port}`)
+    await recoverInterruptedExports((message: string) => fastify.log.info(message))
   } catch (err) {
     console.error(err)
     process.exit(1)

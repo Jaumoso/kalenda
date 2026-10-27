@@ -9,7 +9,7 @@
 
 ## Estado actual
 
-Las fases 0 a 5, 6a, 6b, 7, 8 y la implementación base de la 9 están funcionalmente construidas. El trabajo pendiente se concentra en:
+Las fases 0 a 5, 6a, 6b, 7, 8 y la implementación base de la 9 están funcionalmente construidas. La base de calidad y releases ya está operativa: CI para PRs y ramas principales, auditorías de dependencias, tests unitarios obligatorios y smoke tests de Docker Compose. El trabajo pendiente se concentra en:
 
 1. Endurecimiento del despliegue de producción: secretos obligatorios, aislamiento de servicios, healthchecks, migraciones y backups.
 2. Fiabilidad de exportaciones: recuperación y reintentos de trabajos interrumpidos.
@@ -298,16 +298,19 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Corrección build frontend para TypeScript 6
 - [x] Endpoints de health básicos
 - [x] Endurecimiento inicial de secretos: el compose de producción exige `COOKIE_SECRET`, `JWT_SECRET` y credenciales de administrador
+- [x] Healthchecks de backend y Puppeteer en Compose de producción
+- [x] Aislamiento de Puppeteer: sin puerto publicado fuera de la red Docker
+- [x] CI para PRs y pushes a `main`/`dev` (lint, auditorías, build y tests)
+- [x] Tests unitarios iniciales para configuración, schemas compartidos y helpers del calendario
+- [x] Smoke test del stack de desarrollo con Docker Compose
 - [ ] Tests de los flujos principales (Playwright)
 - [ ] Documentación de uso básico (guía de usuario en PDF)
-- [ ] Configurar backup automático del volumen de datos
+- [x] Configurar backup automático del volumen de datos y de los archivos persistentes
 - [ ] Configurar HTTPS con certificado propio o Let's Encrypt
 - [ ] Revisión completa con el usuario principal (prueba real)
-- [ ] Aislar Puppeteer de los puertos públicos
-- [ ] Añadir healthchecks de backend y Puppeteer
-- [ ] Ejecutar migraciones de Prisma automáticamente durante el despliegue
-- [ ] Recuperar y reintentar exportaciones interrumpidas
-- [ ] Sustituir silencios de error en frontend por feedback accionable
+- [x] Ejecutar migraciones de Prisma automáticamente durante el despliegue
+- [x] Recuperar y reintentar exportaciones interrumpidas al reiniciar el backend
+- [x] Sustituir silencios de error en frontend por feedback accionable
 
 **Entregable:** App en producción, estable y usable sin ayuda.
 
@@ -315,19 +318,19 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 
 ## Resumen de fases y estimaciones
 
-| Fase      | Descripción                   | Estado                                      |
-| --------- | ----------------------------- | ------------------------------------------- |
-| 0         | Setup e infraestructura       | Funcional; despliegue real pendiente        |
-| 1         | Autenticación                 | Funcional                                   |
-| 2         | Gestión de proyectos          | Funcional                                   |
-| 3         | Biblioteca de assets          | Funcional                                   |
-| 4         | Editor grid (zona inferior)   | Funcional                                   |
-| 5         | Festivos y eventos            | Funcional                                   |
-| 6         | Editor canvas (zona superior) | Funcional; efectos de imagen pendientes     |
-| 7         | Celdas avanzadas              | Funcional                                   |
-| 8         | Plantillas                    | Funcional                                   |
-| 9         | Exportación PDF/PNG           | Funcional; recuperación pendiente           |
-| 10        | Pulido y producción           | En curso; validación y operación pendientes |
+| Fase | Descripción                   | Estado                                                   |
+| ---- | ----------------------------- | -------------------------------------------------------- |
+| 0    | Setup e infraestructura       | Funcional; despliegue real pendiente                     |
+| 1    | Autenticación                 | Funcional                                                |
+| 2    | Gestión de proyectos          | Funcional                                                |
+| 3    | Biblioteca de assets          | Funcional                                                |
+| 4    | Editor grid (zona inferior)   | Funcional                                                |
+| 5    | Festivos y eventos            | Funcional                                                |
+| 6    | Editor canvas (zona superior) | Funcional; efectos de imagen pendientes                  |
+| 7    | Celdas avanzadas              | Funcional                                                |
+| 8    | Plantillas                    | Funcional                                                |
+| 9    | Exportación PDF/PNG           | Funcional; recuperación pendiente                        |
+| 10   | Pulido y producción           | En curso; CI, migraciones, backups y feedback frontend completados; despliegue real, HTTPS, E2E y validación de usuario pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 

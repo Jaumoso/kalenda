@@ -106,16 +106,45 @@ Do not use `docker compose down -v` unless you intentionally want to delete the 
 
 Kalenda stores PostgreSQL data in the Docker volume `kalenda_postgres_data`, and uploaded
 assets and generated exports under `./data`. Back up both before moving the installation or
-performing maintenance. A PostgreSQL dump can be created with:
+performing maintenance. The production Compose stack includes an internal backup service.
+It creates one compressed archive per interval containing a PostgreSQL dump and the contents
+of `./data`. Configure the interval and retention in `.env`:
+
+```dotenv
+BACKUP_INTERVAL_SECONDS=86400
+BACKUP_RETENTION_DAYS=30
+```
+
+Archives are written to `./backups`. They are intentionally excluded from Git and should
+also be copied to storage outside the server. A manual PostgreSQL dump can be created with:
 
 ```bash
 docker compose exec -T postgres \
   sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB"' > kalenda.sql
 ```
 
+To restore a backup, stop the application services first, extract the archive to a
+temporary directory, restore the database dump, and replace the contents of `./data`:
+
+```bash
+docker compose stop backend puppeteer
+mkdir -p /tmp/kalenda-restore
+tar -xzf backups/kalenda-YYYYMMDDTHHMMSSZ.tar.gz -C /tmp/kalenda-restore
+docker compose exec -T postgres \
+  pg_restore --clean --if-exists --no-owner --dbname="$POSTGRES_DB" \
+  < /tmp/kalenda-restore/database.dump
+tar -xf /tmp/kalenda-restore/data.tar -C ./data
+docker compose start backend puppeteer
+```
+
+Replace the timestamp in the example with the archive being restored and verify the
+application before removing the previous `./data` contents. Test restores periodically;
+a backup that has never been restored is not a verified recovery plan.
+
 The Compose stack is suitable for a private or internal installation. For internet-facing
 use, put it behind a reverse proxy with HTTPS, restrict access to the Docker host, and
-configure automated backups. Do not expose the PostgreSQL or Puppeteer service publicly.
+copy `./backups` to independent storage, and do not expose the PostgreSQL, Puppeteer or
+backup service publicly.
 
 ## Development
 
@@ -125,7 +154,7 @@ repository source code, a local PostgreSQL container and the development seed da
 ### Requirements
 
 - Node.js 20 LTS
-- pnpm 8
+- pnpm 12
 - Docker Engine with Docker Compose v2
 
 ### Start the development environment
@@ -170,6 +199,20 @@ pnpm test
 # Regenerate Prisma Client
 pnpm --filter @kalenda/backend db:generate
 ```
+
+### End-to-end tests
+
+Install Chromium once, start the development stack, seed its database and run Playwright:
+
+```bash
+pnpm exec playwright install chromium
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml exec -T backend pnpm db:seed
+pnpm e2e
+```
+
+The suite expects the frontend at `http://127.0.0.1:5173`. Set `E2E_BASE_URL` to test
+another environment. Stop the stack with `docker compose -f docker-compose.dev.yml down`.
 
 ## Technology stack
 

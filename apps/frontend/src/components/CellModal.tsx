@@ -61,6 +61,7 @@ export default function CellModal({
   const [newEventName, setNewEventName] = useState('')
   const [newEventType, setNewEventType] = useState<'BIRTHDAY' | 'ANNIVERSARY' | 'CUSTOM'>('CUSTOM')
   const [savingEvent, setSavingEvent] = useState(false)
+  const [eventError, setEventError] = useState<string | null>(null)
   const [showImagePicker, setShowImagePicker] = useState(false)
   const [showStickerPicker, setShowStickerPicker] = useState(false)
   const [showStickerAssetPicker, setShowStickerAssetPicker] = useState(false)
@@ -110,6 +111,7 @@ export default function CellModal({
   const handleAddQuickEvent = async () => {
     if (!newEventName.trim()) return
     setSavingEvent(true)
+    setEventError(null)
     try {
       await api.post('/events', {
         name: newEventName.trim(),
@@ -122,18 +124,19 @@ export default function CellModal({
       setShowNewEvent(false)
       onEventsChanged()
     } catch {
-      // ignore
+      setEventError(t('cell.errorAddingEvent'))
     } finally {
       setSavingEvent(false)
     }
   }
 
   const handleDeleteEvent = async (id: string) => {
+    setEventError(null)
     try {
       await api.delete(`/events/${id}`)
       onEventsChanged()
     } catch {
-      // ignore
+      setEventError(t('cell.errorDeletingEvent'))
     }
   }
 
@@ -171,6 +174,11 @@ export default function CellModal({
         )}
 
         {/* Events */}
+        {eventError && (
+          <div className="mb-3 rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+            {eventError}
+          </div>
+        )}
         {events.length > 0 && (
           <div className="mb-4">
             <h3 className="text-sm font-medium text-neutral-700 mb-1">

@@ -40,6 +40,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
   const [job, setJob] = useState<ExportJob | null>(null)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pollError, setPollError] = useState<string | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Poll job status
@@ -56,8 +57,9 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
       try {
         const { data } = await api.get(`/exports/${job.id}`)
         setJob(data.job)
+        setPollError(null)
       } catch {
-        // ignore polling errors
+        setPollError(t('exportModal.errorCheckingStatus'))
       }
     }, 2000)
 
@@ -82,6 +84,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
         filename: filename.trim() || `${projectName}-${projectYear}`,
       })
       setJob(data.job)
+      setPollError(null)
     } catch (err: unknown) {
       const msg =
         err && typeof err === 'object' && 'response' in err
@@ -120,6 +123,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
           <button
             onClick={onClose}
             disabled={!!isRunning}
+            aria-label={t('common.close')}
             className="text-neutral-400 hover:text-neutral-600 disabled:opacity-30"
           >
             <XCircle size={18} />
@@ -247,6 +251,11 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
           {/* Job progress */}
           {job && (
             <div className="space-y-4">
+              {pollError && (
+                <div className="text-sm text-amber-700 bg-amber-50 rounded-md px-3 py-2">
+                  {pollError}
+                </div>
+              )}
               {/* Status */}
               <div className="text-center">
                 {job.status === 'PENDING' && (

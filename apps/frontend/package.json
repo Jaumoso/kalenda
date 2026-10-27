@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "format": "prettier --write .",
     "preview": "vite preview",
-    "test": "vitest --passWithNoTests",
+    "test": "vitest run src",
     "test:watch": "vitest --watch",
     "clean": "rm -rf dist"
   },

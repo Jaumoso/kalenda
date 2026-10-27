@@ -39,6 +39,7 @@ export default function AssetPickerModal({
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const fetchAssets = useCallback(async () => {
     setLoading(true)
@@ -49,8 +50,9 @@ export default function AssetPickerModal({
       const { data } = await api.get('/assets', { params })
       setAssets(data.assets)
       setFolders(data.folders || [])
+      setError(null)
     } catch {
-      // ignore
+      setError(t('assetPicker.errorLoading'))
     } finally {
       setLoading(false)
     }
@@ -127,7 +129,16 @@ export default function AssetPickerModal({
             </div>
           ) : assets.length === 0 ? (
             <div className="text-center py-12 text-neutral-400 text-sm">
-              {t('assetPicker.noImages')}
+              {error ? (
+                <div className="space-y-2 text-red-600">
+                  <p>{error}</p>
+                  <button onClick={fetchAssets} className="text-primary-600 hover:underline">
+                    {t('assetPicker.retry')}
+                  </button>
+                </div>
+              ) : (
+                t('assetPicker.noImages')
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-3">

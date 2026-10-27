@@ -124,6 +124,7 @@
     "customized": "Personalizado",
     "noDesignYet": "Sin diseño aún",
     "errorUpdatingStatus": "Error al actualizar el estado",
+    "errorRefreshing": "Error al actualizar el proyecto",
     "statusDraft": "Borrador",
     "statusInProgress": "En curso",
     "statusCompleted": "Completado"
@@ -198,6 +199,8 @@
     "repeatsEveryYear": "Se repite cada año",
     "iconLabel": "Icono/emoji (opcional)",
     "confirmDelete": "¿Eliminar este evento?",
+    "errorLoading": "Error al cargar los eventos",
+    "errorDeleting": "Error al eliminar el evento",
     "errorSaving": "Error al guardar el evento",
     "birthday": "Cumpleaños",
     "anniversary": "Aniversario",
@@ -237,7 +240,8 @@
     "exportError": "Error de exportación",
     "starting": "Iniciando...",
     "exportFormat": "Exportar {{format}}",
-    "errorStarting": "Error al iniciar la exportación"
+    "errorStarting": "Error al iniciar la exportación",
+    "errorCheckingStatus": "No se puede actualizar el estado. Reintentando..."
   },
   "newProject": {
     "title": "Nuevo calendario",
@@ -254,14 +258,17 @@
     "templateHint": "La plantilla se aplicará a los 12 meses al crear el proyecto",
     "creating": "Creando...",
     "createCalendar": "Crear calendario",
-    "errorCreating": "Error al crear proyecto"
+    "errorCreating": "Error al crear proyecto",
+    "errorLoadingTemplates": "Error al cargar las plantillas"
   },
   "assetPicker": {
     "selectImage": "Seleccionar imagen",
     "selectSticker": "Seleccionar sticker",
     "search": "Buscar...",
     "allFolders": "← Todas las carpetas",
-    "noImages": "No se encontraron imágenes"
+    "noImages": "No se encontraron imágenes",
+    "errorLoading": "Error al cargar los recursos de la biblioteca",
+    "retry": "Reintentar"
   },
   "stickerPicker": {
     "title": "Stickers y emojis",
@@ -415,6 +422,8 @@
     "events": "Eventos",
     "yearly": "(anual)",
     "deleteEvent": "Eliminar evento",
+    "errorAddingEvent": "Error al añadir el evento",
+    "errorDeletingEvent": "Error al eliminar el evento",
     "eventName": "Nombre del evento",
     "addEventForDay": "+ Añadir evento para este día",
     "cellImage": "Imagen de celda",

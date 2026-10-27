@@ -124,6 +124,7 @@
     "customized": "Customized",
     "noDesignYet": "No design yet",
     "errorUpdatingStatus": "Error updating status",
+    "errorRefreshing": "Error refreshing project",
     "statusDraft": "Draft",
     "statusInProgress": "In progress",
     "statusCompleted": "Completed"
@@ -198,6 +199,8 @@
     "repeatsEveryYear": "Repeats every year",
     "iconLabel": "Icon/emoji (optional)",
     "confirmDelete": "Delete this event?",
+    "errorLoading": "Error loading events",
+    "errorDeleting": "Error deleting event",
     "errorSaving": "Error saving event",
     "birthday": "Birthday",
     "anniversary": "Anniversary",
@@ -237,7 +240,8 @@
     "exportError": "Export error",
     "starting": "Starting...",
     "exportFormat": "Export {{format}}",
-    "errorStarting": "Error starting export"
+    "errorStarting": "Error starting export",
+    "errorCheckingStatus": "Unable to update export status. Retrying..."
   },
   "newProject": {
     "title": "New calendar",
@@ -254,14 +258,17 @@
     "templateHint": "The template will be applied to all 12 months when creating the project",
     "creating": "Creating...",
     "createCalendar": "Create calendar",
-    "errorCreating": "Error creating project"
+    "errorCreating": "Error creating project",
+    "errorLoadingTemplates": "Error loading templates"
   },
   "assetPicker": {
     "selectImage": "Select image",
     "selectSticker": "Select sticker",
     "search": "Search...",
     "allFolders": "← All folders",
-    "noImages": "No images found"
+    "noImages": "No images found",
+    "errorLoading": "Error loading library assets",
+    "retry": "Retry"
   },
   "stickerPicker": {
     "title": "Stickers & emojis",
@@ -415,6 +422,8 @@
     "events": "Events",
     "yearly": "(yearly)",
     "deleteEvent": "Delete event",
+    "errorAddingEvent": "Error adding event",
+    "errorDeletingEvent": "Error deleting event",
     "eventName": "Event name",
     "addEventForDay": "+ Add event for this day",
     "cellImage": "Cell image",

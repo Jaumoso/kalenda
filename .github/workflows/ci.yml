@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality, audit and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.15.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod
+
+      - name: Audit all dependencies
+        run: pnpm audit
+
+      - name: Validate operational scripts
+        run: sh -n scripts/backup.sh
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.15.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm test
+
+  compose-smoke:
+    name: Docker Compose smoke test
+    runs-on: ubuntu-latest
+    needs:
+      - quality
+      - tests
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate production Compose configuration
+        run: docker compose --env-file .env.example config --quiet
+
+      - name: Build and start development stack
+        run: docker compose -f docker-compose.dev.yml up -d --build
+
+      - name: Wait for backend health endpoint
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:3000/api/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose -f docker-compose.dev.yml logs
+          exit 1
+
+      - name: Check frontend response
+        run: curl --fail --silent http://localhost:5173/ >/dev/null
+
+      - name: Dump Compose logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.dev.yml logs --no-color
+
+      - name: Show service status
+        if: always()
+        run: docker compose -f docker-compose.dev.yml ps
+
+      - name: Tear down development stack
+        if: always()
+        run: docker compose -f docker-compose.dev.yml down --volumes
+
+  e2e:
+    name: End-to-end tests
+    runs-on: ubuntu-latest
+    needs:
+      - quality
+      - tests
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.15.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build and start development stack
+        run: docker compose -f docker-compose.dev.yml up -d --build
+
+      - name: Wait for backend health endpoint
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:3000/api/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose -f docker-compose.dev.yml logs
+          exit 1
+
+      - name: Seed E2E database
+        run: docker compose -f docker-compose.dev.yml exec -T backend pnpm db:seed
+
+      - name: Run Playwright tests
+        run: pnpm e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+
+      - name: Dump Compose logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.dev.yml logs --no-color
+
+      - name: Tear down development stack
+        if: always()
+        run: docker compose -f docker-compose.dev.yml down --volumes

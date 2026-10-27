@@ -103,6 +103,7 @@ export default function CalendarGrid({
 
   return (
     <div
+      data-testid="calendar-grid"
       className="overflow-hidden flex flex-col h-full"
       style={{
         borderRadius: `${config.borderRadius}px`,
@@ -183,6 +184,7 @@ export default function CalendarGrid({
               return (
                 <div
                   key={col}
+                  data-testid={isValid ? `calendar-day-${dayNumber}` : undefined}
                   className={`relative transition-colors ${
                     isValid ? 'cursor-pointer hover:bg-primary-50/50' : ''
                   } overflow-hidden`}
