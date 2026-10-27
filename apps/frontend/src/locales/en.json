@@ -258,7 +258,8 @@
     "templateHint": "The template will be applied to all 12 months when creating the project",
     "creating": "Creating...",
     "createCalendar": "Create calendar",
-    "errorCreating": "Error creating project"
+    "errorCreating": "Error creating project",
+    "errorLoadingTemplates": "Error loading templates"
   },
   "assetPicker": {
     "selectImage": "Select image",
@@ -421,6 +422,8 @@
     "events": "Events",
     "yearly": "(yearly)",
     "deleteEvent": "Delete event",
+    "errorAddingEvent": "Error adding event",
+    "errorDeletingEvent": "Error deleting event",
     "eventName": "Event name",
     "addEventForDay": "+ Add event for this day",
     "cellImage": "Cell image",

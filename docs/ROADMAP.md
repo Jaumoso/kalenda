@@ -310,7 +310,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [ ] Revisión completa con el usuario principal (prueba real)
 - [x] Ejecutar migraciones de Prisma automáticamente durante el despliegue
 - [x] Recuperar y reintentar exportaciones interrumpidas al reiniciar el backend
-- [ ] Sustituir silencios de error en frontend por feedback accionable
+- [x] Sustituir silencios de error en frontend por feedback accionable
 
 **Entregable:** App en producción, estable y usable sin ayuda.
 
@@ -330,7 +330,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 | 7    | Celdas avanzadas              | Funcional                                                |
 | 8    | Plantillas                    | Funcional                                                |
 | 9    | Exportación PDF/PNG           | Funcional; recuperación pendiente                        |
-| 10   | Pulido y producción           | En curso; CI, migraciones y backups locales completados; operación y E2E pendientes |
+| 10   | Pulido y producción           | En curso; CI, migraciones, backups y feedback frontend completados; despliegue real, HTTPS, E2E y validación de usuario pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 

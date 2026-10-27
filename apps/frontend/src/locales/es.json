@@ -258,7 +258,8 @@
     "templateHint": "La plantilla se aplicará a los 12 meses al crear el proyecto",
     "creating": "Creando...",
     "createCalendar": "Crear calendario",
-    "errorCreating": "Error al crear proyecto"
+    "errorCreating": "Error al crear proyecto",
+    "errorLoadingTemplates": "Error al cargar las plantillas"
   },
   "assetPicker": {
     "selectImage": "Seleccionar imagen",
@@ -421,6 +422,8 @@
     "events": "Eventos",
     "yearly": "(anual)",
     "deleteEvent": "Eliminar evento",
+    "errorAddingEvent": "Error al añadir el evento",
+    "errorDeletingEvent": "Error al eliminar el evento",
     "eventName": "Nombre del evento",
     "addEventForDay": "+ Añadir evento para este día",
     "cellImage": "Imagen de celda",

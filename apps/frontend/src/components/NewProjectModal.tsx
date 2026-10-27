@@ -55,8 +55,8 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         const def = data.templates.find((t: TemplateOption) => t.isDefault)
         if (def) setTemplateId(def.id)
       })
-      .catch(() => {})
-  }, [])
+      .catch(() => setError(t('newProject.errorLoadingTemplates')))
+  }, [t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
