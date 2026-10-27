@@ -246,6 +246,9 @@ kalenda/
   `vX.Y.Z`. They must be created from `main`.
 - Development releases use an explicit prerelease suffix, such as `v0.1.9-dev.1`, and must
   be created from `dev`.
+- Every push to `dev` publishes development images with the mutable `dev` tag and an immutable
+  `dev-<short-sha>` tag. These images are intended for server validation and never update
+  `latest`.
 - Published releases and their notes are available in the
   [GitHub Releases](https://github.com/Jaumoso/kalenda/releases) section.
 - Release commits are signed and authored by the project maintainer. Dependabot may author
@@ -271,6 +274,17 @@ gh release create v0.1.9-dev.1 --prerelease
 
 The script updates all workspace package versions, creates the signed release commit and
 tag, and rejects release attempts from feature branches or unmarked releases from `dev`.
+
+To test the latest code merged into `dev` without creating a release, set this in the server's
+`.env` file and pull the images:
+
+```dotenv
+APP_TAG=dev
+```
+
+For a reproducible test, use the `dev-<short-sha>` tag shown in the GitHub Actions run that
+published the images. Stable releases from `main` continue to use their `vX.Y.Z` tag and
+`latest`; those tags are never written by pushes to `dev`.
 
 ## License
 
