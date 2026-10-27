@@ -1,42 +1,42 @@
-## Resumen
+## Summary
 
-<!-- Describe brevemente el problema y la solución. -->
+<!-- Briefly describe the problem and the proposed solution. -->
 
-## Tipo de cambio
+## Change type
 
-- [ ] Nueva funcionalidad
-- [ ] Corrección de bug
-- [ ] Seguridad
-- [ ] Dependencias
-- [ ] Documentación
-- [ ] CI/CD o infraestructura
+- [ ] New feature
+- [ ] Bug fix
+- [ ] Security
+- [ ] Dependencies
+- [ ] Documentation
+- [ ] CI/CD or infrastructure
 
-## Cambios realizados
+## Changes made
 
-<!-- Enumera los cambios relevantes y las superficies afectadas. -->
+<!-- List the relevant changes and affected areas. -->
 
-## Validación
+## Validation
 
 - [ ] `pnpm install --frozen-lockfile`
 - [ ] `pnpm lint`
 - [ ] `pnpm build`
 - [ ] `pnpm test`
-- [ ] Smoke test de Docker Compose, si aplica
-- [ ] He comprobado que no hay secretos ni credenciales en el diff
+- [ ] Docker Compose smoke test, if applicable
+- [ ] I checked that the diff contains no secrets or credentials
 
-## Documentación
+## Documentation
 
-- [ ] README actualizado, si aplica
-- [ ] `docs/ROADMAP.md` actualizado, si aplica
-- [ ] No requiere cambios de documentación
+- [ ] README updated, if applicable
+- [ ] `docs/ROADMAP.md` updated, if applicable
+- [ ] No documentation changes are required
 
-## Riesgos y migración
+## Risks and migration
 
-<!-- Indica riesgos, cambios de configuración, migraciones Prisma o pasos de rollback. -->
+<!-- Describe risks, configuration changes, Prisma migrations, or rollback steps. -->
 
-## Checklist del autor
+## Author checklist
 
-- [ ] La pull request contiene solo cambios relacionados con su objetivo.
-- [ ] He revisado el diff completo.
-- [ ] He añadido o actualizado tests cuando era necesario.
-- [ ] Los cambios están listos para revisión.
+- [ ] This pull request contains only changes related to its stated goal.
+- [ ] I reviewed the complete diff.
+- [ ] I added or updated tests where necessary.
+- [ ] The changes are ready for review.
