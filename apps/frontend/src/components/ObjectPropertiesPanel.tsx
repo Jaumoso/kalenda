@@ -177,6 +177,9 @@ export default function ObjectPropertiesPanel({
       {/* Image filters */}
       {selectedObject.type === 'image' && (
         <>
+          <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            {t('objectProps.imageFilters')}
+          </h4>
           <div>
             <div className="flex items-center justify-between">
               <label className="text-xs text-neutral-500">{t('objectProps.brightness')}</label>
