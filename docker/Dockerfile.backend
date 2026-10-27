@@ -30,24 +30,24 @@ RUN cd apps/backend && npx prisma generate
 # Build backend
 RUN cd apps/backend && pnpm build
 
+# Create a pruned production deployment containing only the backend workspace
+RUN pnpm --filter @kalenda/backend deploy --prod /prod/backend && \
+    cd /prod/backend && npx prisma generate
+
 # Production stage
 FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install production dependencies only for backend workspace
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/backend/package.json ./apps/backend/
-COPY packages/shared/package.json ./packages/shared/
-COPY apps/backend/prisma ./apps/backend/prisma
-COPY apps/backend/prisma.config.ts ./apps/backend/
-RUN npm install -g pnpm@12.15.0 && pnpm install --filter @kalenda/backend... --prod --frozen-lockfile && \
-    cd apps/backend && npx prisma generate
+# Copy the pruned production dependencies and backend metadata
+COPY --from=builder /prod/backend/node_modules ./node_modules
+COPY --from=builder /prod/backend/package.json ./apps/backend/package.json
+COPY --from=builder /prod/backend/prisma ./apps/backend/prisma
+COPY --from=builder /prod/backend/prisma.config.ts ./apps/backend/prisma.config.ts
 
 # Copy built files
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 COPY --from=builder /app/apps/frontend/dist ./apps/backend/frontend/dist
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 
 # Create data directories with correct ownership for non-root user
 RUN mkdir -p /data/uploads/thumbs /data/exports && \
