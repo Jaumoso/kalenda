@@ -10,7 +10,7 @@ COPY apps/frontend/package.json ./apps/frontend/
 COPY packages/shared/package.json ./packages/shared/
 
 # Install dependencies
-RUN npm install -g pnpm
+RUN npm install -g pnpm@12.15.0
 RUN pnpm install --frozen-lockfile
 
 # Copy source code
@@ -41,7 +41,7 @@ COPY apps/backend/package.json ./apps/backend/
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/backend/prisma ./apps/backend/prisma
 COPY apps/backend/prisma.config.ts ./apps/backend/
-RUN npm install -g pnpm && pnpm install --filter @kalenda/backend... --prod --frozen-lockfile && \
+RUN npm install -g pnpm@12.15.0 && pnpm install --filter @kalenda/backend... --prod --frozen-lockfile && \
     cd apps/backend && npx prisma generate
 
 # Copy built files

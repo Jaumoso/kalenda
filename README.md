@@ -125,7 +125,7 @@ repository source code, a local PostgreSQL container and the development seed da
 ### Requirements
 
 - Node.js 20 LTS
-- pnpm 8
+- pnpm 12
 - Docker Engine with Docker Compose v2
 
 ### Start the development environment
