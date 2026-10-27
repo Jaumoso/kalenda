@@ -309,7 +309,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [ ] Configurar HTTPS con certificado propio o Let's Encrypt
 - [ ] Revisión completa con el usuario principal (prueba real)
 - [x] Ejecutar migraciones de Prisma automáticamente durante el despliegue
-- [ ] Recuperar y reintentar exportaciones interrumpidas
+- [x] Recuperar y reintentar exportaciones interrumpidas al reiniciar el backend
 - [ ] Sustituir silencios de error en frontend por feedback accionable
 
 **Entregable:** App en producción, estable y usable sin ayuda.

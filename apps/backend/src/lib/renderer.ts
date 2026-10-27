@@ -1,7 +1,9 @@
 import { PDFDocument, rgb } from 'pdf-lib'
 import fs from 'fs'
 import path from 'path'
+import jwt from 'jsonwebtoken'
 import { prisma } from '../prisma.js'
+import { getSecret } from '../config.js'
 
 // A4 at 96 DPI (matches frontend)
 const PAGE_WIDTH = 794
@@ -29,6 +31,8 @@ interface RenderOptions {
   coverToken: string
 }
 
+const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
+
 async function ensureExportsDir() {
   if (!fs.existsSync(EXPORTS_DIR)) {
     fs.mkdirSync(EXPORTS_DIR, { recursive: true })
@@ -49,7 +53,14 @@ export async function renderProject(
     // Update job status to PROCESSING
     await prisma.exportJob.update({
       where: { id: jobId },
-      data: { status: 'PROCESSING' },
+      data: {
+        status: 'PROCESSING',
+        progress: 0,
+        currentPage: 0,
+        filePath: null,
+        fileSize: null,
+        error: null,
+      },
     })
 
     const pngPaths: string[] = []
@@ -145,6 +156,63 @@ export async function renderProject(
         status: 'FAILED',
         error: message,
       },
+    })
+  }
+}
+
+export async function startExportJob(jobId: string): Promise<void> {
+  const job = await prisma.exportJob.findUnique({
+    where: { id: jobId },
+    include: {
+      project: {
+        include: {
+          months: { orderBy: { month: 'asc' } },
+        },
+      },
+    },
+  })
+
+  if (!job) {
+    throw new Error(`Export job ${jobId} not found`)
+  }
+
+  const renderTokens = job.project.months.map((month) => ({
+    monthId: month.id,
+    month: month.month,
+    token: jwt.sign({ monthId: month.id, purpose: 'render' }, jwtSecret, { expiresIn: '5m' }),
+  }))
+
+  const coverToken = jwt.sign({ projectId: job.projectId, purpose: 'render-cover' }, jwtSecret, {
+    expiresIn: '5m',
+  })
+
+  await renderProject(job.id, renderTokens, {
+    format: job.format,
+    dpi: job.dpi,
+    bindingGuide: job.bindingGuide,
+    filename: job.filename || `${job.project.name}-${job.project.year}`,
+    projectId: job.projectId,
+    coverToken,
+  })
+}
+
+export async function recoverInterruptedExports(log: (message: string) => void): Promise<void> {
+  const jobs = await prisma.exportJob.findMany({
+    where: {
+      status: { in: ['PENDING', 'PROCESSING'] },
+    },
+    select: { id: true },
+    orderBy: { createdAt: 'asc' },
+  })
+
+  for (const job of jobs) {
+    log(`Recovering interrupted export job ${job.id}`)
+    startExportJob(job.id).catch((error: unknown) => {
+      log(
+        `Unable to recover export job ${job.id}: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      )
     })
   }
 }

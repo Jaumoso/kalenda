@@ -1,12 +1,10 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
-import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import { prisma } from '../prisma.js'
-import { renderProject } from '../lib/renderer.js'
-import { getSecret, rateLimitConfig } from '@/config.js'
+import { startExportJob } from '../lib/renderer.js'
+import { rateLimitConfig } from '@/config.js'
 
-const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
 const rateLimit = rateLimitConfig.strict
 
 const createExportSchema = z.object({
@@ -57,28 +55,12 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
         },
       })
 
-      // Generate render tokens for each month (5 min expiry)
-      const renderTokens = project.months.map((m) => ({
-        monthId: m.id,
-        month: m.month,
-        token: jwt.sign({ monthId: m.id, purpose: 'render' }, jwtSecret, { expiresIn: '5m' }),
-      }))
-
-      // Generate cover render token
-      const coverToken = jwt.sign({ projectId, purpose: 'render-cover' }, jwtSecret, {
-        expiresIn: '5m',
-      })
-
       // Start async rendering (fire and forget)
-      renderProject(job.id, renderTokens, {
-        format,
-        dpi,
-        bindingGuide,
-        filename: exportFilename,
-        projectId,
-        coverToken,
-      }).catch((err) => {
-        fastify.log.error('Export render failed: %s', err.message)
+      startExportJob(job.id).catch((err: unknown) => {
+        fastify.log.error(
+          'Export render failed: %s',
+          err instanceof Error ? err.message : 'Unknown error'
+        )
       })
 
       reply.code(201).send({ job })
