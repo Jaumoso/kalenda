@@ -144,8 +144,10 @@ docker compose up -d
 ./scripts/bump.sh patch
 ```
 
-The script updates all workspace package versions, creates the release commit and tag, and
-prints the commands needed to publish them.
+The script updates all workspace package versions, creates the release commit and tag using
+the configured Git identity, and prints the commands needed to publish them. Release commits
+are authored only by the project maintainer; security updates from Dependabot may retain
+Dependabot as their author.
 
 ## License
 

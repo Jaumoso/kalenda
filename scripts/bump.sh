@@ -66,8 +66,7 @@ done
 
 # Commit and tag
 git add -A
-git commit -m "release: v${NEXT}" \
-  -m "Co-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>"
+git commit -m "release: v${NEXT}"
 git tag -a "v${NEXT}" -m "release: v${NEXT}"
 
 echo ""
