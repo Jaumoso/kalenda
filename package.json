@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@8.15.0",
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm --filter @kalenda/backend db:generate && pnpm -r build",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r lint:fix",
