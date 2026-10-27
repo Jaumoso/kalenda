@@ -15,7 +15,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@kalenda/shared": "workspace:*",
     "@fontsource-variable/bitter": "^5.2.10",
     "@fontsource-variable/cabin": "^5.2.8",
     "@fontsource-variable/dm-sans": "^5.2.8",
@@ -43,9 +42,10 @@
     "@fontsource/pacifico": "^5.2.7",
     "@fontsource/permanent-marker": "^5.2.7",
     "@fontsource/satisfy": "^5.2.7",
+    "@kalenda/shared": "workspace:*",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.99.0",
-    "axios": "^1.18.0",
+    "axios": "^1.21.0",
     "fabric": "6",
     "i18next": "^26.0.4",
     "i18next-browser-languagedetector": "^8.2.1",
@@ -55,7 +55,7 @@
     "react-dom": "^19.0.0-rc.0",
     "react-hook-form": "^7.72.1",
     "react-i18next": "^15.7.4",
-    "react-router-dom": "^7.18.0",
+    "react-router-dom": "^7.18.4",
     "tailwindcss": "^4.2.2",
     "zustand": "^5.0.12"
   },
@@ -65,7 +65,7 @@
     "@types/react-dom": "^19.0.0-rc.0",
     "@vitejs/plugin-react": "^4.2.1",
     "typescript": "^6.0.2",
-    "vite": "^6.4.3",
-    "vitest": "^4.1.0"
+    "vite": "^6.4.5",
+    "vitest": "^4.1.12"
   }
 }
