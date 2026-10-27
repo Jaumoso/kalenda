@@ -86,7 +86,7 @@ export default function CoverEditorPage() {
     return () => {
       cancelled = true
     }
-  }, [projectId, isFront])
+  }, [projectId, isFront, t])
 
   // Handle initial mount: if data arrived before CanvasEditor mounted (first load),
   // the fetch effect couldn't call loadFromJSON. Load now that the canvas exists.
@@ -96,11 +96,16 @@ export default function CoverEditorPage() {
     const editor = canvasEditorRef.current
     if (!editor) return
     const json = canvasJsonRef.current ?? { objects: [], backgroundColor: '#ffffff' }
-    editor.loadFromJSON(json).then(() => {
-      loadedKeyRef.current = key
-      setDirty(false)
-    })
-  }, [projectId, isFront, coverData])
+    editor
+      .loadFromJSON(json)
+      .then(() => {
+        loadedKeyRef.current = key
+        setDirty(false)
+      })
+      .catch(() => {
+        setError(t('cover.errorLoadingCanvas'))
+      })
+  }, [projectId, isFront, coverData, t])
 
   // Save function
   const save = useCallback(async () => {
@@ -118,7 +123,7 @@ export default function CoverEditorPage() {
     } finally {
       setSaving(false)
     }
-  }, [projectId, isFront])
+  }, [projectId, isFront, t])
 
   // Auto-save
   useEffect(() => {
@@ -135,7 +140,9 @@ export default function CoverEditorPage() {
         const canvasJson = canvasEditorRef.current?.toJSON() ?? canvasJsonRef.current
         if (canvasJson) canvasJsonRef.current = canvasJson
         const body = isFront ? { coverJson: canvasJson } : { backCoverJson: canvasJson }
-        api.put(`/projects/${projectId}/covers`, body).catch(() => {})
+        api.put(`/projects/${projectId}/covers`, body).catch((saveError) => {
+          console.error('[CoverEditorPage] Failed to save changes on unmount:', saveError)
+        })
       }
     }
   }, [projectId, isFront])
