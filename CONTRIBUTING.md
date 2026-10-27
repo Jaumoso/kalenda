@@ -1,8 +1,8 @@
 # Contribuir a Kalenda
 
-Gracias por contribuir a Kalenda. La rama `main` contiene el código estable y
-solo recibe cambios mediante pull requests. La rama `dev` es la rama de
-integración para el trabajo diario.
+Gracias por contribuir a Kalenda. Las ramas `main` y `dev` están protegidas y
+solo reciben cambios mediante pull requests. `main` contiene el código estable
+y `dev` es la rama de integración para el trabajo diario.
 
 ## Flujo de trabajo
 
@@ -10,14 +10,19 @@ integración para el trabajo diario.
    `fix/export-timeout` o `feat/calendar-filters`.
 2. Mantén los cambios centrados en un objetivo y evita incluir cambios
    generados o formateados sin relación.
-3. Abre una pull request contra `dev`. Los cambios destinados a una release se
-   promocionan después mediante otra pull request hacia `main`.
-4. Espera a que todos los checks de CI terminen correctamente y responde a las
+3. Abre una pull request contra `dev`. Las nuevas funcionalidades, cambios de
+   comportamiento y refactors deben pasar por esta revisión; los bug fixes
+   también deben usar pull requests para mantener trazabilidad.
+4. Promociona los cambios destinados a una release mediante otra pull request
+   desde `dev` hacia `main`. Los hotfixes de producción también se aplican
+   mediante una pull request específica hacia `main`.
+5. Espera a que todos los checks de CI terminen correctamente y responde a las
    revisiones antes de fusionar.
 
-No se deben hacer pushes directos a `main`, ni force-pushes sobre ramas
-protegidas. Las ramas de trabajo pueden eliminarse después de fusionar la pull
-request.
+No se deben hacer pushes directos a `main` ni a `dev`, ni force-pushes sobre
+ramas protegidas. Ambas ramas requieren una aprobación, todos los checks de CI,
+conversaciones resueltas e historial lineal. Las ramas de trabajo pueden
+eliminarse después de fusionar la pull request.
 
 ## Requisitos para una pull request
 
@@ -33,7 +38,7 @@ Cada pull request debe:
 
 El CI ejecuta instalación reproducible, auditoría de dependencias, lint, build,
 tests unitarios y un smoke test del stack Docker Compose. Todos esos checks son
-obligatorios para fusionar cambios en `main`.
+obligatorios para fusionar cambios en `dev` y `main`.
 
 ## Commits
 
