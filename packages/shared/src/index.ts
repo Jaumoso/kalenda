@@ -14,6 +14,7 @@ export type {
   AuthTokens,
   AuthUser,
   LoginRequest,
+  HighlightedEvent,
 } from './types'
 
 // Export schemas
@@ -38,3 +39,5 @@ export {
   getEventRecurrence,
 } from './recurrence'
 export type { EventRecurrence, RecurringEventInput } from './recurrence'
+export { getHighlightedEventCountdown } from './countdown'
+export type { CountdownResult, CountdownStatus } from './countdown'

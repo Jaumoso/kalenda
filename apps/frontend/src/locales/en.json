@@ -160,6 +160,10 @@
     "customized": "Customized",
     "noDesignYet": "No design yet",
     "errorUpdatingStatus": "Error updating status",
+    "errorUpdatingHighlightedEvent": "Error updating the highlighted event",
+    "highlightedEvent": "Highlighted event countdown",
+    "highlightedEventHint": "It will appear on every month and in calendar exports.",
+    "noHighlightedEvent": "Do not show a countdown",
     "errorRefreshing": "Error refreshing project",
     "statusDraft": "Draft",
     "statusInProgress": "In progress",
@@ -177,6 +181,13 @@
     "errorSaving": "Error saving",
     "errorSavingCell": "Error saving cell",
     "backToProjectLink": "Back to project"
+  },
+  "countdown": {
+    "label": "Countdown",
+    "days": "{{count}} days until {{name}}",
+    "today": "Today is {{name}}",
+    "missing": "Select a highlighted event to show the countdown.",
+    "expired": "The highlighted event {{name}} is no longer valid."
   },
   "cover": {
     "frontCover": "Front cover",

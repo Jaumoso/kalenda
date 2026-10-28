@@ -27,6 +27,7 @@ export const projectSchema = z.object({
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
+  highlightedEventId: z.string().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
