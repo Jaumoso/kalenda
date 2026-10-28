@@ -268,6 +268,9 @@
     "allFolders": "← All folders",
     "noImages": "No images found",
     "errorLoading": "Error loading library assets",
+    "upload": "Upload image",
+    "uploading": "Uploading...",
+    "errorUploading": "Error uploading image",
     "retry": "Retry"
   },
   "stickerPicker": {
@@ -349,6 +352,7 @@
     "imageFilters": "Image filters",
     "brightness": "Brightness",
     "contrast": "Contrast",
+    "additionalFilters": "Additional filters",
     "grayscale": "Grayscale",
     "sepia": "Sepia",
     "fontSize": "Size",

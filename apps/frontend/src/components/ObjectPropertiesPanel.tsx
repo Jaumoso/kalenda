@@ -228,6 +228,9 @@ export default function ObjectPropertiesPanel({
               className="w-full mt-1"
             />
           </div>
+          <h5 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            {t('objectProps.additionalFilters')}
+          </h5>
           <div className="flex gap-1 flex-wrap">
             <FilterButton
               label={t('objectProps.grayscale')}
