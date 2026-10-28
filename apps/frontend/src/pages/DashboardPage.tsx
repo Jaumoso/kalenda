@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { Calendar } from 'lucide-react'
+import { Book, BookOpen, Calendar, Check } from 'lucide-react'
 import api from '../lib/api'
 import NewProjectModal from '../components/NewProjectModal'
 
@@ -19,6 +19,8 @@ interface Project {
   weekStartsOn: string
   createdAt: string
   updatedAt: string
+  coverJson: Record<string, unknown> | null
+  backCoverJson: Record<string, unknown> | null
   months: ProjectMonth[]
 }
 
@@ -121,6 +123,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => {
             const customized = project.months.filter((m) => m.isCustomized).length
+            const coversCustomized =
+              Number(Boolean(project.coverJson)) + Number(Boolean(project.backCoverJson))
             const status = STATUS_LABELS[project.status]
             return (
               <div
@@ -157,8 +161,36 @@ export default function DashboardPage() {
                       </div>
                     ))}
                   </div>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium ${
+                        project.coverJson
+                          ? 'bg-primary-100 text-primary-700'
+                          : 'bg-neutral-100 text-neutral-400'
+                      }`}
+                      title={t('dashboard.frontCoverStatus')}
+                    >
+                      <BookOpen size={12} />
+                      {t('dashboard.frontCoverShort')}
+                      {project.coverJson && <Check size={11} />}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium ${
+                        project.backCoverJson
+                          ? 'bg-primary-100 text-primary-700'
+                          : 'bg-neutral-100 text-neutral-400'
+                      }`}
+                      title={t('dashboard.backCoverStatus')}
+                    >
+                      <Book size={12} />
+                      {t('dashboard.backCoverShort')}
+                      {project.backCoverJson && <Check size={11} />}
+                    </span>
+                  </div>
                   <p className="text-xs text-neutral-400">
                     {t('dashboard.monthsCustomized', { count: customized })}
+                    {' · '}
+                    {t('dashboard.coversCustomized', { count: coversCustomized })}
                   </p>
                 </Link>
                 <div className="border-t border-neutral-100 px-5 py-2 flex gap-2 justify-end">
