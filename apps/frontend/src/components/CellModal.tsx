@@ -70,6 +70,9 @@ export default function CellModal({
   >('YEARLY')
   const [newEventColor, setNewEventColor] = useState('#C8502A')
   const [newEventIcon, setNewEventIcon] = useState('')
+  const [showEventEmojiPicker, setShowEventEmojiPicker] = useState(false)
+  const [newEventEndYear, setNewEventEndYear] = useState('')
+  const [newEventEndMonth, setNewEventEndMonth] = useState('')
   const [newEventEndDate, setNewEventEndDate] = useState('')
   const [newEventWeekday, setNewEventWeekday] = useState(
     new Date(year, month - 1, dayNumber).getDay()
@@ -126,6 +129,23 @@ export default function CellModal({
     if (!newEventName.trim()) return
     setSavingEvent(true)
     setEventError(null)
+    const startDate = new Date(Date.UTC(year, month - 1, dayNumber)).toISOString().slice(0, 10)
+    const validity =
+      newEventRecurrence === 'NONE'
+        ? { startDate: null, endDate: null }
+        : newEventRecurrence === 'YEARLY'
+          ? {
+              startDate,
+              endDate: newEventEndYear ? `${newEventEndYear}-12-31` : null,
+            }
+          : newEventRecurrence === 'MONTHLY'
+            ? {
+                startDate,
+                endDate: newEventEndMonth
+                  ? `${newEventEndMonth}-${getLastDayOfMonth(newEventEndMonth)}`
+                  : null,
+              }
+            : { startDate, endDate: newEventEndDate || null }
     try {
       await api.post('/events', {
         name: newEventName.trim(),
@@ -138,11 +158,7 @@ export default function CellModal({
         recurrence: newEventRecurrence,
         weekday: newEventRecurrence === 'WEEKLY' ? newEventWeekday : null,
         year: newEventRecurrence === 'NONE' ? year : null,
-        startDate:
-          newEventRecurrence === 'NONE'
-            ? null
-            : new Date(Date.UTC(year, month - 1, dayNumber)).toISOString().slice(0, 10),
-        endDate: newEventRecurrence === 'NONE' ? null : newEventEndDate || null,
+        ...validity,
       })
       setNewEventName('')
       setShowNewEvent(false)
@@ -289,14 +305,25 @@ export default function CellModal({
                   />
                 ))}
               </div>
-              <input
-                type="text"
-                value={newEventIcon}
-                onChange={(e) => setNewEventIcon(e.target.value)}
-                placeholder={t('events.iconLabel')}
-                className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
-                maxLength={4}
-              />
+              <div className="flex items-center gap-2">
+                {newEventIcon && (
+                  <button
+                    type="button"
+                    onClick={() => setNewEventIcon('')}
+                    className="w-8 h-8 rounded border border-primary-300 bg-primary-50 text-xl"
+                    title={t('events.clearIcon')}
+                  >
+                    {newEventIcon}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowEventEmojiPicker(true)}
+                  className="px-2 py-1.5 border border-neutral-300 rounded text-xs hover:bg-neutral-100"
+                >
+                  {t('events.chooseIcon')}
+                </button>
+              </div>
               <select
                 value={newEventRecurrence}
                 onChange={(e) =>
@@ -335,13 +362,37 @@ export default function CellModal({
                   <label className="block text-xs text-neutral-500 mb-1">
                     {t('events.validUntil')}
                   </label>
-                  <input
-                    type="date"
-                    value={newEventEndDate}
-                    min={new Date(Date.UTC(year, month - 1, dayNumber)).toISOString().slice(0, 10)}
-                    onChange={(e) => setNewEventEndDate(e.target.value)}
-                    className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
-                  />
+                  {newEventRecurrence === 'YEARLY' && (
+                    <input
+                      type="number"
+                      min={year}
+                      max={2050}
+                      value={newEventEndYear}
+                      onChange={(e) => setNewEventEndYear(e.target.value)}
+                      placeholder={String(year + 1)}
+                      className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                    />
+                  )}
+                  {newEventRecurrence === 'MONTHLY' && (
+                    <input
+                      type="month"
+                      min={`${year}-${String(month).padStart(2, '0')}`}
+                      value={newEventEndMonth}
+                      onChange={(e) => setNewEventEndMonth(e.target.value)}
+                      className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                    />
+                  )}
+                  {newEventRecurrence === 'WEEKLY' && (
+                    <input
+                      type="date"
+                      min={new Date(Date.UTC(year, month - 1, dayNumber))
+                        .toISOString()
+                        .slice(0, 10)}
+                      value={newEventEndDate}
+                      onChange={(e) => setNewEventEndDate(e.target.value)}
+                      className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                    />
+                  )}
                 </div>
               )}
               <div className="flex gap-1 justify-end">
@@ -617,6 +668,19 @@ export default function CellModal({
           setShowStickerPicker(false)
         }}
       />
+      <StickerPickerModal
+        isOpen={showEventEmojiPicker}
+        onClose={() => setShowEventEmojiPicker(false)}
+        onSelect={(selectedEmoji) => {
+          setNewEventIcon(selectedEmoji)
+          setShowEventEmojiPicker(false)
+        }}
+      />
     </div>
   )
+}
+
+function getLastDayOfMonth(value: string): number {
+  const [year, month] = value.split('-').map(Number)
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }

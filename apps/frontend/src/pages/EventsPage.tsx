@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Cake, Heart, Pin, Calendar, Pencil, Trash2 } from 'lucide-react'
 import api from '../lib/api'
 import { getEventRecurrence, type CalEvent } from '../lib/calendarTypes'
+import StickerPickerModal from '../components/StickerPickerModal'
 
 const EVENT_TYPES = [
   { value: 'BIRTHDAY', label: 'events.birthday', icon: <Cake size={16} /> },
@@ -208,8 +209,15 @@ function EventForm({
   )
   const [weekday, setWeekday] = useState(event?.weekday ?? 0)
   const [year, setYear] = useState<number | ''>(event?.year || '')
-  const [startDate, setStartDate] = useState(event?.startDate?.slice(0, 10) || '')
-  const [endDate, setEndDate] = useState(event?.endDate?.slice(0, 10) || '')
+  const eventStartDate = event?.startDate?.slice(0, 10) || ''
+  const eventEndDate = event?.endDate?.slice(0, 10) || ''
+  const [startYear, setStartYear] = useState(eventStartDate.slice(0, 4))
+  const [endYear, setEndYear] = useState(eventEndDate.slice(0, 4))
+  const [startMonth, setStartMonth] = useState(eventStartDate.slice(0, 7))
+  const [endMonth, setEndMonth] = useState(eventEndDate.slice(0, 7))
+  const [startDate, setStartDate] = useState(eventStartDate)
+  const [endDate, setEndDate] = useState(eventEndDate)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -220,6 +228,24 @@ function EventForm({
     if (!name.trim()) return
     setSaving(true)
     setError(null)
+
+    const validity =
+      recurrence === 'NONE'
+        ? { startDate: null, endDate: null }
+        : recurrence === 'YEARLY'
+          ? {
+              startDate: startYear ? `${startYear}-01-01` : null,
+              endDate: endYear ? `${endYear}-12-31` : null,
+            }
+          : recurrence === 'MONTHLY'
+            ? {
+                startDate: startMonth ? `${startMonth}-01` : null,
+                endDate: endMonth ? `${endMonth}-${getLastDayOfMonth(endMonth)}` : null,
+              }
+            : {
+                startDate: startDate || null,
+                endDate: endDate || null,
+              }
 
     const payload = {
       name: name.trim(),
@@ -232,8 +258,7 @@ function EventForm({
       recurrence,
       weekday: recurrence === 'WEEKLY' ? weekday : null,
       year: recurrence === 'NONE' ? year || null : null,
-      startDate: recurrence === 'NONE' ? null : startDate || null,
-      endDate: recurrence === 'NONE' ? null : endDate || null,
+      ...validity,
     }
 
     try {
@@ -403,24 +428,67 @@ function EventForm({
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   {t('events.validFrom')}
                 </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-                />
+                {recurrence === 'YEARLY' && (
+                  <input
+                    type="number"
+                    min={2020}
+                    max={2050}
+                    value={startYear}
+                    onChange={(e) => setStartYear(e.target.value)}
+                    placeholder="2027"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+                {recurrence === 'MONTHLY' && (
+                  <input
+                    type="month"
+                    value={startMonth}
+                    onChange={(e) => setStartMonth(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+                {recurrence === 'WEEKLY' && (
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
                   {t('events.validUntil')}
                 </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  min={startDate || undefined}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-                />
+                {recurrence === 'YEARLY' && (
+                  <input
+                    type="number"
+                    min={startYear || 2020}
+                    max={2050}
+                    value={endYear}
+                    onChange={(e) => setEndYear(e.target.value)}
+                    placeholder="2030"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+                {recurrence === 'MONTHLY' && (
+                  <input
+                    type="month"
+                    value={endMonth}
+                    min={startMonth || undefined}
+                    onChange={(e) => setEndMonth(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+                {recurrence === 'WEEKLY' && (
+                  <input
+                    type="date"
+                    value={endDate}
+                    min={startDate || undefined}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
               </div>
             </div>
           )}
@@ -450,14 +518,25 @@ function EventForm({
             <label className="block text-sm font-medium text-neutral-700 mb-1">
               {t('events.iconLabel')}
             </label>
-            <input
-              type="text"
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              placeholder="🎂"
-              className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-              maxLength={4}
-            />
+            <div className="flex items-center gap-2">
+              {icon && (
+                <button
+                  type="button"
+                  onClick={() => setIcon('')}
+                  className="w-10 h-10 rounded-md border border-primary-300 bg-primary-50 text-2xl"
+                  title={t('events.clearIcon')}
+                >
+                  {icon}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(true)}
+                className="px-3 py-2 border border-neutral-300 rounded-md text-sm hover:bg-neutral-50"
+              >
+                {t('events.chooseIcon')}
+              </button>
+            </div>
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -479,6 +558,11 @@ function EventForm({
             </button>
           </div>
         </form>
+        <StickerPickerModal
+          isOpen={showEmojiPicker}
+          onClose={() => setShowEmojiPicker(false)}
+          onSelect={setIcon}
+        />
       </div>
     </div>
   )
@@ -496,20 +580,30 @@ function formatEventSchedule(event: CalEvent, monthNames: string[], t: (key: str
       'friday',
       'saturday',
     ][event.weekday ?? 0]
-    return `${t(`weekDays.long.${weekdayKey}`)}${t('events.everyWeek')}${formatValidity(event, t)}`
+    return `${t(`weekDays.long.${weekdayKey}`)}${t('events.everyWeek')}${formatValidity(event, t, recurrence)}`
   }
   if (recurrence === 'MONTHLY') {
-    return `${t('common.day')} ${event.day}${t('events.everyMonth')}${formatValidity(event, t)}`
+    return `${t('common.day')} ${event.day}${t('events.everyMonth')}${formatValidity(event, t, recurrence)}`
   }
   if (recurrence === 'YEARLY') {
-    return `${monthNames[event.month - 1]} ${event.day}${t('events.everyYear')}${formatValidity(event, t)}`
+    return `${monthNames[event.month - 1]} ${event.day}${t('events.everyYear')}${formatValidity(event, t, recurrence)}`
   }
   return `${monthNames[event.month - 1]} ${event.day}${event.year ? ` · ${event.year}` : ''}`
 }
 
-function formatValidity(event: CalEvent, t: (key: string) => string) {
+function formatValidity(
+  event: CalEvent,
+  t: (key: string) => string,
+  recurrence: 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+) {
   if (!event.startDate && !event.endDate) return ''
-  const start = event.startDate?.slice(0, 10) || '...'
-  const end = event.endDate?.slice(0, 10) || '...'
+  const length = recurrence === 'YEARLY' ? 4 : recurrence === 'MONTHLY' ? 7 : 10
+  const start = event.startDate?.slice(0, length) || '...'
+  const end = event.endDate?.slice(0, length) || '...'
   return ` · ${t('events.validity')}: ${start} - ${end}`
+}
+
+function getLastDayOfMonth(value: string): number {
+  const [year, month] = value.split('-').map(Number)
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }

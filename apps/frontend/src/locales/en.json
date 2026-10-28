@@ -246,6 +246,8 @@
     "typeOther": "Other",
     "repeatsEveryYear": "Repeats every year",
     "iconLabel": "Icon/emoji (optional)",
+    "chooseIcon": "Choose emoji",
+    "clearIcon": "Clear emoji",
     "confirmDelete": "Delete this event?",
     "errorLoading": "Error loading events",
     "errorDeleting": "Error deleting event",
