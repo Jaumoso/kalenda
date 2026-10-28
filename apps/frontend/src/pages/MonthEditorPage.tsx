@@ -6,8 +6,11 @@ import api from '../lib/api'
 import type { GridConfig, DayCell, MonthData, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
 import {
   DEFAULT_GRID_CONFIG,
+  DEFAULT_PRINT_CONFIG,
   getGridConfigForPaper,
   getPaperDimensions,
+  getBleedPixels,
+  type PrintConfig,
 } from '../lib/calendarTypes'
 import CalendarGrid from '../components/CalendarGrid'
 import GridPropertiesPanel from '../components/GridPropertiesPanel'
@@ -59,6 +62,11 @@ export default function MonthEditorPage() {
   const [showSaveTemplate, setShowSaveTemplate] = useState(false)
   const [currentZoom, setCurrentZoom] = useState(1)
   const paperDimensions = getPaperDimensions(monthData?.project.paperSize)
+  const printConfig = {
+    ...DEFAULT_PRINT_CONFIG,
+    ...((monthData?.project.printConfigJson ?? {}) as Partial<PrintConfig>),
+  }
+  const bleedPx = getBleedPixels(printConfig)
 
   const dirtyRef = useRef(false)
   const gridConfigRef = useRef(gridConfig)
@@ -544,6 +552,19 @@ export default function MonthEditorPage() {
                   onCellClick={handleCellClick}
                 />
               </DraggableGridOverlay>
+              {printConfig.bleedEnabled && (
+                <div
+                  aria-hidden="true"
+                  className="absolute pointer-events-none border border-dashed border-orange-400/70"
+                  style={{
+                    left: bleedPx,
+                    top: bleedPx,
+                    width: paperDimensions.widthPx - bleedPx * 2,
+                    height: paperDimensions.heightPx - bleedPx * 2,
+                    zIndex: 5,
+                  }}
+                />
+              )}
               <DraggableMiniCalendar
                 x={gridConfig.miniCalendarX}
                 y={gridConfig.miniCalendarY}

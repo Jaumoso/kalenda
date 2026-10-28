@@ -18,6 +18,7 @@ export interface Project {
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: 'monday' | 'sunday'
   paperSize: PaperSize
+  printConfigJson?: PrintConfig
   autonomyCode?: string
   templateId?: string
   createdAt: Date
@@ -25,6 +26,22 @@ export interface Project {
 }
 
 export type PaperSize = 'A4' | 'A3' | 'A5' | 'LETTER'
+
+export interface PrintConfig {
+  bleedEnabled: boolean
+  bleedMm: number
+  cropMarks: boolean
+  cropMarkLengthMm: number
+  cropMarkOffsetMm: number
+}
+
+export const DEFAULT_PRINT_CONFIG: PrintConfig = {
+  bleedEnabled: false,
+  bleedMm: 3,
+  cropMarks: false,
+  cropMarkLengthMm: 10,
+  cropMarkOffsetMm: 2,
+}
 
 export interface PaperDimensions {
   widthMm: number

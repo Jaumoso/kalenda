@@ -6,6 +6,8 @@ import api from '../lib/api'
 import ApplyTemplateModal from '../components/ApplyTemplateModal'
 import ExportModal from '../components/ExportModal'
 import PrintPreviewModal from '../components/PrintPreviewModal'
+import PrintSettingsPanel from '../components/PrintSettingsPanel'
+import { DEFAULT_PRINT_CONFIG, type PrintConfig } from '../lib/calendarTypes'
 
 interface CalendarMonth {
   id: string
@@ -21,6 +23,7 @@ interface Project {
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: string
   paperSize: 'A4' | 'A3' | 'A5' | 'LETTER'
+  printConfigJson?: PrintConfig
   templateId: string | null
   coverJson: Record<string, unknown> | null
   backCoverJson: Record<string, unknown> | null
@@ -44,12 +47,14 @@ export default function ProjectPage() {
   const [showExport, setShowExport] = useState(false)
   const [showPrintPreview, setShowPrintPreview] = useState(false)
   const [thumbVersion, setThumbVersion] = useState(Date.now())
+  const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG)
 
   useEffect(() => {
     const fetchProject = async () => {
       try {
         const { data } = await api.get(`/projects/${id}`)
         setProject(data.project)
+        setPrintConfig({ ...DEFAULT_PRINT_CONFIG, ...(data.project.printConfigJson ?? {}) })
         setThumbVersion(Date.now())
       } catch {
         setError(t('project.notFound'))
@@ -67,6 +72,17 @@ export default function ProjectPage() {
       setProject(data.project)
     } catch {
       setError(t('project.errorUpdatingStatus'))
+    }
+  }
+
+  const handlePrintConfigChange = async (config: PrintConfig) => {
+    setPrintConfig(config)
+    if (!project) return
+    try {
+      const { data } = await api.patch(`/projects/${project.id}`, { printConfigJson: config })
+      setProject(data.project)
+    } catch {
+      setError(t('project.errorUpdatingPrintSettings'))
     }
   }
 
@@ -151,6 +167,10 @@ export default function ProjectPage() {
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="mb-8 max-w-xl">
+        <PrintSettingsPanel config={printConfig} onChange={handlePrintConfigChange} />
       </div>
 
       {/* 12-month grid + covers */}
@@ -281,6 +301,8 @@ export default function ProjectPage() {
           projectId={project.id}
           projectName={project.name}
           projectYear={project.year}
+          printConfig={printConfig}
+          onPrintConfigChange={handlePrintConfigChange}
           onClose={() => setShowExport(false)}
         />
       )}
@@ -292,6 +314,7 @@ export default function ProjectPage() {
           projectName={project.name}
           projectYear={project.year}
           paperSize={project.paperSize}
+          printConfig={printConfig}
           months={project.months}
           onClose={() => setShowPrintPreview(false)}
         />

@@ -4,6 +4,7 @@ import {
   PAGE_HEIGHT,
   PAGE_WIDTH,
   getAdjacentMonth,
+  getBleedPixels,
   getDaysInMonth,
   getFirstDayOfWeek,
   getIsoWeekNumber,
@@ -22,6 +23,12 @@ describe('calendar helpers', () => {
     expect(getPaperDimensions('A3')).toMatchObject({ widthPx: 1123, heightPx: 1587 })
     expect(getPaperDimensions('LETTER')).toMatchObject({ widthPx: 816, heightPx: 1056 })
     expect(getPaperDimensions('A5')).toMatchObject({ widthPx: 559, heightPx: 794 })
+  })
+
+  it('keeps bleed disabled at zero and converts millimetres at 96 DPI', () => {
+    expect(getBleedPixels({ bleedEnabled: false, bleedMm: 3 })).toBe(0)
+    expect(getBleedPixels({ bleedEnabled: true, bleedMm: 3 })).toBe(11)
+    expect(getBleedPixels({ bleedEnabled: true, bleedMm: 50 })).toBe(38)
   })
 
   it('scales the default grid for non-A4 paper', () => {

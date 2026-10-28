@@ -166,6 +166,7 @@
     "customized": "Customized",
     "noDesignYet": "No design yet",
     "errorUpdatingStatus": "Error updating status",
+    "errorUpdatingPrintSettings": "Error updating print settings",
     "errorRefreshing": "Error refreshing project",
     "statusDraft": "Draft",
     "statusInProgress": "In progress",
@@ -626,5 +627,12 @@
     "noContent": "No content yet",
     "loading": "Loading preview…",
     "errorLoading": "Could not load preview"
+  },
+  "printSettings": {
+    "title": "Print settings",
+    "enableBleed": "Add bleed outside the trim area",
+    "bleed": "Bleed (mm)",
+    "cropMarks": "Include crop marks",
+    "cropMarkLength": "Mark length (mm)"
   }
 }

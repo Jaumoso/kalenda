@@ -16,9 +16,10 @@ export type {
   LoginRequest,
   PaperSize,
   PaperDimensions,
+  PrintConfig,
 } from './types'
 
-export { PAPER_DIMENSIONS } from './types'
+export { DEFAULT_PRINT_CONFIG, PAPER_DIMENSIONS } from './types'
 
 // Export schemas
 export {

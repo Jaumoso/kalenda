@@ -26,6 +26,7 @@ export const projectSchema = z.object({
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED']),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
+  printConfigJson: z.unknown().optional(),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
   createdAt: z.date(),
@@ -37,6 +38,7 @@ export const createProjectSchema = z.object({
   year: z.number().int().min(2020).max(2050),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
+  printConfigJson: z.unknown().optional(),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
 })

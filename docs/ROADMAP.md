@@ -334,18 +334,18 @@ no están completas.
 
 ## Resumen de fases y estimaciones
 
-| Fase | Descripción                   | Estado                                                                                |
-| ---- | ----------------------------- | ------------------------------------------------------------------------------------- |
-| 0    | Setup e infraestructura       | Funcional; despliegue Ubuntu y acceso externo validados                               |
-| 1    | Autenticación                 | Funcional                                                                             |
-| 2    | Gestión de proyectos          | Funcional                                                                             |
-| 3    | Biblioteca de assets          | Funcional                                                                             |
-| 4    | Editor grid (zona inferior)   | Funcional                                                                             |
-| 5    | Festivos y eventos            | Funcional                                                                             |
-| 6    | Editor canvas (zona superior) | Funcional; efectos de imagen implementados                                            |
-| 7    | Celdas avanzadas              | Funcional                                                                             |
-| 8    | Plantillas                    | Funcional                                                                             |
-| 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                                                  |
+| Fase | Descripción                   | Estado                                                                           |
+| ---- | ----------------------------- | -------------------------------------------------------------------------------- |
+| 0    | Setup e infraestructura       | Funcional; despliegue Ubuntu y acceso externo validados                          |
+| 1    | Autenticación                 | Funcional                                                                        |
+| 2    | Gestión de proyectos          | Funcional                                                                        |
+| 3    | Biblioteca de assets          | Funcional                                                                        |
+| 4    | Editor grid (zona inferior)   | Funcional                                                                        |
+| 5    | Festivos y eventos            | Funcional                                                                        |
+| 6    | Editor canvas (zona superior) | Funcional; efectos de imagen implementados                                       |
+| 7    | Celdas avanzadas              | Funcional                                                                        |
+| 8    | Plantillas                    | Funcional                                                                        |
+| 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                                             |
 | 10   | Pulido y producción           | En curso; revisión con usuario y validación de actualización/rollback pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
@@ -404,7 +404,7 @@ considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteri
 ### Exportación e impresión
 
 - [x] Más tamaños de papel (A3, Letter, A5 — calendario de escritorio; también Letter)
-- Marcas de corte y sangrado (bleed) para impresión profesional
+- [x] Marcas de corte y sangrado (bleed) para impresión profesional
 - Exportar meses individuales (no solo el calendario completo)
 - Exportar como imágenes sueltas (para WhatsApp, redes sociales)
 - Calendario de pared vs. calendario de sobremesa (layouts diferentes)
