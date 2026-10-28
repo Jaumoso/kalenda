@@ -42,7 +42,18 @@ Production compose uses prebuilt images:
 - ghcr.io/<owner>/kalenda-backend:<tag>
 - ghcr.io/<owner>/kalenda-puppeteer:<tag>
 
-Images are published by GitHub Actions on release/tag events.
+Images are published by GitHub Actions with separate stable and development channels:
+
+- Stable releases from `main` use `vX.Y.Z` and `latest`.
+- Every push to `dev` uses `dev` and an immutable `dev-<short-sha>` tag.
+- Prereleases such as `vX.Y.Z-rc.1` must point to a commit contained in `dev`.
+
+The `dev` channel never updates `latest`, so development images can be tested on a server
+without changing the production image channel.
+
+The backend production image uses a pruned `pnpm deploy --prod` runtime and generates the
+Prisma client inside that runtime. The Puppeteer image remains comparatively large because
+Chromium and its Alpine runtime dependencies are required for pixel-accurate rendering.
 
 ## Security
 

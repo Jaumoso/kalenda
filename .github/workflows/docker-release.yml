@@ -1,6 +1,9 @@
 name: Docker Image Release
 
 on:
+  push:
+    branches:
+      - dev
   release:
     types: [published]
   workflow_dispatch:
@@ -19,6 +22,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: docker-images-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -34,7 +41,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: ${{ github.event.release.tag_name || inputs.tag || github.sha }}
           fetch-depth: 0
 
       - name: Set up QEMU
@@ -52,13 +59,30 @@ jobs:
 
       - name: Validate release tag
         run: |
-          tag="${{ github.event.release.tag_name || inputs.tag }}"
-          prerelease="${{ github.event.release.prerelease == true || inputs.prerelease == true }}"
+          tag="${{ github.event.release.tag_name || inputs.tag || format('dev-{0}', github.sha) }}"
+          prerelease="${{ github.event_name == 'push' || github.event.release.prerelease == true || inputs.prerelease == true }}"
           if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "Invalid release tag: $tag"
-            exit 1
+            if [[ "${{ github.event_name }}" != "push" || ! "$tag" =~ ^dev-[0-9a-f]{7,40}$ ]]; then
+              echo "Invalid release tag: $tag"
+              exit 1
+            fi
           fi
-          if [[ "$prerelease" != "true" ]]; then
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            if [[ "${{ github.ref }}" != "refs/heads/dev" ]]; then
+              echo "Development images can only be published from dev."
+              exit 1
+            fi
+          elif [[ "$prerelease" == "true" ]]; then
+            git fetch origin dev
+            tag_commit="$(git rev-list -n 1 "$tag")"
+            dev_commit="$(git rev-parse origin/dev)"
+            if ! git merge-base --is-ancestor "$tag_commit" "$dev_commit"; then
+              echo "Prereleases must point to a commit contained in dev."
+              echo "Tag commit: $tag_commit"
+              echo "Dev commit: $dev_commit"
+              exit 1
+            fi
+          else
             git fetch origin main
             tag_commit="$(git rev-list -n 1 "$tag")"
             main_commit="$(git rev-parse origin/main)"
@@ -76,9 +100,11 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}
           tags: |
-            type=raw,value=${{ github.event.release.tag_name || inputs.tag }}
-            type=sha
-            type=raw,value=latest
+            type=raw,value=${{ github.event.release.tag_name || inputs.tag }},enable=${{ github.event_name != 'push' }}
+            type=raw,value=dev,enable=${{ github.event_name == 'push' }}
+            type=sha,prefix=dev-,enable=${{ github.event_name == 'push' }}
+            type=sha,enable=${{ github.event_name != 'push' }}
+            type=raw,value=latest,enable=${{ github.event_name != 'push' && github.event.release.prerelease != true && inputs.prerelease != true }}
 
       - name: Build and push
         uses: docker/build-push-action@v7

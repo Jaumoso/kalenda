@@ -30,11 +30,11 @@ want to run:
 ```bash
 mkdir kalenda
 cd kalenda
-curl -fsSL https://raw.githubusercontent.com/Jaumoso/kalenda/v0.1.8/docker-compose.yml \
+curl -fsSL https://raw.githubusercontent.com/Jaumoso/kalenda/v0.1.10/docker-compose.yml \
   -o docker-compose.yml
 ```
 
-To follow a different release, replace `v0.1.8` in the URL and in `APP_TAG` below.
+To follow a different release, replace `v0.1.10` in the URL and in `APP_TAG` below.
 
 ### 2. Create the environment file
 
@@ -43,12 +43,13 @@ administrator and signing secrets. Create a `.env` file next to `docker-compose.
 
 ```bash
 cat > .env <<EOF
-APP_TAG=v0.1.8
+APP_TAG=v0.1.10
 POSTGRES_DB=kalenda
 POSTGRES_USER=kalenda
 POSTGRES_PASSWORD=$(openssl rand -hex 32)
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=$(openssl rand -base64 24)
+ALLOW_USER_REGISTRATION=false
 COOKIE_SECRET=$(openssl rand -base64 32)
 JWT_SECRET=$(openssl rand -base64 32)
 EOF
@@ -57,7 +58,13 @@ chmod 600 .env
 ```
 
 Change `ADMIN_EMAIL` if required and keep the generated `ADMIN_PASSWORD`: it is the initial
-administrator password. The `.env` file contains secrets and must not be committed or shared.
+administrator password. The production container creates this administrator during its first
+startup; the bootstrap variables remain required even when the user already exists. Set
+`ALLOW_USER_REGISTRATION=true` only when you want users to create their own standard accounts
+from the login page. It defaults to `false`; administrators can always create users from the
+administration panel. The public registration form's username is the user's display name;
+authentication still uses the registered email address. Public registration never grants the
+`ADMIN` role. The `.env` file contains secrets and must not be committed or shared.
 
 ### 3. Start Kalenda
 
@@ -185,6 +192,9 @@ The development seed creates:
 These credentials are for local development only. Never use them in a Compose or production
 installation.
 
+Development Compose enables `ALLOW_USER_REGISTRATION` so the registration flow can be tested
+locally. Production Compose disables it unless explicitly enabled in `.env`.
+
 ### Useful development commands
 
 ```bash
@@ -242,44 +252,51 @@ kalenda/
 
 - `main` is the stable branch.
 - `dev` contains the next development changes.
+- Changes merged into `main` are synchronized back to `dev` by the
+  `Backmerge main into dev` workflow through an automatic pull request.
 - Stable releases use Semantic Versioning (`MAJOR.MINOR.PATCH`) and tags in the form
   `vX.Y.Z`. They must be created from `main`.
-- Development releases use an explicit prerelease suffix, such as `v0.1.9-dev.1`, and must
-  be created from `dev`.
+- Development prereleases use an explicit prerelease suffix, such as `v0.1.9-rc.1`, and must
+  reference a commit contained in `dev`.
+- Every push to `dev` publishes development images with the mutable `dev` tag and an immutable
+  `dev-<short-sha>` tag. These images are intended for server validation and never update
+  `latest`.
 - Published releases and their notes are available in the
   [GitHub Releases](https://github.com/Jaumoso/kalenda/releases) section.
 - Release commits are signed and authored by the project maintainer. Dependabot may author
   security-only dependency update commits.
 
-Because `main` and `dev` are protected, prepare version changes in a pull request first:
+To prepare a stable release from a clean `main` branch:
 
 ```bash
-git switch -c chore/prepare-release-0.1.10
-./scripts/bump.sh patch --prepare
-git push -u origin chore/prepare-release-0.1.10
-```
-
-After merging the pull request into `main`, create and publish the stable tag from the updated
-`main` checkout:
-
-```bash
-git switch main
-git pull --ff-only
-git tag -a v0.1.10 -m "release: v0.1.10"
+./scripts/bump.sh patch
+git push
 git push origin v0.1.10
 gh release create v0.1.10
 ```
 
-For a development prerelease, prepare the version in a pull request from `dev` with an explicit
-prerelease label:
+For a development prerelease, use a clean `dev` branch and an explicit prerelease label:
 
 ```bash
-git switch -c chore/prepare-release-0.1.10-dev.1
-./scripts/bump.sh patch --prerelease dev.1 --prepare
+./scripts/bump.sh patch --prerelease rc.1
+git push
+git push origin v0.1.9-rc.1
+gh release create v0.1.9-rc.1 --prerelease
 ```
 
-The script updates all workspace package versions. Without `--prepare`, it creates the release
-tag and only permits stable releases from `main` or explicitly marked prereleases from `dev`.
+The script updates all workspace package versions, creates the signed release commit and
+tag, and rejects release attempts from feature branches or unmarked releases from `dev`.
+
+To test the latest code merged into `dev` without creating a release, set this in the server's
+`.env` file and pull the images:
+
+```dotenv
+APP_TAG=dev
+```
+
+For a reproducible test, use the `dev-<short-sha>` tag shown in the GitHub Actions run that
+published the images. Stable releases from `main` continue to use their `vX.Y.Z` tag and
+`latest`; those tags are never written by pushes to `dev`.
 
 ## License
 

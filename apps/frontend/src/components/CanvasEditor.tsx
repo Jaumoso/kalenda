@@ -149,6 +149,8 @@ async function safeLoadFromJSON(canvas: fabric.Canvas, json: object): Promise<vo
   const parsed = typeof json === 'string' ? JSON.parse(json) : json
   const {
     objects = [],
+    background: serializedBackground,
+    backgroundColor: serializedBackgroundColor,
     backgroundImage: bgImageData,
     overlayImage: overlayImageData,
     ...canvasProps
@@ -208,6 +210,12 @@ async function safeLoadFromJSON(canvas: fabric.Canvas, json: object): Promise<vo
 
   // Set canvas props WITHOUT backgroundImage/overlayImage (those were extracted above)
   canvas.set(canvasProps)
+  // Fabric serializes the canvas fill as `background`, while the runtime API
+  // uses `backgroundColor`. Map both formats before rendering the page.
+  canvas.backgroundColor =
+    (serializedBackgroundColor as string | undefined) ??
+    (serializedBackground as string | undefined) ??
+    '#ffffff'
   // Set deserialized FabricImage instances for bg/overlay
   canvas.set(bgProps)
   canvas.renderOnAddRemove = renderOnAddRemove

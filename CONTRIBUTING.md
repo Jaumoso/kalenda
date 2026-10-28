@@ -24,6 +24,12 @@ are not allowed. Both branches require an approval, all mandatory CI checks,
 resolved conversations, and a linear history. Working branches may be deleted
 after their pull request is merged.
 
+After a change reaches `main`, the `Backmerge main into dev` workflow creates or
+updates a pull request from `automation/backmerge-main-to-dev` into `dev`.
+The workflow never pushes directly to the protected `dev` branch. If the merge
+cannot be performed automatically, it fails and the conflict must be resolved
+manually in a pull request.
+
 ## Pull request requirements
 
 Every pull request must:
@@ -65,5 +71,8 @@ advisory process instead.
 ## Releases
 
 Releases are prepared from `dev`, promoted to `main`, and tagged using
-Semantic Versioning (`vMAJOR.MINOR.PATCH`). Docker images are published only
-from a published release with a valid tag.
+Semantic Versioning (`vMAJOR.MINOR.PATCH`). Every push to `dev` publishes
+validation images tagged `dev` and `dev-<short-sha>`. Published releases create
+immutable versioned images; stable releases from `main` also update `latest`.
+Prereleases must reference a commit contained in `dev`, while stable releases
+must reference a commit contained in `main`.

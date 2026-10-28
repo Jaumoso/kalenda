@@ -30,6 +30,7 @@ services:
       - PUPPETEER_URL=http://puppeteer:4000
       - ADMIN_EMAIL=${ADMIN_EMAIL:?ADMIN_EMAIL is required}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      - ALLOW_USER_REGISTRATION=${ALLOW_USER_REGISTRATION:-false}
     volumes:
       - ./data:/data
     ports:
