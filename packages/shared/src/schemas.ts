@@ -28,6 +28,7 @@ export const projectSchema = z.object({
   holidayCountryCode: z.string().length(2).default('ES'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
+  highlightedEventId: z.string().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
@@ -94,6 +95,7 @@ export const eventSchema = z.object({
   weekday: z.number().int().min(0).max(6).nullable().optional(),
   startDate: z.string().date().nullable().optional(),
   endDate: z.string().date().nullable().optional(),
+  sourceUid: z.string().max(512).nullable().optional(),
   createdAt: z.date(),
 })
 

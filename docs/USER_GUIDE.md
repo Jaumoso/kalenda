@@ -73,6 +73,20 @@ resto del calendario.
 
 También se pueden consultar y editar los eventos desde la celda del día correspondiente.
 
+En la vista del proyecto, el selector **Evento destacado para la cuenta atrás** permite
+elegir un evento como objetivo. La cuenta atrás aparece en cada mes y en la vista previa y
+exportación. Las fechas se calculan como días naturales según la zona horaria del navegador;
+si el evento no tiene una ocurrencia válida en el año del proyecto, se indica que falta o que
+ya no está vigente en lugar de mostrar un valor engañoso.
+
+Para importar eventos, pulsa **Importar .ics** y selecciona un archivo iCalendar exportado
+desde Google Calendar u otra aplicación compatible. La importación admite eventos de una sola
+vez y recurrencias anuales, mensuales o semanales. Si vuelves a importar el mismo archivo,
+los eventos que conservan el mismo identificador se omiten como duplicados. Las reglas
+complejas, excepciones y eventos sin título o fecha se muestran como errores y no se
+importan. Kalenda no conecta cuentas de Google ni sincroniza cambios automáticamente: para
+actualizar los eventos hay que exportar un archivo nuevo e importarlo.
+
 ## 7. Plantillas
 
 En **Plantillas** se puede guardar una configuración visual reutilizable. Desde un proyecto:

@@ -160,6 +160,10 @@
     "customized": "Personalizado",
     "noDesignYet": "Sin diseño aún",
     "errorUpdatingStatus": "Error al actualizar el estado",
+    "errorUpdatingHighlightedEvent": "Error al actualizar el evento destacado",
+    "highlightedEvent": "Evento destacado para la cuenta atrás",
+    "highlightedEventHint": "Se mostrará en todos los meses y en la exportación del calendario.",
+    "noHighlightedEvent": "No mostrar cuenta atrás",
     "errorRefreshing": "Error al actualizar el proyecto",
     "statusDraft": "Borrador",
     "statusInProgress": "En curso",
@@ -179,6 +183,13 @@
     "backToProjectLink": "Volver al proyecto",
     "unsupportedCountry": "No hay datos de festivos para este país.",
     "unsupportedYear": "No hay datos de festivos para este año."
+  },
+  "countdown": {
+    "label": "Cuenta atrás",
+    "days": "Faltan {{count}} días para {{name}}",
+    "today": "Hoy es {{name}}",
+    "missing": "Selecciona un evento destacado para mostrar la cuenta atrás.",
+    "expired": "El evento destacado {{name}} ya no está vigente."
   },
   "cover": {
     "frontCover": "Portada",
@@ -225,6 +236,12 @@
     "title": "Mis eventos",
     "description": "Cumpleaños, aniversarios y eventos personalizados que aparecerán en tus calendarios",
     "newEvent": "+ Nuevo evento",
+    "importIcs": "Importar .ics",
+    "importing": "Importando…",
+    "importResult": "Se han importado {{imported}} eventos; se han omitido {{skipped}} duplicados.",
+    "importWarnings": "No se han podido importar {{count}} entradas.",
+    "errorImporting": "Error al importar el archivo de calendario",
+    "importHelp": "Importa un archivo .ics exportado desde Google Calendar u otra aplicación de calendario.",
     "noEvents": "Aún no hay eventos.",
     "noEventsHint": "Añade cumpleaños, aniversarios y otros eventos para que aparezcan automáticamente.",
     "everyYear": " · Cada año",

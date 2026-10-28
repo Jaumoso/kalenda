@@ -20,8 +20,25 @@ export interface Project {
   holidayCountryCode: string
   autonomyCode?: string
   templateId?: string
+  highlightedEventId?: string | null
   createdAt: Date
   updatedAt: Date
+}
+
+export interface HighlightedEvent {
+  id: string
+  name: string
+  day: number
+  month: number
+  year: number | null
+  type: 'BIRTHDAY' | 'ANNIVERSARY' | 'SAINT' | 'CUSTOM'
+  color: string
+  icon?: string | null
+  userId: string
+  recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+  isRecurring: boolean
+  startDate?: Date | string | null
+  endDate?: Date | string | null
 }
 
 export interface CalendarMonth {
@@ -85,6 +102,7 @@ export interface Event {
   weekday?: number | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceUid?: string | null
   createdAt: Date
 }
 

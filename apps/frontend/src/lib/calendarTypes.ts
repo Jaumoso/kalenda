@@ -111,6 +111,7 @@ export interface MonthData {
     year: number
     autonomyCode: string | null
     holidayCountryCode: string
+    highlightedEvent: CalEvent | null
   }
   dayCells: DayCell[]
 }

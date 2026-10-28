@@ -21,6 +21,7 @@ import DraggableMiniCalendar, {
 } from '../components/DraggableMiniCalendar'
 import MiniCalendar from '../components/MiniCalendar'
 import SaveAsTemplateModal from '../components/SaveAsTemplateModal'
+import EventCountdown from '../components/EventCountdown'
 
 const AUTOSAVE_INTERVAL = 30_000 // 30 seconds
 
@@ -510,6 +511,12 @@ export default function MonthEditorPage() {
                   onZoomChange={setCurrentZoom}
                 />
               </div>
+
+              <EventCountdown
+                event={monthData.project.highlightedEvent}
+                projectYear={monthData.year}
+                className="absolute left-16 top-6 z-[3] w-[calc(100%-8rem)] pointer-events-none"
+              />
 
               {/* Calendar Grid overlay — draggable & resizable */}
               <DraggableGridOverlay

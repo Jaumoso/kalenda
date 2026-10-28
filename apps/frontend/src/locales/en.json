@@ -160,6 +160,10 @@
     "customized": "Customized",
     "noDesignYet": "No design yet",
     "errorUpdatingStatus": "Error updating status",
+    "errorUpdatingHighlightedEvent": "Error updating the highlighted event",
+    "highlightedEvent": "Highlighted event countdown",
+    "highlightedEventHint": "It will appear on every month and in calendar exports.",
+    "noHighlightedEvent": "Do not show a countdown",
     "errorRefreshing": "Error refreshing project",
     "statusDraft": "Draft",
     "statusInProgress": "In progress",
@@ -179,6 +183,13 @@
     "backToProjectLink": "Back to project",
     "unsupportedCountry": "Holiday data is not available for this country.",
     "unsupportedYear": "Holiday data is not available for this year."
+  },
+  "countdown": {
+    "label": "Countdown",
+    "days": "{{count}} days until {{name}}",
+    "today": "Today is {{name}}",
+    "missing": "Select a highlighted event to show the countdown.",
+    "expired": "The highlighted event {{name}} is no longer valid."
   },
   "cover": {
     "frontCover": "Front cover",
@@ -225,6 +236,12 @@
     "title": "My events",
     "description": "Birthdays, anniversaries, and custom events that will appear on your calendars",
     "newEvent": "+ New event",
+    "importIcs": "Import .ics",
+    "importing": "Importing…",
+    "importResult": "Imported {{imported}} events; {{skipped}} duplicates skipped.",
+    "importWarnings": "{{count}} entries could not be imported.",
+    "errorImporting": "Error importing calendar file",
+    "importHelp": "Import an .ics file exported from Google Calendar or another calendar app.",
     "noEvents": "No events yet.",
     "noEventsHint": "Add birthdays, anniversaries, and other events to have them appear automatically.",
     "everyYear": " · Every year",
