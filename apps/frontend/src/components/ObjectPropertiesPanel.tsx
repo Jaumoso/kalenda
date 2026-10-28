@@ -18,6 +18,7 @@ import {
   Star,
   Hexagon,
   Sun,
+  Check,
 } from 'lucide-react'
 
 interface ObjectPropertiesPanelProps {
@@ -61,6 +62,8 @@ export default function ObjectPropertiesPanel({
               'contrast',
               0
             ),
+            grayscale: hasImageFilter(selectedObject as fabric.FabricImage, 'Grayscale'),
+            sepia: hasImageFilter(selectedObject as fabric.FabricImage, 'Sepia'),
           }
         : {}),
       // Text props
@@ -174,8 +177,22 @@ export default function ObjectPropertiesPanel({
       {/* Image filters */}
       {selectedObject.type === 'image' && (
         <>
+          <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            {t('objectProps.imageFilters')}
+          </h4>
           <div>
-            <label className="text-xs text-neutral-500">{t('objectProps.brightness')}</label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-neutral-500">{t('objectProps.brightness')}</label>
+              <span
+                className={`text-xs ${
+                  (props.brightness as number) !== 0
+                    ? 'text-primary-700 font-medium'
+                    : 'text-neutral-400'
+                }`}
+              >
+                {formatFilterValue((props.brightness as number) ?? 0)}
+              </span>
+            </div>
             <input
               type="range"
               min={-1}
@@ -183,11 +200,23 @@ export default function ObjectPropertiesPanel({
               step={0.05}
               value={(props.brightness as number) ?? 0}
               onChange={(e) => updateProp('brightness', parseFloat(e.target.value))}
+              aria-label={t('objectProps.brightness')}
               className="w-full mt-1"
             />
           </div>
           <div>
-            <label className="text-xs text-neutral-500">{t('objectProps.contrast')}</label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-neutral-500">{t('objectProps.contrast')}</label>
+              <span
+                className={`text-xs ${
+                  (props.contrast as number) !== 0
+                    ? 'text-primary-700 font-medium'
+                    : 'text-neutral-400'
+                }`}
+              >
+                {formatFilterValue((props.contrast as number) ?? 0)}
+              </span>
+            </div>
             <input
               type="range"
               min={-1}
@@ -195,24 +224,32 @@ export default function ObjectPropertiesPanel({
               step={0.05}
               value={(props.contrast as number) ?? 0}
               onChange={(e) => updateProp('contrast', parseFloat(e.target.value))}
+              aria-label={t('objectProps.contrast')}
               className="w-full mt-1"
             />
           </div>
+          <h5 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+            {t('objectProps.additionalFilters')}
+          </h5>
           <div className="flex gap-1 flex-wrap">
             <FilterButton
               label={t('objectProps.grayscale')}
-              onClick={() => {
+              active={props.grayscale === true}
+              onClick={async () => {
                 const canvas = editorRef.current?.getCanvas()
                 if (!canvas) return
-                toggleGrayscale(selectedObject as fabric.FabricImage, canvas, onModified)
+                await toggleGrayscale(selectedObject as fabric.FabricImage, canvas, onModified)
+                readProps()
               }}
             />
             <FilterButton
               label={t('objectProps.sepia')}
-              onClick={() => {
+              active={props.sepia === true}
+              onClick={async () => {
                 const canvas = editorRef.current?.getCanvas()
                 if (!canvas) return
-                toggleSepia(selectedObject as fabric.FabricImage, canvas, onModified)
+                await toggleSepia(selectedObject as fabric.FabricImage, canvas, onModified)
+                readProps()
               }}
             />
           </div>
@@ -552,12 +589,27 @@ function NumberField({
   )
 }
 
-function FilterButton({ label, onClick }: { label: string; onClick: () => void }) {
+function FilterButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
   return (
     <button
       onClick={onClick}
-      className="px-2 py-1 text-xs border border-neutral-200 rounded hover:bg-neutral-100 text-neutral-600 transition-colors"
+      type="button"
+      aria-pressed={active}
+      className={`px-2 py-1 text-xs border rounded transition-colors inline-flex items-center gap-1 ${
+        active
+          ? 'bg-primary-100 border-primary-300 text-primary-700 font-medium'
+          : 'border-neutral-200 hover:bg-neutral-100 text-neutral-600'
+      }`}
     >
+      {active && <Check size={12} aria-hidden="true" />}
       {label}
     </button>
   )
@@ -605,6 +657,17 @@ function getFilterValue(
   )
   if (filter) return (filter as unknown as Record<string, number>)[prop] ?? defaultVal
   return defaultVal
+}
+
+function hasImageFilter(img: fabric.FabricImage, filterType: string): boolean {
+  return (img.filters || []).some(
+    (filter: unknown) => filter && (filter as Record<string, unknown>).type === filterType
+  )
+}
+
+function formatFilterValue(value: number): string {
+  const percentage = Math.round(value * 100)
+  return `${percentage > 0 ? '+' : ''}${percentage}%`
 }
 
 async function updateImageFilter(

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../prisma.js'
-import { getSecret, rateLimitConfig } from '@/config.js'
+import { getSecret, isUserRegistrationEnabled, rateLimitConfig } from '@/config.js'
 
 const loginRateLimit = rateLimitConfig.login
 const authRateLimit = rateLimitConfig.strict
@@ -15,6 +15,71 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     password: z.string().min(6),
     rememberMe: z.boolean().optional(),
   })
+
+  const registerSchema = z.object({
+    email: z.string().email(),
+    name: z.string().min(2),
+    password: z.string().min(6),
+  })
+
+  // GET /auth/registration-status — Public registration configuration
+  fastify.get(
+    '/auth/registration-status',
+    { config: { rateLimit: authRateLimit } },
+    async (_request, reply) => {
+      reply.send({ enabled: isUserRegistrationEnabled() })
+    }
+  )
+
+  // POST /auth/register — Create a standard user when public registration is enabled
+  fastify.post(
+    '/auth/register',
+    { config: { rateLimit: loginRateLimit } },
+    async (request, reply) => {
+      if (!isUserRegistrationEnabled()) {
+        return reply
+          .code(403)
+          .send({ error: 'REGISTRATION_DISABLED', message: 'User registration is disabled' })
+      }
+
+      const parsed = registerSchema.safeParse(request.body)
+      if (!parsed.success) {
+        return reply
+          .code(400)
+          .send({ error: 'VALIDATION_ERROR', message: 'Invalid registration data' })
+      }
+
+      const { email, name, password } = parsed.data
+      const admin = await prisma.user.findFirst({ where: { role: 'ADMIN' } })
+      if (!admin) {
+        return reply.code(503).send({
+          error: 'ADMIN_NOT_CONFIGURED',
+          message: 'The administrator account must be configured before registration',
+        })
+      }
+
+      const existingUser = await prisma.user.findUnique({ where: { email } })
+      if (existingUser) {
+        return reply
+          .code(409)
+          .send({ error: 'EMAIL_ALREADY_EXISTS', message: 'User already exists' })
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12)
+      const user = await prisma.user.create({
+        data: { email, name, password: hashedPassword, role: 'USER' },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          language: true,
+        },
+      })
+
+      reply.code(201).send({ user })
+    }
+  )
 
   // POST /auth/login — stricter rate limit (5 attempts per minute)
   fastify.post('/auth/login', { config: { rateLimit: loginRateLimit } }, async (request, reply) => {

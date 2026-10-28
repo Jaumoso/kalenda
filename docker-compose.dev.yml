@@ -24,6 +24,7 @@ services:
       - NODE_ENV=development
       - COOKIE_SECRET=dev-secret-key
       - JWT_SECRET=dev-jwt-secret-key
+      - ALLOW_USER_REGISTRATION=true
       - UPLOAD_PATH=/data/uploads
       - EXPORT_PATH=/data/exports
     volumes:

@@ -23,7 +23,16 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/projects', { preHandler: fastify.authenticate }, async (request, reply) => {
     const projects = await prisma.project.findMany({
       where: { userId: request.user!.id },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        year: true,
+        status: true,
+        weekStartsOn: true,
+        createdAt: true,
+        updatedAt: true,
+        coverJson: true,
+        backCoverJson: true,
         months: {
           select: { id: true, month: true, isCustomized: true },
           orderBy: { month: 'asc' },
