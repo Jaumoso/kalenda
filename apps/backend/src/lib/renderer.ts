@@ -15,6 +15,11 @@ import {
 
 const EXPORTS_DIR = process.env.EXPORT_PATH || path.join(process.cwd(), 'exports')
 const PUPPETEER_URL = process.env.PUPPETEER_URL || 'http://localhost:4000'
+const EXPORT_JOB_ID_PATTERN = /^c[a-z0-9]{24}$/
+
+export function getSafeExportJobId(jobId: string): string | null {
+  return EXPORT_JOB_ID_PATTERN.exec(jobId)?.[0] ?? null
+}
 
 interface RenderToken {
   monthId: string
@@ -215,7 +220,9 @@ export async function cancelExportJob(jobId: string): Promise<boolean> {
 }
 
 async function cleanupExportFiles(jobId: string) {
-  const jobDir = path.join(EXPORTS_DIR, jobId)
+  const safeJobId = getSafeExportJobId(jobId)
+  if (!safeJobId) return
+  const jobDir = path.join(EXPORTS_DIR, safeJobId)
   if (fs.existsSync(jobDir)) {
     fs.rmSync(jobDir, { recursive: true, force: true })
   }
