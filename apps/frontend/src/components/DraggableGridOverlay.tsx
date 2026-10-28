@@ -1,5 +1,4 @@
 import { useRef, useCallback, useState, type ReactNode } from 'react'
-import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
 
 interface Props {
   x: number
@@ -10,6 +9,8 @@ interface Props {
   active: boolean // true when in grid-editing mode
   onLayoutChange: (rect: { x: number; y: number; width: number; height: number }) => void
   children: ReactNode
+  pageWidth?: number
+  pageHeight?: number
 }
 
 type DragMode = null | 'move' | 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw'
@@ -25,6 +26,8 @@ export default function DraggableGridOverlay({
   active,
   onLayoutChange,
   children,
+  pageWidth = 794,
+  pageHeight = 1123,
 }: Props) {
   const dragRef = useRef<{
     mode: DragMode
@@ -263,9 +266,9 @@ export default function DraggableGridOverlay({
           {/* Distance indicators */}
           {(() => {
             const distLeft = x
-            const distRight = PAGE_WIDTH - x - width
+            const distRight = pageWidth - x - width
             const distTop = y
-            const distBottom = PAGE_HEIGHT - y - height
+            const distBottom = pageHeight - y - height
             const labelClass =
               'absolute text-[9px] font-mono text-blue-600 bg-surface/80 px-1 rounded shadow-sm pointer-events-none whitespace-nowrap'
             const lineColor = '#93C5FD' // blue-300

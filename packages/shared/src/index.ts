@@ -14,8 +14,13 @@ export type {
   AuthTokens,
   AuthUser,
   LoginRequest,
+  PaperSize,
+  PaperDimensions,
+  PrintConfig,
   HighlightedEvent,
 } from './types'
+
+export { DEFAULT_PRINT_CONFIG, PAPER_DIMENSIONS } from './types'
 
 // Export schemas
 export {

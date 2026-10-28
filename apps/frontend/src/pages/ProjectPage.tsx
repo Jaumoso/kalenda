@@ -6,6 +6,8 @@ import api from '../lib/api'
 import ApplyTemplateModal from '../components/ApplyTemplateModal'
 import ExportModal from '../components/ExportModal'
 import PrintPreviewModal from '../components/PrintPreviewModal'
+import PrintSettingsPanel from '../components/PrintSettingsPanel'
+import { DEFAULT_PRINT_CONFIG, type PrintConfig } from '../lib/calendarTypes'
 import type { CalEvent } from '../lib/calendarTypes'
 
 interface CalendarMonth {
@@ -21,6 +23,8 @@ interface Project {
   year: number
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: string
+  paperSize: 'A4' | 'A3' | 'A5' | 'LETTER'
+  printConfigJson?: PrintConfig
   templateId: string | null
   coverJson: Record<string, unknown> | null
   backCoverJson: Record<string, unknown> | null
@@ -46,6 +50,7 @@ export default function ProjectPage() {
   const [showExport, setShowExport] = useState(false)
   const [showPrintPreview, setShowPrintPreview] = useState(false)
   const [thumbVersion, setThumbVersion] = useState(Date.now())
+  const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG)
   const [events, setEvents] = useState<CalEvent[]>([])
 
   useEffect(() => {
@@ -56,6 +61,7 @@ export default function ProjectPage() {
           api.get('/events'),
         ])
         setProject(projectData.project)
+        setPrintConfig({ ...DEFAULT_PRINT_CONFIG, ...(projectData.project.printConfigJson ?? {}) })
         setEvents(eventsData.events)
         setThumbVersion(Date.now())
       } catch {
@@ -74,6 +80,17 @@ export default function ProjectPage() {
       setProject(data.project)
     } catch {
       setError(t('project.errorUpdatingStatus'))
+    }
+  }
+
+  const handlePrintConfigChange = async (config: PrintConfig) => {
+    setPrintConfig(config)
+    if (!project) return
+    try {
+      const { data } = await api.patch(`/projects/${project.id}`, { printConfigJson: config })
+      setProject(data.project)
+    } catch {
+      setError(t('project.errorUpdatingPrintSettings'))
     }
   }
 
@@ -133,6 +150,9 @@ export default function ProjectPage() {
             <h1 className="text-2xl font-bold text-neutral-900">{project.name}</h1>
             <p className="text-sm text-neutral-500">
               {project.year}
+              <span className="ml-2 text-xs bg-neutral-100 text-neutral-600 px-1.5 py-0.5 rounded">
+                {t(`paperSizes.${project.paperSize}`)}
+              </span>
               {project.templateId && (
                 <span className="ml-2 text-xs bg-primary-50 text-primary-600 px-1.5 py-0.5 rounded">
                   <ClipboardList size={14} className="inline mr-1" />
@@ -167,6 +187,10 @@ export default function ProjectPage() {
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="mb-8 max-w-xl">
+        <PrintSettingsPanel config={printConfig} onChange={handlePrintConfigChange} />
       </div>
 
       <div className="mb-8 rounded-lg border border-primary-100 bg-primary-50/50 p-4">
@@ -317,6 +341,8 @@ export default function ProjectPage() {
           projectId={project.id}
           projectName={project.name}
           projectYear={project.year}
+          printConfig={printConfig}
+          onPrintConfigChange={handlePrintConfigChange}
           onClose={() => setShowExport(false)}
         />
       )}
@@ -327,6 +353,8 @@ export default function ProjectPage() {
           projectId={project.id}
           projectName={project.name}
           projectYear={project.year}
+          paperSize={project.paperSize}
+          printConfig={printConfig}
           months={project.months}
           onClose={() => setShowPrintPreview(false)}
         />

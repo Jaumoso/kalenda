@@ -63,6 +63,12 @@
     "es": "Español",
     "en": "English"
   },
+  "paperSizes": {
+    "A4": "A4 (210 × 297 mm)",
+    "A3": "A3 (297 × 420 mm)",
+    "A5": "A5 (148 × 210 mm)",
+    "LETTER": "Letter (8.5 × 11 in)"
+  },
   "common": {
     "cancel": "Cancel",
     "save": "Save",
@@ -160,6 +166,7 @@
     "customized": "Customized",
     "noDesignYet": "No design yet",
     "errorUpdatingStatus": "Error updating status",
+    "errorUpdatingPrintSettings": "Error updating print settings",
     "errorUpdatingHighlightedEvent": "Error updating the highlighted event",
     "highlightedEvent": "Highlighted event countdown",
     "highlightedEventHint": "It will appear on every month and in calendar exports.",
@@ -180,7 +187,9 @@
     "errorLoading": "Could not load month",
     "errorSaving": "Error saving",
     "errorSavingCell": "Error saving cell",
-    "backToProjectLink": "Back to project"
+    "backToProjectLink": "Back to project",
+    "unsupportedCountry": "Holiday data is not available for this country.",
+    "unsupportedYear": "Holiday data is not available for this year."
   },
   "countdown": {
     "label": "Countdown",
@@ -318,18 +327,22 @@
     "nameLabel": "Name",
     "namePlaceholder": "E.g.: Family calendar 2027",
     "yearLabel": "Year",
+    "paperSize": "Paper size",
     "weekStartsOn": "Week starts on",
     "monday": "Monday",
     "sunday": "Sunday",
     "autonomy": "Autonomous Community (holidays)",
     "nationalOnly": "National holidays only",
+    "holidayCountry": "Holiday country",
+    "holidayCountryHint": "International holidays are calculated automatically for supported years (2020–2050).",
     "baseTemplate": "Base template",
     "noTemplate": "No template",
     "templateHint": "The template will be applied to all 12 months when creating the project",
     "creating": "Creating...",
     "createCalendar": "Create calendar",
     "errorCreating": "Error creating project",
-    "errorLoadingTemplates": "Error loading templates"
+    "errorLoadingTemplates": "Error loading templates",
+    "errorLoadingOptions": "Error loading calendar options"
   },
   "assetPicker": {
     "selectImage": "Select image",
@@ -630,5 +643,12 @@
     "noContent": "No content yet",
     "loading": "Loading preview…",
     "errorLoading": "Could not load preview"
+  },
+  "printSettings": {
+    "title": "Print settings",
+    "enableBleed": "Add bleed outside the trim area",
+    "bleed": "Bleed (mm)",
+    "cropMarks": "Include crop marks",
+    "cropMarkLength": "Mark length (mm)"
   }
 }

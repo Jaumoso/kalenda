@@ -1,11 +1,25 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
+import { DEFAULT_PRINT_CONFIG } from '@kalenda/shared'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../prisma.js'
+import { isSupportedHolidayCountry } from '../data/internationalHolidays.js'
+
+const printConfigSchema = z.object({
+  bleedEnabled: z.boolean().default(DEFAULT_PRINT_CONFIG.bleedEnabled),
+  bleedMm: z.number().min(0).max(10).default(DEFAULT_PRINT_CONFIG.bleedMm),
+  cropMarks: z.boolean().default(DEFAULT_PRINT_CONFIG.cropMarks),
+  cropMarkLengthMm: z.number().min(1).max(30).default(DEFAULT_PRINT_CONFIG.cropMarkLengthMm),
+  cropMarkOffsetMm: z.number().min(0).max(10).default(DEFAULT_PRINT_CONFIG.cropMarkOffsetMm),
+})
 
 const createProjectSchema = z.object({
   name: z.string().min(1).max(100),
   year: z.number().int().min(2020).max(2050),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
+  printConfigJson: printConfigSchema.optional(),
+  holidayCountryCode: z.string().length(2).default('ES'),
   autonomyCode: z.string().max(10).optional(),
   templateId: z.string().optional(),
 })
@@ -15,6 +29,9 @@ const updateProjectSchema = z.object({
   year: z.number().int().min(2020).max(2050).optional(),
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED']).optional(),
   weekStartsOn: z.enum(['monday', 'sunday']).optional(),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).optional(),
+  printConfigJson: printConfigSchema.optional(),
+  holidayCountryCode: z.string().length(2).optional(),
   autonomyCode: z.string().max(10).nullable().optional(),
   highlightedEventId: z.string().nullable().optional(),
 })
@@ -30,6 +47,8 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         year: true,
         status: true,
         weekStartsOn: true,
+        paperSize: true,
+        printConfigJson: true,
         createdAt: true,
         updatedAt: true,
         coverJson: true,
@@ -56,7 +75,21 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
-    const { name, year, weekStartsOn, autonomyCode, templateId } = parsed.data
+    const {
+      name,
+      year,
+      weekStartsOn,
+      holidayCountryCode,
+      paperSize,
+      printConfigJson,
+      autonomyCode,
+      templateId,
+    } = parsed.data
+    if (!isSupportedHolidayCountry(holidayCountryCode)) {
+      return reply
+        .code(400)
+        .send({ error: 'VALIDATION_ERROR', message: 'Unsupported holiday country' })
+    }
 
     // Fetch template config if templateId provided
     let templateConfig: { gridConfigJson?: unknown; canvasTopJson?: unknown } | null = null
@@ -77,6 +110,10 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         name,
         year,
         weekStartsOn,
+        paperSize,
+        printConfigJson: (printConfigJson ??
+          DEFAULT_PRINT_CONFIG) as unknown as Prisma.InputJsonValue,
+        holidayCountryCode,
         autonomyCode,
         templateId: templateId || undefined,
         userId: request.user!.id,
@@ -180,6 +217,15 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
+    if (
+      parsed.data.holidayCountryCode !== undefined &&
+      !isSupportedHolidayCountry(parsed.data.holidayCountryCode)
+    ) {
+      return reply
+        .code(400)
+        .send({ error: 'VALIDATION_ERROR', message: 'Unsupported holiday country' })
+    }
+
     // Verify ownership
     const existing = await prisma.project.findFirst({
       where: { id, userId: request.user!.id },
@@ -271,6 +317,8 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
           name: `${source.name} (copia)`,
           year: source.year,
           weekStartsOn: source.weekStartsOn,
+          holidayCountryCode: source.holidayCountryCode,
+          paperSize: source.paperSize,
           autonomyCode: source.autonomyCode,
           highlightedEventId: source.highlightedEventId,
           userId: request.user!.id,

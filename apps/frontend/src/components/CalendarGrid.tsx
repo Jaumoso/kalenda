@@ -57,7 +57,9 @@ export default function CalendarGrid({
   saints,
   onCellClick,
 }: Props) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const holidayName = (holiday: Holiday) =>
+    i18n.language.startsWith('en') ? holiday.nameEn : holiday.nameEs
   const config = { ...DEFAULT_GRID_CONFIG, ...gridConfig }
   const daysInMonth = getDaysInMonth(year, month)
   const firstDay = getFirstDayOfWeek(year, month, weekStartsOn)
@@ -353,7 +355,7 @@ export default function CalendarGrid({
                         >
                           {isHoliday && dayHolidays ? (
                             <span className="text-[8px] text-red-600 font-medium">
-                              {dayHolidays[0].nameEs}
+                              {holidayName(dayHolidays[0])}
                             </span>
                           ) : hasEvents && dayEvents ? (
                             <span className="text-[8px]" style={{ color: dayEvents[0].color }}>

@@ -2,6 +2,11 @@ import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../prisma.js'
 import { AUTONOMY_CODES } from '../data/holidays.js'
+import {
+  getHolidayCountries,
+  getHolidaySupportError,
+  getInternationalHolidays,
+} from '../data/internationalHolidays.js'
 import { getSaintsForMonth } from '../data/saints.js'
 
 const holidayRoutes: FastifyPluginAsync = async (fastify) => {
@@ -11,6 +16,7 @@ const holidayRoutes: FastifyPluginAsync = async (fastify) => {
       year: z.coerce.number().int().min(2020).max(2050),
       month: z.coerce.number().int().min(1).max(12).optional(),
       autonomyCode: z.string().max(10).optional(),
+      countryCode: z.string().length(2).default('ES'),
     })
 
     const parsed = schema.safeParse(request.query)
@@ -21,9 +27,28 @@ const holidayRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
-    const { year, month, autonomyCode } = parsed.data
+    const { year, month, autonomyCode, countryCode } = parsed.data
+    const supportError = getHolidaySupportError(year, countryCode)
+    if (supportError) {
+      return reply.code(422).send({
+        error: supportError,
+        message: 'Holiday data is not available for this country or year',
+      })
+    }
 
-    const where: Record<string, unknown> = { year }
+    if (countryCode !== 'ES') {
+      const holidays = getInternationalHolidays(year, countryCode)
+        .filter((holiday) => month === undefined || holiday.month === month)
+        .map((holiday) => ({
+          ...holiday,
+          id: `${holiday.countryCode}-${holiday.year}-${holiday.month}-${holiday.day}`,
+          scope: 'NATIONAL' as const,
+          autonomyCode: null,
+        }))
+      return reply.send({ holidays })
+    }
+
+    const where: Record<string, unknown> = { year, countryCode: 'ES' }
     if (month !== undefined) where.month = month
 
     // Always include NATIONAL + specific autonomy if provided
@@ -61,6 +86,14 @@ const holidayRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/autonomies', { preHandler: fastify.authenticate }, async (_request, reply) => {
     reply.send({ autonomies: AUTONOMY_CODES })
   })
+
+  fastify.get(
+    '/holiday-countries',
+    { preHandler: fastify.authenticate },
+    async (_request, reply) => {
+      reply.send({ countries: getHolidayCountries() })
+    }
+  )
 }
 
 export default holidayRoutes

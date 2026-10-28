@@ -58,6 +58,7 @@ through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
 - DELETE /folders/:id
 
 ## Events, Holidays, Templates
+
 - GET/POST/PUT/DELETE /events
 - POST /events/import (multipart field `file`, `.ics` or `text/calendar`)
 
@@ -67,6 +68,7 @@ supported `RRULE` frequencies (YEARLY, MONTHLY and WEEKLY). Re-importing the sam
 UID skips the duplicate. OAuth connection, live synchronization, attendees,
 notifications, and unsupported `EXDATE`/`RDATE` or complex recurrence rules are
 outside this endpoint's scope and are reported as import errors.
+
 - GET /holidays
 - GET /holidays/autonomies
 - GET/POST/DELETE /templates
@@ -78,6 +80,12 @@ outside this endpoint's scope and are reported as import errors.
 - GET /exports/:id/download
 - GET /exports
 - DELETE /exports/:id
+
+`POST /exports` accepts `printConfigJson` with `bleedEnabled`, `bleedMm` (0-10),
+`cropMarks`, `cropMarkLengthMm` (1-30), and `cropMarkOffsetMm` (0-10). Bleed expands
+the captured PNG/PDF page outside the selected paper's trim dimensions; the calendar
+content remains positioned relative to the trim box. A4 is the default when no paper
+or print configuration is provided.
 
 ## Rendering and previews
 

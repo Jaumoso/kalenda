@@ -4,7 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { Save, Paintbrush, Grid3X3, ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '../lib/api'
 import type { GridConfig, DayCell, MonthData, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
-import { DEFAULT_GRID_CONFIG, PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
+import {
+  DEFAULT_GRID_CONFIG,
+  DEFAULT_PRINT_CONFIG,
+  getGridConfigForPaper,
+  getPaperDimensions,
+  getBleedPixels,
+  type PrintConfig,
+} from '../lib/calendarTypes'
 import CalendarGrid from '../components/CalendarGrid'
 import GridPropertiesPanel from '../components/GridPropertiesPanel'
 import CellModal from '../components/CellModal'
@@ -55,6 +62,12 @@ export default function MonthEditorPage() {
   const [bgAssetMode, setBgAssetMode] = useState(false)
   const [showSaveTemplate, setShowSaveTemplate] = useState(false)
   const [currentZoom, setCurrentZoom] = useState(1)
+  const paperDimensions = getPaperDimensions(monthData?.project.paperSize)
+  const printConfig = {
+    ...DEFAULT_PRINT_CONFIG,
+    ...((monthData?.project.printConfigJson ?? {}) as Partial<PrintConfig>),
+  }
+  const bleedPx = getBleedPixels(printConfig)
 
   const dirtyRef = useRef(false)
   const gridConfigRef = useRef(gridConfig)
@@ -77,9 +90,11 @@ export default function MonthEditorPage() {
         if (cancelled) return
         setMonthData(data.month)
         if (data.month.gridConfigJson) {
-          setGridConfig({ ...DEFAULT_GRID_CONFIG, ...data.month.gridConfigJson })
+          setGridConfig(
+            getGridConfigForPaper(data.month.gridConfigJson, data.month.project.paperSize)
+          )
         } else {
-          setGridConfig(DEFAULT_GRID_CONFIG)
+          setGridConfig(getGridConfigForPaper(null, data.month.project.paperSize))
         }
         canvasTopJsonRef.current = data.month.canvasTopJson as object | null
         setDayCells(data.month.dayCells || [])
@@ -484,12 +499,19 @@ export default function MonthEditorPage() {
         <div className="flex-1 overflow-auto p-6 bg-neutral-100">
           <div
             className="mx-auto"
-            style={{ width: PAGE_WIDTH * currentZoom, height: PAGE_HEIGHT * currentZoom }}
+            style={{
+              width: paperDimensions.widthPx * currentZoom,
+              height: paperDimensions.heightPx * currentZoom,
+            }}
           >
             {/* Unified A4 page container */}
             <div
               className="relative shadow-lg origin-top-left"
-              style={{ width: PAGE_WIDTH, height: PAGE_HEIGHT, transform: `scale(${currentZoom})` }}
+              style={{
+                width: paperDimensions.widthPx,
+                height: paperDimensions.heightPx,
+                transform: `scale(${currentZoom})`,
+              }}
             >
               {/* Fabric.js canvas — full page background + art objects */}
               <div
@@ -498,8 +520,8 @@ export default function MonthEditorPage() {
               >
                 <CanvasEditor
                   ref={canvasEditorRef}
-                  width={PAGE_WIDTH}
-                  height={PAGE_HEIGHT}
+                  width={paperDimensions.widthPx}
+                  height={paperDimensions.heightPx}
                   onModified={handleCanvasModified}
                   onSelectionChange={handleSelectionChange}
                   onReady={handleCanvasReady}
@@ -521,6 +543,8 @@ export default function MonthEditorPage() {
                 height={gridConfig.gridHeight}
                 opacity={gridConfig.gridOverlayOpacity}
                 active={editorMode === 'grid'}
+                pageWidth={paperDimensions.widthPx}
+                pageHeight={paperDimensions.heightPx}
                 onLayoutChange={handleGridLayoutChange}
               >
                 <CalendarGrid
@@ -535,6 +559,19 @@ export default function MonthEditorPage() {
                   onCellClick={handleCellClick}
                 />
               </DraggableGridOverlay>
+              {printConfig.bleedEnabled && (
+                <div
+                  aria-hidden="true"
+                  className="absolute pointer-events-none border border-dashed border-orange-400/70"
+                  style={{
+                    left: bleedPx,
+                    top: bleedPx,
+                    width: paperDimensions.widthPx - bleedPx * 2,
+                    height: paperDimensions.heightPx - bleedPx * 2,
+                    zIndex: 5,
+                  }}
+                />
+              )}
               <DraggableMiniCalendar
                 x={gridConfig.miniCalendarX}
                 y={gridConfig.miniCalendarY}
@@ -578,7 +615,12 @@ export default function MonthEditorPage() {
               </div>
             </div>
           ) : (
-            <GridPropertiesPanel config={gridConfig} onChange={handleGridConfigChange} />
+            <GridPropertiesPanel
+              config={gridConfig}
+              onChange={handleGridConfigChange}
+              pageWidth={paperDimensions.widthPx}
+              pageHeight={paperDimensions.heightPx}
+            />
           )}
         </div>
       </div>

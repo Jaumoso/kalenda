@@ -63,6 +63,12 @@
     "es": "Español",
     "en": "English"
   },
+  "paperSizes": {
+    "A4": "A4 (210 × 297 mm)",
+    "A3": "A3 (297 × 420 mm)",
+    "A5": "A5 (148 × 210 mm)",
+    "LETTER": "Carta (8,5 × 11 in)"
+  },
   "common": {
     "cancel": "Cancelar",
     "save": "Guardar",
@@ -160,6 +166,7 @@
     "customized": "Personalizado",
     "noDesignYet": "Sin diseño aún",
     "errorUpdatingStatus": "Error al actualizar el estado",
+    "errorUpdatingPrintSettings": "Error al actualizar los ajustes de impresión",
     "errorUpdatingHighlightedEvent": "Error al actualizar el evento destacado",
     "highlightedEvent": "Evento destacado para la cuenta atrás",
     "highlightedEventHint": "Se mostrará en todos los meses y en la exportación del calendario.",
@@ -180,7 +187,9 @@
     "errorLoading": "No se pudo cargar el mes",
     "errorSaving": "Error al guardar",
     "errorSavingCell": "Error al guardar la celda",
-    "backToProjectLink": "Volver al proyecto"
+    "backToProjectLink": "Volver al proyecto",
+    "unsupportedCountry": "No hay datos de festivos para este país.",
+    "unsupportedYear": "No hay datos de festivos para este año."
   },
   "countdown": {
     "label": "Cuenta atrás",
@@ -318,18 +327,22 @@
     "nameLabel": "Nombre",
     "namePlaceholder": "Ej.: Calendario familiar 2027",
     "yearLabel": "Año",
+    "paperSize": "Tamaño de papel",
     "weekStartsOn": "La semana empieza en",
     "monday": "Lunes",
     "sunday": "Domingo",
     "autonomy": "Comunidad Autónoma (festivos)",
     "nationalOnly": "Solo festivos nacionales",
+    "holidayCountry": "País de los festivos",
+    "holidayCountryHint": "Los festivos internacionales se calculan automáticamente para años compatibles (2020–2050).",
     "baseTemplate": "Plantilla base",
     "noTemplate": "Sin plantilla",
     "templateHint": "La plantilla se aplicará a los 12 meses al crear el proyecto",
     "creating": "Creando...",
     "createCalendar": "Crear calendario",
     "errorCreating": "Error al crear proyecto",
-    "errorLoadingTemplates": "Error al cargar las plantillas"
+    "errorLoadingTemplates": "Error al cargar las plantillas",
+    "errorLoadingOptions": "Error al cargar las opciones del calendario"
   },
   "assetPicker": {
     "selectImage": "Seleccionar imagen",
@@ -630,5 +643,12 @@
     "noContent": "Sin contenido aún",
     "loading": "Cargando vista previa…",
     "errorLoading": "No se pudo cargar la vista previa"
+  },
+  "printSettings": {
+    "title": "Ajustes de impresión",
+    "enableBleed": "Añadir sangrado fuera del área de corte",
+    "bleed": "Sangrado (mm)",
+    "cropMarks": "Incluir marcas de corte",
+    "cropMarkLength": "Longitud de marca (mm)"
   }
 }

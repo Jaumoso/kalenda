@@ -4,14 +4,12 @@ import path from 'path'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../prisma.js'
 import { getSecret } from '../config.js'
-
-// A4 at 96 DPI (matches frontend)
-const PAGE_WIDTH = 794
-const PAGE_HEIGHT = 1123
-
-// A4 in points (72 DPI) for PDF
-const A4_WIDTH_PT = 595.28
-const A4_HEIGHT_PT = 841.89
+import {
+  DEFAULT_PRINT_CONFIG,
+  PAPER_DIMENSIONS,
+  type PaperSize,
+  type PrintConfig,
+} from '@kalenda/shared'
 
 const EXPORTS_DIR = process.env.EXPORT_PATH || path.join(process.cwd(), 'exports')
 const PUPPETEER_URL = process.env.PUPPETEER_URL || 'http://localhost:4000'
@@ -29,6 +27,8 @@ interface RenderOptions {
   filename: string
   projectId: string
   coverToken: string
+  paperSize: PaperSize
+  printConfig: PrintConfig
 }
 
 const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
@@ -48,6 +48,11 @@ export async function renderProject(
 
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
   const scaleFactor = options.dpi / 96
+  const paper = PAPER_DIMENSIONS[options.paperSize]
+  const printConfig = options.printConfig
+  const bleedPx = printConfig.bleedEnabled ? Math.round((printConfig.bleedMm / 25.4) * 96) : 0
+  const outputWidth = paper.widthPx + bleedPx * 2
+  const outputHeight = paper.heightPx + bleedPx * 2
 
   try {
     // Update job status to PROCESSING
@@ -81,8 +86,8 @@ export async function renderProject(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           url,
-          width: PAGE_WIDTH,
-          height: PAGE_HEIGHT,
+          width: outputWidth,
+          height: outputHeight,
           deviceScaleFactor: scaleFactor,
         }),
       })
@@ -98,18 +103,18 @@ export async function renderProject(
     }
 
     // 1. Front cover
-    const coverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=front`
+    const coverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=front${renderConfigQuery(printConfig)}`
     await capturePage(coverUrl, path.join(jobDir, '00-cover.png'), 1)
 
     // 2. Calendar months
     for (let i = 0; i < renderTokens.length; i++) {
       const { monthId, month, token } = renderTokens[i]
-      const url = `${frontendUrl}/render/${monthId}?token=${encodeURIComponent(token)}`
+      const url = `${frontendUrl}/render/${monthId}?token=${encodeURIComponent(token)}${renderConfigQuery(printConfig)}`
       await capturePage(url, path.join(jobDir, `${String(month).padStart(2, '0')}.png`), i + 2)
     }
 
     // 3. Back cover
-    const backCoverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=back`
+    const backCoverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=back${renderConfigQuery(printConfig)}`
     await capturePage(backCoverUrl, path.join(jobDir, '99-backcover.png'), totalPages)
 
     let finalPath: string
@@ -117,7 +122,7 @@ export async function renderProject(
 
     if (options.format === 'PDF') {
       finalPath = path.join(jobDir, `${options.filename}.pdf`)
-      await assemblePDF(pngPaths, finalPath, options.bindingGuide)
+      await assemblePDF(pngPaths, finalPath, options.bindingGuide, options.paperSize, printConfig)
       fileSize = fs.statSync(finalPath).size
 
       // Clean up individual PNGs after PDF assembly
@@ -193,6 +198,11 @@ export async function startExportJob(jobId: string): Promise<void> {
     filename: job.filename || `${job.project.name}-${job.project.year}`,
     projectId: job.projectId,
     coverToken,
+    paperSize: job.project.paperSize as PaperSize,
+    printConfig: {
+      ...DEFAULT_PRINT_CONFIG,
+      ...(job.printConfigJson as Partial<PrintConfig> | null | undefined),
+    },
   })
 }
 
@@ -217,29 +227,37 @@ export async function recoverInterruptedExports(log: (message: string) => void):
   }
 }
 
-async function assemblePDF(pngPaths: string[], outputPath: string, bindingGuide: boolean) {
+async function assemblePDF(
+  pngPaths: string[],
+  outputPath: string,
+  bindingGuide: boolean,
+  paperSize: PaperSize,
+  printConfig: PrintConfig
+) {
   const pdfDoc = await PDFDocument.create()
+  const paper = PAPER_DIMENSIONS[paperSize]
+  const bleedPt = printConfig.bleedEnabled ? (printConfig.bleedMm / 25.4) * 72 : 0
 
   for (const pngPath of pngPaths) {
     const pngBytes = fs.readFileSync(pngPath)
     const pngImage = await pdfDoc.embedPng(pngBytes)
 
-    const page = pdfDoc.addPage([A4_WIDTH_PT, A4_HEIGHT_PT])
+    const page = pdfDoc.addPage([paper.widthPt + bleedPt * 2, paper.heightPt + bleedPt * 2])
 
     // Draw the PNG scaled to fill the A4 page
     page.drawImage(pngImage, {
       x: 0,
       y: 0,
-      width: A4_WIDTH_PT,
-      height: A4_HEIGHT_PT,
+      width: paper.widthPt + bleedPt * 2,
+      height: paper.heightPt + bleedPt * 2,
     })
 
     // Optional binding guide (center line)
     if (bindingGuide) {
-      const centerX = A4_WIDTH_PT / 2
+      const centerX = (paper.widthPt + bleedPt * 2) / 2
       page.drawLine({
         start: { x: centerX, y: 0 },
-        end: { x: centerX, y: A4_HEIGHT_PT },
+        end: { x: centerX, y: paper.heightPt + bleedPt * 2 },
         thickness: 0.25,
         color: rgb(0.8, 0.8, 0.8),
         opacity: 0.5,
@@ -249,6 +267,16 @@ async function assemblePDF(pngPaths: string[], outputPath: string, bindingGuide:
 
   const pdfBytes = await pdfDoc.save()
   fs.writeFileSync(outputPath, pdfBytes)
+}
+
+function renderConfigQuery(config: PrintConfig): string {
+  const params = new URLSearchParams({
+    bleed: config.bleedEnabled ? String(config.bleedMm) : '0',
+    cropMarks: String(config.cropMarks),
+    cropMarkLength: String(config.cropMarkLengthMm),
+    cropMarkOffset: String(config.cropMarkOffsetMm),
+  })
+  return `&${params.toString()}`
 }
 
 async function createZip(pngPaths: string[], outputPath: string, baseName: string) {
