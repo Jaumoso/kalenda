@@ -16,6 +16,7 @@ const updateProjectSchema = z.object({
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED']).optional(),
   weekStartsOn: z.enum(['monday', 'sunday']).optional(),
   autonomyCode: z.string().max(10).nullable().optional(),
+  highlightedEventId: z.string().nullable().optional(),
 })
 
 const projectRoutes: FastifyPluginAsync = async (fastify) => {
@@ -95,6 +96,23 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         },
       },
       include: {
+        highlightedEvent: {
+          select: {
+            id: true,
+            name: true,
+            day: true,
+            month: true,
+            year: true,
+            type: true,
+            color: true,
+            icon: true,
+            isRecurring: true,
+            recurrence: true,
+            weekday: true,
+            startDate: true,
+            endDate: true,
+          },
+        },
         months: {
           select: { id: true, month: true, isCustomized: true },
           orderBy: { month: 'asc' },
@@ -112,6 +130,23 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
     const project = await prisma.project.findFirst({
       where: { id, userId: request.user!.id },
       include: {
+        highlightedEvent: {
+          select: {
+            id: true,
+            name: true,
+            day: true,
+            month: true,
+            year: true,
+            type: true,
+            color: true,
+            icon: true,
+            isRecurring: true,
+            recurrence: true,
+            weekday: true,
+            startDate: true,
+            endDate: true,
+          },
+        },
         months: {
           select: {
             id: true,
@@ -153,10 +188,40 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(404).send({ error: 'NOT_FOUND', message: 'Project not found' })
     }
 
+    if (parsed.data.highlightedEventId !== undefined && parsed.data.highlightedEventId !== null) {
+      const event = await prisma.event.findFirst({
+        where: { id: parsed.data.highlightedEventId, userId: request.user!.id },
+        select: { id: true },
+      })
+      if (!event) {
+        return reply.code(400).send({
+          error: 'VALIDATION_ERROR',
+          message: 'Highlighted event not found',
+        })
+      }
+    }
+
     const project = await prisma.project.update({
       where: { id },
       data: parsed.data,
       include: {
+        highlightedEvent: {
+          select: {
+            id: true,
+            name: true,
+            day: true,
+            month: true,
+            year: true,
+            type: true,
+            color: true,
+            icon: true,
+            isRecurring: true,
+            recurrence: true,
+            weekday: true,
+            startDate: true,
+            endDate: true,
+          },
+        },
         months: {
           select: { id: true, month: true, isCustomized: true },
           orderBy: { month: 'asc' },
@@ -207,6 +272,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
           year: source.year,
           weekStartsOn: source.weekStartsOn,
           autonomyCode: source.autonomyCode,
+          highlightedEventId: source.highlightedEventId,
           userId: request.user!.id,
           status: 'DRAFT',
           months: {

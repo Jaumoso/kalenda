@@ -2,6 +2,7 @@ import { FastifyPluginAsync } from 'fastify'
 import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { prisma } from '../prisma.js'
+import { parseIcs } from '../lib/ics.js'
 
 const recurrenceSchema = z.enum(['NONE', 'YEARLY', 'MONTHLY', 'WEEKLY'])
 const dateOnlySchema = z.string().date()
@@ -131,6 +132,66 @@ const eventRoutes: FastifyPluginAsync = async (fastify) => {
     })
 
     reply.code(201).send({ event })
+  })
+
+  fastify.post('/events/import', { preHandler: fastify.authenticate }, async (request, reply) => {
+    const file = await request.file()
+    if (!file) {
+      return reply.code(400).send({ error: 'VALIDATION_ERROR', message: 'An ICS file is required' })
+    }
+    if (!file.filename.toLowerCase().endsWith('.ics') && file.mimetype !== 'text/calendar') {
+      return reply.code(400).send({
+        error: 'VALIDATION_ERROR',
+        message: 'Only .ics calendar files are supported',
+      })
+    }
+    const parsed = parseIcs((await file.toBuffer()).toString('utf8'))
+    if (parsed.events.length === 0) {
+      return reply.code(400).send({
+        error: 'VALIDATION_ERROR',
+        message:
+          parsed.errors.length > 0 ? parsed.errors.join('; ') : 'No supported events were found',
+      })
+    }
+
+    const existing = await prisma.event.findMany({
+      where: {
+        userId: request.user!.id,
+        sourceUid: { in: parsed.events.map((event) => event.sourceUid) },
+      },
+      select: { sourceUid: true },
+    })
+    const existingUids = new Set(existing.map((event) => event.sourceUid).filter(Boolean))
+    const candidates = parsed.events.filter((event) => !existingUids.has(event.sourceUid))
+    if (candidates.length > 0) {
+      await prisma.$transaction(
+        candidates.map((event) =>
+          prisma.event.create({
+            data: {
+              name: event.name,
+              day: event.day,
+              month: event.month,
+              year: event.year,
+              recurrence: event.recurrence,
+              weekday: event.weekday,
+              startDate: toDateOnly(event.startDate),
+              endDate: toDateOnly(event.endDate),
+              sourceUid: event.sourceUid,
+              type: 'CUSTOM',
+              color: '#2563EB',
+              icon: null,
+              isRecurring: event.recurrence !== 'NONE',
+              userId: request.user!.id,
+            },
+          })
+        )
+      )
+    }
+    reply.send({
+      imported: candidates.length,
+      skipped: parsed.events.length - candidates.length,
+      errors: parsed.errors,
+    })
   })
 
   // PUT /events/:id — Update an event

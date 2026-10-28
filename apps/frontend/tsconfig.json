@@ -25,7 +25,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@kalenda/shared": ["../../packages/shared/src"]
+      "@kalenda/shared": ["../../packages/shared/src"],
+      "@kalenda/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": ["src"],

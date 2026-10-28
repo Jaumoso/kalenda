@@ -397,8 +397,8 @@ considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteri
 - [x] Mini-calendario del mes anterior/siguiente en una esquina
 - [x] Eventos anuales recurrentes
 - [x] Eventos recurrentes mensuales o semanales
-- Importar eventos desde Google Calendar / archivo .ics
-- Cuenta atrás a un evento destacado ("Faltan X días para…")
+- [x] Importar eventos desde Google Calendar / archivo .ics (importación manual de archivos exportados)
+- [x] Cuenta atrás a un evento destacado ("Faltan X días para…")
 - Festivos internacionales
 
 ### Exportación e impresión
