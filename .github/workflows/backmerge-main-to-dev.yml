@@ -1,0 +1,90 @@
+name: Backmerge main into dev
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: backmerge-main-to-dev
+  cancel-in-progress: true
+
+jobs:
+  backmerge:
+    name: Open backmerge pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@v7
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Merge main into the backmerge branch
+        env:
+          BACKMERGE_BRANCH: automation/backmerge-main-to-dev
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main dev
+
+          if git merge-base --is-ancestor origin/main origin/dev; then
+            echo "main is already contained in dev; no backmerge is required."
+            exit 0
+          fi
+
+          git fetch origin "$BACKMERGE_BRANCH" || true
+          git checkout -B "$BACKMERGE_BRANCH" origin/dev
+
+          if ! git merge --no-ff --no-edit origin/main; then
+            git merge --abort
+            echo "::error::main cannot be merged automatically into dev. Resolve the conflict manually."
+            exit 1
+          fi
+
+          git push --force-with-lease origin "HEAD:$BACKMERGE_BRANCH"
+
+      - name: Create or update the backmerge pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BACKMERGE_BRANCH: automation/backmerge-main-to-dev
+        run: |
+          set -euo pipefail
+
+          pr_number="$(gh pr list \
+            --base dev \
+            --head "$BACKMERGE_BRANCH" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [[ -z "$pr_number" ]]; then
+            gh pr create \
+              --base dev \
+              --head "$BACKMERGE_BRANCH" \
+              --title "chore: backmerge main into dev" \
+              --body "$(cat <<'EOF'
+          Synchronize `dev` with the latest stable changes from `main`.
+
+          This pull request was opened automatically by the backmerge workflow.
+          EOF
+              )"
+          else
+            gh pr edit "$pr_number" \
+              --title "chore: backmerge main into dev" \
+              --body "$(cat <<'EOF'
+          Synchronize `dev` with the latest stable changes from `main`.
+
+          This pull request was updated automatically by the backmerge workflow.
+          EOF
+              )"
+          fi

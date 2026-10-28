@@ -24,6 +24,12 @@ are not allowed. Both branches require an approval, all mandatory CI checks,
 resolved conversations, and a linear history. Working branches may be deleted
 after their pull request is merged.
 
+After a change reaches `main`, the `Backmerge main into dev` workflow creates or
+updates a pull request from `automation/backmerge-main-to-dev` into `dev`.
+The workflow never pushes directly to the protected `dev` branch. If the merge
+cannot be performed automatically, it fails and the conflict must be resolved
+manually in a pull request.
+
 ## Pull request requirements
 
 Every pull request must:

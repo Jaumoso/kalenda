@@ -252,6 +252,8 @@ kalenda/
 
 - `main` is the stable branch.
 - `dev` contains the next development changes.
+- Changes merged into `main` are synchronized back to `dev` by the
+  `Backmerge main into dev` workflow through an automatic pull request.
 - Stable releases use Semantic Versioning (`MAJOR.MINOR.PATCH`) and tags in the form
   `vX.Y.Z`. They must be created from `main`.
 - Development prereleases use an explicit prerelease suffix, such as `v0.1.9-rc.1`, and must
