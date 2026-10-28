@@ -48,6 +48,9 @@ COPY --from=builder /prod/backend/prisma.config.ts ./apps/backend/prisma.config.
 # Copy built files
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 COPY --from=builder /app/apps/frontend/dist ./apps/backend/frontend/dist
+# The deployed backend keeps the workspace symlink for @kalenda/shared, so
+# preserve the shared package's compiled output at its runtime target.
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 
 # Create data directories with correct ownership for non-root user
 RUN mkdir -p /data/uploads/thumbs /data/exports && \
