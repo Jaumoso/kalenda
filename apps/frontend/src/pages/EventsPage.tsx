@@ -492,6 +492,17 @@ function EventForm({
               </div>
             </div>
           )}
+          {recurrence !== 'NONE' && (
+            <p className="text-xs text-neutral-500">
+              {t(
+                recurrence === 'YEARLY'
+                  ? 'events.validityHintYearly'
+                  : recurrence === 'MONTHLY'
+                    ? 'events.validityHintMonthly'
+                    : 'events.validityHintWeekly'
+              )}
+            </p>
+          )}
 
           {/* Color */}
           <div>
