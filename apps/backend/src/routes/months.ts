@@ -105,7 +105,14 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
       where: { id },
       include: {
         project: {
-          select: { userId: true, weekStartsOn: true, name: true, year: true, autonomyCode: true },
+          select: {
+            userId: true,
+            weekStartsOn: true,
+            paperSize: true,
+            name: true,
+            year: true,
+            autonomyCode: true,
+          },
         },
         dayCells: { orderBy: { dayNumber: 'asc' } },
       },

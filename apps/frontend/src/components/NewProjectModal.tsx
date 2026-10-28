@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../lib/api'
+import type { PaperSize } from '../lib/calendarTypes'
 
 const AUTONOMY_CODES = [
   { code: 'AN', name: 'Andalucía' },
@@ -41,6 +42,7 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
   const [name, setName] = useState('')
   const [year, setYear] = useState(currentYear + 1)
   const [weekStartsOn, setWeekStartsOn] = useState<'monday' | 'sunday'>('monday')
+  const [paperSize, setPaperSize] = useState<PaperSize>('A4')
   const [autonomyCode, setAutonomyCode] = useState('')
   const [templateId, setTemplateId] = useState('')
   const [templates, setTemplates] = useState<TemplateOption[]>([])
@@ -70,6 +72,7 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         name: name.trim(),
         year,
         weekStartsOn,
+        paperSize,
         autonomyCode: autonomyCode || undefined,
         templateId: templateId || undefined,
       })
@@ -87,6 +90,23 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">{t('newProject.title')}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="paperSize" className="block text-sm font-medium text-neutral-700 mb-1">
+              {t('newProject.paperSize')}
+            </label>
+            <select
+              id="paperSize"
+              value={paperSize}
+              onChange={(e) => setPaperSize(e.target.value as PaperSize)}
+              className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            >
+              <option value="A4">{t('paperSizes.A4')}</option>
+              <option value="A3">{t('paperSizes.A3')}</option>
+              <option value="LETTER">{t('paperSizes.LETTER')}</option>
+              <option value="A5">{t('paperSizes.A5')}</option>
+            </select>
+          </div>
+
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
               {t('newProject.nameLabel')}

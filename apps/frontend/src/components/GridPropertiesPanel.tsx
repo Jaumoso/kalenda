@@ -7,6 +7,8 @@ import FontSelector from './FontSelector'
 interface Props {
   config: GridConfig
   onChange: (config: GridConfig) => void
+  pageWidth?: number
+  pageHeight?: number
 }
 
 const POSITIONS: { value: DayPosition; label: string }[] = [
@@ -21,7 +23,12 @@ const POSITIONS: { value: DayPosition; label: string }[] = [
   { value: 'bottom-right', label: '↘' },
 ]
 
-export default function GridPropertiesPanel({ config, onChange }: Props) {
+export default function GridPropertiesPanel({
+  config,
+  onChange,
+  pageWidth = PAGE_WIDTH,
+  pageHeight = PAGE_HEIGHT,
+}: Props) {
   const { t } = useTranslation()
   const update = <K extends keyof GridConfig>(key: K, value: GridConfig[K]) => {
     onChange({ ...config, [key]: value })
@@ -42,7 +49,7 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
             <input
               type="number"
               min={0}
-              max={PAGE_WIDTH}
+              max={pageWidth}
               value={config.gridX}
               onChange={(e) => update('gridX', Number(e.target.value))}
               className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
@@ -53,7 +60,7 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
             <input
               type="number"
               min={0}
-              max={PAGE_HEIGHT}
+              max={pageHeight}
               value={config.gridY}
               onChange={(e) => update('gridY', Number(e.target.value))}
               className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
@@ -64,7 +71,7 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
             <input
               type="number"
               min={100}
-              max={PAGE_WIDTH}
+              max={pageWidth}
               value={config.gridWidth}
               onChange={(e) => update('gridWidth', Number(e.target.value))}
               className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
@@ -75,7 +82,7 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
             <input
               type="number"
               min={50}
-              max={PAGE_HEIGHT}
+              max={pageHeight}
               value={config.gridHeight}
               onChange={(e) => update('gridHeight', Number(e.target.value))}
               className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
@@ -539,7 +546,7 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
                 <input
                   type="number"
                   min={0}
-                  max={PAGE_WIDTH}
+                  max={pageWidth}
                   value={config.miniCalendarX}
                   onChange={(e) => update('miniCalendarX', Number(e.target.value))}
                   className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
@@ -552,7 +559,7 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
                 <input
                   type="number"
                   min={0}
-                  max={PAGE_HEIGHT}
+                  max={pageHeight}
                   value={config.miniCalendarY}
                   onChange={(e) => update('miniCalendarY', Number(e.target.value))}
                   className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"

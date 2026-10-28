@@ -403,7 +403,7 @@ considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteri
 
 ### Exportación e impresión
 
-- Más tamaños de papel (A3, Letter, A5 — calendario de escritorio)
+- [x] Más tamaños de papel (A3, Letter, A5 — calendario de escritorio; también Letter)
 - Marcas de corte y sangrado (bleed) para impresión profesional
 - Exportar meses individuales (no solo el calendario completo)
 - Exportar como imágenes sueltas (para WhatsApp, redes sociales)

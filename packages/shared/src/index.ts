@@ -14,7 +14,11 @@ export type {
   AuthTokens,
   AuthUser,
   LoginRequest,
+  PaperSize,
+  PaperDimensions,
 } from './types'
+
+export { PAPER_DIMENSIONS } from './types'
 
 // Export schemas
 export {

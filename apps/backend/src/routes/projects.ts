@@ -6,6 +6,7 @@ const createProjectSchema = z.object({
   name: z.string().min(1).max(100),
   year: z.number().int().min(2020).max(2050),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
   autonomyCode: z.string().max(10).optional(),
   templateId: z.string().optional(),
 })
@@ -15,6 +16,7 @@ const updateProjectSchema = z.object({
   year: z.number().int().min(2020).max(2050).optional(),
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED']).optional(),
   weekStartsOn: z.enum(['monday', 'sunday']).optional(),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).optional(),
   autonomyCode: z.string().max(10).nullable().optional(),
 })
 
@@ -29,6 +31,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         year: true,
         status: true,
         weekStartsOn: true,
+        paperSize: true,
         createdAt: true,
         updatedAt: true,
         coverJson: true,
@@ -55,7 +58,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
-    const { name, year, weekStartsOn, autonomyCode, templateId } = parsed.data
+    const { name, year, weekStartsOn, paperSize, autonomyCode, templateId } = parsed.data
 
     // Fetch template config if templateId provided
     let templateConfig: { gridConfigJson?: unknown; canvasTopJson?: unknown } | null = null
@@ -76,6 +79,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         name,
         year,
         weekStartsOn,
+        paperSize,
         autonomyCode,
         templateId: templateId || undefined,
         userId: request.user!.id,
@@ -206,6 +210,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
           name: `${source.name} (copia)`,
           year: source.year,
           weekStartsOn: source.weekStartsOn,
+          paperSize: source.paperSize,
           autonomyCode: source.autonomyCode,
           userId: request.user!.id,
           status: 'DRAFT',

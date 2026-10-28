@@ -17,10 +17,57 @@ export interface Project {
   year: number
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: 'monday' | 'sunday'
+  paperSize: PaperSize
   autonomyCode?: string
   templateId?: string
   createdAt: Date
   updatedAt: Date
+}
+
+export type PaperSize = 'A4' | 'A3' | 'A5' | 'LETTER'
+
+export interface PaperDimensions {
+  widthMm: number
+  heightMm: number
+  widthPx: number
+  heightPx: number
+  widthPt: number
+  heightPt: number
+}
+
+export const PAPER_DIMENSIONS: Record<PaperSize, PaperDimensions> = {
+  A4: {
+    widthMm: 210,
+    heightMm: 297,
+    widthPx: 794,
+    heightPx: 1123,
+    widthPt: 595.28,
+    heightPt: 841.89,
+  },
+  A3: {
+    widthMm: 297,
+    heightMm: 420,
+    widthPx: 1123,
+    heightPx: 1587,
+    widthPt: 841.89,
+    heightPt: 1190.55,
+  },
+  A5: {
+    widthMm: 148,
+    heightMm: 210,
+    widthPx: 559,
+    heightPx: 794,
+    widthPt: 419.53,
+    heightPt: 595.28,
+  },
+  LETTER: {
+    widthMm: 216,
+    heightMm: 279,
+    widthPx: 816,
+    heightPx: 1056,
+    widthPt: 612,
+    heightPt: 792,
+  },
 }
 
 export interface CalendarMonth {

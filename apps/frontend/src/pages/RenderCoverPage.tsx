@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { Canvas as FabricCanvas } from 'fabric'
-import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
+import { getPaperDimensions, type PaperSize } from '../lib/calendarTypes'
 
 // Import all fonts so they render correctly in Puppeteer
 import '../components/FontSelector'
@@ -20,9 +20,11 @@ export default function RenderCoverPage() {
   const type = searchParams.get('type') || 'front'
 
   const [canvasJson, setCanvasJson] = useState<unknown>(null)
+  const [paperSize, setPaperSize] = useState<PaperSize>('A4')
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const canvasElRef = useRef<HTMLCanvasElement>(null)
+  const paperDimensions = getPaperDimensions(paperSize)
 
   useEffect(() => {
     if (!projectId || !token) return
@@ -31,6 +33,7 @@ export default function RenderCoverPage() {
       .get(`/api/render-data/cover/${projectId}?token=${encodeURIComponent(token)}&type=${type}`)
       .then((res) => {
         setCanvasJson(res.data.canvasJson)
+        setPaperSize(res.data.project.paperSize ?? 'A4')
         setLoaded(true)
       })
       .catch((err) => {
@@ -43,8 +46,8 @@ export default function RenderCoverPage() {
     if (!loaded || !canvasElRef.current) return
 
     const canvas = new FabricCanvas(canvasElRef.current, {
-      width: PAGE_WIDTH,
-      height: PAGE_HEIGHT,
+      width: paperDimensions.widthPx,
+      height: paperDimensions.heightPx,
       selection: false,
       interactive: false,
       renderOnAddRemove: true,
@@ -78,8 +81,8 @@ export default function RenderCoverPage() {
     return (
       <div
         style={{
-          width: PAGE_WIDTH,
-          height: PAGE_HEIGHT,
+          width: paperDimensions.widthPx,
+          height: paperDimensions.heightPx,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -94,8 +97,8 @@ export default function RenderCoverPage() {
   return (
     <div
       style={{
-        width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
+        width: paperDimensions.widthPx,
+        height: paperDimensions.heightPx,
         position: 'relative',
         overflow: 'hidden',
         margin: 0,

@@ -1,6 +1,45 @@
 import { t } from 'i18next'
+import type { PaperSize } from '@kalenda/shared'
+
+export type { PaperSize }
+
+export const PAPER_DIMENSIONS = {
+  A4: {
+    widthMm: 210,
+    heightMm: 297,
+    widthPx: 794,
+    heightPx: 1123,
+    widthPt: 595.28,
+    heightPt: 841.89,
+  },
+  A3: {
+    widthMm: 297,
+    heightMm: 420,
+    widthPx: 1123,
+    heightPx: 1587,
+    widthPt: 841.89,
+    heightPt: 1190.55,
+  },
+  A5: {
+    widthMm: 148,
+    heightMm: 210,
+    widthPx: 559,
+    heightPx: 794,
+    widthPt: 419.53,
+    heightPt: 595.28,
+  },
+  LETTER: {
+    widthMm: 216,
+    heightMm: 279,
+    widthPx: 816,
+    heightPx: 1056,
+    widthPt: 612,
+    heightPt: 792,
+  },
+} as const
 
 export interface GridConfig {
+  layoutPaperSize?: PaperSize
   bgColor: string
   bgOpacity: number
   gridOverlayOpacity: number // overall grid overlay opacity (0-100) so background shows through
@@ -54,9 +93,49 @@ export interface GridConfig {
   miniCalendarFontSize: number
 }
 
-// A4 page dimensions at 96 DPI (210mm × 297mm)
-export const PAGE_WIDTH = 794
-export const PAGE_HEIGHT = 1123
+// A4 page dimensions at 96 DPI (210mm × 297mm), kept for backwards compatibility.
+export const PAGE_WIDTH = PAPER_DIMENSIONS.A4.widthPx
+export const PAGE_HEIGHT = PAPER_DIMENSIONS.A4.heightPx
+
+export function getPaperDimensions(paperSize: PaperSize = 'A4') {
+  return PAPER_DIMENSIONS[paperSize] ?? PAPER_DIMENSIONS.A4
+}
+
+export function scaleGridConfig(config: GridConfig, paperSize: PaperSize): GridConfig {
+  const dimensions = getPaperDimensions(paperSize)
+  const scaleX = dimensions.widthPx / PAGE_WIDTH
+  const scaleY = dimensions.heightPx / PAGE_HEIGHT
+  return {
+    ...config,
+    layoutPaperSize: paperSize,
+    gridX: Math.round(config.gridX * scaleX),
+    gridY: Math.round(config.gridY * scaleY),
+    gridWidth: Math.round(config.gridWidth * scaleX),
+    gridHeight: Math.round(config.gridHeight * scaleY),
+    miniCalendarX: Math.round(config.miniCalendarX * scaleX),
+    miniCalendarY: Math.round(config.miniCalendarY * scaleY),
+    miniCalendarWidth: Math.round(config.miniCalendarWidth * scaleX),
+    miniCalendarHeight: Math.round(config.miniCalendarHeight * scaleY),
+    dayFontSize: Math.max(8, Math.round(config.dayFontSize * Math.min(scaleX, scaleY))),
+    headerFontSize: Math.max(8, Math.round(config.headerFontSize * Math.min(scaleX, scaleY))),
+    monthTitleFontSize: Math.max(
+      12,
+      Math.round(config.monthTitleFontSize * Math.min(scaleX, scaleY))
+    ),
+    miniCalendarFontSize: Math.max(
+      6,
+      Math.round(config.miniCalendarFontSize * Math.min(scaleX, scaleY))
+    ),
+  }
+}
+
+export function getGridConfigForPaper(
+  storedConfig: Partial<GridConfig> | null | undefined,
+  paperSize: PaperSize
+): GridConfig {
+  const merged = { ...DEFAULT_GRID_CONFIG, ...(storedConfig ?? {}) }
+  return merged.layoutPaperSize === paperSize ? merged : scaleGridConfig(merged, paperSize)
+}
 
 // Default grid layout (bottom ~42% of the page)
 export const DEFAULT_GRID_X = 16
@@ -110,6 +189,7 @@ export interface MonthData {
     name: string
     year: number
     autonomyCode: string | null
+    paperSize: PaperSize
   }
   dayCells: DayCell[]
 }
@@ -152,6 +232,7 @@ export interface Saint {
 }
 
 export const DEFAULT_GRID_CONFIG: GridConfig = {
+  layoutPaperSize: 'A4',
   bgColor: '#FFFFFF',
   bgOpacity: 100,
   gridOverlayOpacity: 90,

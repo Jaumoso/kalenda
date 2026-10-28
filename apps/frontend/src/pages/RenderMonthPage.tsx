@@ -6,7 +6,7 @@ import CalendarGrid from '../components/CalendarGrid'
 import DraggableMiniCalendar from '../components/DraggableMiniCalendar'
 import MiniCalendar from '../components/MiniCalendar'
 import type { GridConfig, DayCell, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
-import { DEFAULT_GRID_CONFIG, PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
+import { getGridConfigForPaper, getPaperDimensions, type PaperSize } from '../lib/calendarTypes'
 
 // Import all fonts so they render correctly in Puppeteer
 import '../components/FontSelector'
@@ -26,6 +26,7 @@ interface MonthRenderData {
       name: string
       year: number
       autonomyCode: string | null
+      paperSize: PaperSize
     }
     dayCells: DayCell[]
   }
@@ -49,6 +50,7 @@ export default function RenderMonthPage() {
   const [error, setError] = useState<string | null>(null)
   const canvasElRef = useRef<HTMLCanvasElement>(null)
   const fabricRef = useRef<FabricCanvas | null>(null)
+  const paperDimensions = getPaperDimensions(data?.month.project.paperSize)
 
   // Fetch render data
   useEffect(() => {
@@ -68,8 +70,8 @@ export default function RenderMonthPage() {
     if (!data || !canvasElRef.current) return
 
     const canvas = new FabricCanvas(canvasElRef.current, {
-      width: PAGE_WIDTH,
-      height: PAGE_HEIGHT,
+      width: paperDimensions.widthPx,
+      height: paperDimensions.heightPx,
       selection: false,
       interactive: false,
       renderOnAddRemove: true,
@@ -104,8 +106,8 @@ export default function RenderMonthPage() {
     return (
       <div
         style={{
-          width: PAGE_WIDTH,
-          height: PAGE_HEIGHT,
+          width: paperDimensions.widthPx,
+          height: paperDimensions.heightPx,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -121,8 +123,8 @@ export default function RenderMonthPage() {
     return (
       <div
         style={{
-          width: PAGE_WIDTH,
-          height: PAGE_HEIGHT,
+          width: paperDimensions.widthPx,
+          height: paperDimensions.heightPx,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -134,13 +136,12 @@ export default function RenderMonthPage() {
     )
   }
 
-  const gridConfig = { ...DEFAULT_GRID_CONFIG, ...(data.month.gridConfigJson || {}) }
-
+  const gridConfig = getGridConfigForPaper(data.month.gridConfigJson, data.month.project.paperSize)
   return (
     <div
       style={{
-        width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
+        width: paperDimensions.widthPx,
+        height: paperDimensions.heightPx,
         position: 'relative',
         overflow: 'hidden',
         margin: 0,

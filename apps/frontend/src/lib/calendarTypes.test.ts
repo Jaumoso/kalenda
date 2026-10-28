@@ -7,13 +7,29 @@ import {
   getDaysInMonth,
   getFirstDayOfWeek,
   getIsoWeekNumber,
+  getPaperDimensions,
   isWeekend,
+  scaleGridConfig,
 } from './calendarTypes'
 
 describe('calendar helpers', () => {
   it('uses the A4 canvas dimensions', () => {
     expect(PAGE_WIDTH).toBe(794)
     expect(PAGE_HEIGHT).toBe(1123)
+  })
+
+  it('exposes dimensions for supported paper sizes', () => {
+    expect(getPaperDimensions('A3')).toMatchObject({ widthPx: 1123, heightPx: 1587 })
+    expect(getPaperDimensions('LETTER')).toMatchObject({ widthPx: 816, heightPx: 1056 })
+    expect(getPaperDimensions('A5')).toMatchObject({ widthPx: 559, heightPx: 794 })
+  })
+
+  it('scales the default grid for non-A4 paper', () => {
+    expect(scaleGridConfig(DEFAULT_GRID_CONFIG, 'A4')).toEqual(DEFAULT_GRID_CONFIG)
+    const a5 = scaleGridConfig(DEFAULT_GRID_CONFIG, 'A5')
+    expect(a5.gridWidth).toBeLessThan(DEFAULT_GRID_CONFIG.gridWidth)
+    expect(a5.gridHeight).toBeLessThan(DEFAULT_GRID_CONFIG.gridHeight)
+    expect(a5.gridY + a5.gridHeight).toBeLessThanOrEqual(794)
   })
 
   it('provides a complete default grid configuration', () => {
