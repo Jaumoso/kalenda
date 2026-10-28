@@ -29,6 +29,7 @@ interface RenderOptions {
   coverToken: string
   paperSize: PaperSize
   printConfig: PrintConfig
+  monthId?: string
 }
 
 const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
@@ -72,7 +73,7 @@ export async function renderProject(
     const jobDir = path.join(EXPORTS_DIR, jobId)
     fs.mkdirSync(jobDir, { recursive: true })
 
-    const totalPages = renderTokens.length + 2 // +2 for covers
+    const totalPages = options.monthId ? 1 : renderTokens.length + 2
 
     // Helper to capture a single page via the Puppeteer service
     async function capturePage(url: string, pngPath: string, pageNum: number) {
@@ -102,21 +103,27 @@ export async function renderProject(
       pngPaths.push(pngPath)
     }
 
-    // 1. Front cover
-    const coverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=front${renderConfigQuery(printConfig)}`
-    await capturePage(coverUrl, path.join(jobDir, '00-cover.png'), 1)
+    if (options.monthId) {
+      const selected = renderTokens.find((token) => token.monthId === options.monthId)
+      if (!selected) throw new Error('Selected month is unavailable')
+      const url = `${frontendUrl}/render/${selected.monthId}?token=${encodeURIComponent(selected.token)}${renderConfigQuery(printConfig)}`
+      await capturePage(url, path.join(jobDir, `${String(selected.month).padStart(2, '0')}.png`), 1)
+    } else {
+      // 1. Front cover
+      const coverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=front${renderConfigQuery(printConfig)}`
+      await capturePage(coverUrl, path.join(jobDir, '00-cover.png'), 1)
 
-    // 2. Calendar months
-    for (let i = 0; i < renderTokens.length; i++) {
-      const { monthId, month, token } = renderTokens[i]
-      const url = `${frontendUrl}/render/${monthId}?token=${encodeURIComponent(token)}${renderConfigQuery(printConfig)}`
-      await capturePage(url, path.join(jobDir, `${String(month).padStart(2, '0')}.png`), i + 2)
+      // 2. Calendar months
+      for (let i = 0; i < renderTokens.length; i++) {
+        const { monthId, month, token } = renderTokens[i]
+        const url = `${frontendUrl}/render/${monthId}?token=${encodeURIComponent(token)}${renderConfigQuery(printConfig)}`
+        await capturePage(url, path.join(jobDir, `${String(month).padStart(2, '0')}.png`), i + 2)
+      }
+
+      // 3. Back cover
+      const backCoverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=back${renderConfigQuery(printConfig)}`
+      await capturePage(backCoverUrl, path.join(jobDir, '99-backcover.png'), totalPages)
     }
-
-    // 3. Back cover
-    const backCoverUrl = `${frontendUrl}/render-cover/${options.projectId}?token=${encodeURIComponent(options.coverToken)}&type=back${renderConfigQuery(printConfig)}`
-    await capturePage(backCoverUrl, path.join(jobDir, '99-backcover.png'), totalPages)
-
     let finalPath: string
     let fileSize: number
 
@@ -133,6 +140,11 @@ export async function renderProject(
           /* ignore */
         }
       }
+    } else if (options.monthId) {
+      finalPath = path.join(jobDir, `${options.filename}.png`)
+      fs.copyFileSync(pngPaths[0], finalPath)
+      fileSize = fs.statSync(finalPath).size
+      fs.unlinkSync(pngPaths[0])
     } else {
       // PNG format: create a ZIP of all PNGs
       finalPath = path.join(jobDir, `${options.filename}.zip`)
@@ -174,6 +186,7 @@ export async function startExportJob(jobId: string): Promise<void> {
           months: { orderBy: { month: 'asc' } },
         },
       },
+      month: true,
     },
   })
 
@@ -203,6 +216,7 @@ export async function startExportJob(jobId: string): Promise<void> {
       ...DEFAULT_PRINT_CONFIG,
       ...(job.printConfigJson as Partial<PrintConfig> | null | undefined),
     },
+    monthId: job.monthId ?? undefined,
   })
 }
 

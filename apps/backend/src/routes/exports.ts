@@ -11,6 +11,7 @@ const rateLimit = rateLimitConfig.strict
 
 const createExportSchema = z.object({
   projectId: z.string(),
+  monthId: z.string().optional(),
   format: z.enum(['PDF', 'PNG']),
   dpi: z.number().min(72).max(600).default(300),
   bindingGuide: z.boolean().default(false),
@@ -40,7 +41,8 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
         })
       }
 
-      const { projectId, format, dpi, bindingGuide, filename, printConfigJson } = parsed.data
+      const { projectId, monthId, format, dpi, bindingGuide, filename, printConfigJson } =
+        parsed.data
 
       // Verify project ownership
       const project = await prisma.project.findFirst({
@@ -52,11 +54,21 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(404).send({ error: 'NOT_FOUND', message: 'Project not found' })
       }
 
-      const exportFilename = filename || `${project.name}-${project.year}`
+      const selectedMonth = monthId ? project.months.find((month) => month.id === monthId) : null
+      if (monthId && !selectedMonth) {
+        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Month not found' })
+      }
+
+      const exportFilename =
+        filename ||
+        (selectedMonth
+          ? `${project.name}-${project.year}-${String(selectedMonth.month).padStart(2, '0')}`
+          : `${project.name}-${project.year}`)
 
       const job = await prisma.exportJob.create({
         data: {
           projectId,
+          monthId: monthId ?? null,
           userId: request.user!.id,
           format,
           dpi,
@@ -65,7 +77,7 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
             project.printConfigJson ??
             DEFAULT_PRINT_CONFIG) as Prisma.InputJsonValue,
           filename: exportFilename,
-          totalPages: project.months.length + 2, // +2 for covers
+          totalPages: selectedMonth ? 1 : project.months.length + 2,
         },
       })
 
@@ -119,8 +131,9 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(400).send({ error: 'NOT_READY', message: 'Export not ready' })
       }
 
-      const extension = job.format === 'PDF' ? 'pdf' : 'zip'
-      const contentType = job.format === 'PDF' ? 'application/pdf' : 'application/zip'
+      const extension = job.format === 'PDF' ? 'pdf' : job.monthId ? 'png' : 'zip'
+      const contentType =
+        job.format === 'PDF' ? 'application/pdf' : job.monthId ? 'image/png' : 'application/zip'
       const downloadName = `${job.filename || 'calendar'}.${extension}`
 
       const fileStream = fs.createReadStream(job.filePath)

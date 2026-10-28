@@ -102,10 +102,13 @@ Desde la vista del proyecto:
 
 1. Pulsa **Vista previa de impresión** para revisar el resultado.
 2. Pulsa **Exportar**.
-3. Selecciona PDF o PNG y configura el nombre del archivo y la guía de encuadernación si
+3. Selecciona **Calendario completo** o **Un solo mes**. Para un mes individual, elige el
+   mes que quieras exportar.
+4. Selecciona PDF o PNG y configura el nombre del archivo y la guía de encuadernación si
    corresponde.
-4. Espera a que termine el trabajo de exportación; el progreso se actualiza automáticamente.
-5. Descarga el archivo cuando el trabajo finalice.
+5. Espera a que termine el trabajo de exportación; el progreso se actualiza automáticamente.
+6. Descarga el archivo cuando el trabajo finalice. Un PNG de un mes individual se descarga
+   como imagen PNG; los PNG del calendario completo se mantienen agrupados en un ZIP.
 
 La exportación se procesa en segundo plano. Si el backend se reinicia, los trabajos
 interrumpidos se recuperan y se reintentan según su estado.
