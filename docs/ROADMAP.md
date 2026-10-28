@@ -394,7 +394,7 @@ considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteri
 ### Calendario y datos
 
 - [x] Números de semana ISO (columna lateral opcional)
-- Mini-calendario del mes anterior/siguiente en una esquina
+- [x] Mini-calendario del mes anterior/siguiente en una esquina
 - [x] Eventos anuales recurrentes
 - [ ] Eventos recurrentes mensuales o semanales
 - Importar eventos desde Google Calendar / archivo .ics

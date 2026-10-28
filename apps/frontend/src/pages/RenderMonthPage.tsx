@@ -3,6 +3,8 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { Canvas as FabricCanvas } from 'fabric'
 import CalendarGrid from '../components/CalendarGrid'
+import DraggableMiniCalendar from '../components/DraggableMiniCalendar'
+import MiniCalendar from '../components/MiniCalendar'
 import type { GridConfig, DayCell, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
 import { DEFAULT_GRID_CONFIG, PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
 
@@ -173,6 +175,27 @@ export default function RenderMonthPage() {
           onCellClick={() => {}}
         />
       </div>
+      <DraggableMiniCalendar
+        x={gridConfig.miniCalendarX}
+        y={gridConfig.miniCalendarY}
+        width={gridConfig.miniCalendarWidth}
+        height={gridConfig.miniCalendarHeight}
+        gridRect={{
+          x: gridConfig.gridX,
+          y: gridConfig.gridY,
+          width: gridConfig.gridWidth,
+          height: gridConfig.gridHeight,
+        }}
+        active={false}
+        onLayoutChange={() => {}}
+      >
+        <MiniCalendar
+          year={data.month.year}
+          month={data.month.month}
+          weekStartsOn={data.month.project.weekStartsOn}
+          config={gridConfig}
+        />
+      </DraggableMiniCalendar>
     </div>
   )
 }

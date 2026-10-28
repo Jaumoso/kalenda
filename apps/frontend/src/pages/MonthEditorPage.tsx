@@ -16,6 +16,10 @@ import AssetPickerModal from '../components/AssetPickerModal'
 import StickerPickerModal from '../components/StickerPickerModal'
 import BackgroundModal from '../components/BackgroundModal'
 import DraggableGridOverlay from '../components/DraggableGridOverlay'
+import DraggableMiniCalendar, {
+  constrainRectOutsideGrid,
+} from '../components/DraggableMiniCalendar'
+import MiniCalendar from '../components/MiniCalendar'
 import SaveAsTemplateModal from '../components/SaveAsTemplateModal'
 
 const AUTOSAVE_INTERVAL = 30_000 // 30 seconds
@@ -178,7 +182,27 @@ export default function MonthEditorPage() {
   }, [monthId])
 
   const handleGridConfigChange = (newConfig: GridConfig) => {
-    setGridConfig(newConfig)
+    const miniRect = constrainRectOutsideGrid(
+      {
+        x: newConfig.miniCalendarX,
+        y: newConfig.miniCalendarY,
+        width: newConfig.miniCalendarWidth,
+        height: newConfig.miniCalendarHeight,
+      },
+      {
+        x: newConfig.gridX,
+        y: newConfig.gridY,
+        width: newConfig.gridWidth,
+        height: newConfig.gridHeight,
+      }
+    )
+    setGridConfig({
+      ...newConfig,
+      miniCalendarX: miniRect.x,
+      miniCalendarY: miniRect.y,
+      miniCalendarWidth: miniRect.width,
+      miniCalendarHeight: miniRect.height,
+    })
     setDirty(true)
   }
 
@@ -190,6 +214,37 @@ export default function MonthEditorPage() {
         gridY: rect.y,
         gridWidth: rect.width,
         gridHeight: rect.height,
+        ...(() => {
+          const miniRect = constrainRectOutsideGrid(
+            {
+              x: prev.miniCalendarX,
+              y: prev.miniCalendarY,
+              width: prev.miniCalendarWidth,
+              height: prev.miniCalendarHeight,
+            },
+            rect
+          )
+          return {
+            miniCalendarX: miniRect.x,
+            miniCalendarY: miniRect.y,
+            miniCalendarWidth: miniRect.width,
+            miniCalendarHeight: miniRect.height,
+          }
+        })(),
+      }))
+      setDirty(true)
+    },
+    []
+  )
+
+  const handleMiniCalendarLayoutChange = useCallback(
+    (rect: { x: number; y: number; width: number; height: number }) => {
+      setGridConfig((prev) => ({
+        ...prev,
+        miniCalendarX: rect.x,
+        miniCalendarY: rect.y,
+        miniCalendarWidth: rect.width,
+        miniCalendarHeight: rect.height,
       }))
       setDirty(true)
     },
@@ -473,6 +528,27 @@ export default function MonthEditorPage() {
                   onCellClick={handleCellClick}
                 />
               </DraggableGridOverlay>
+              <DraggableMiniCalendar
+                x={gridConfig.miniCalendarX}
+                y={gridConfig.miniCalendarY}
+                width={gridConfig.miniCalendarWidth}
+                height={gridConfig.miniCalendarHeight}
+                gridRect={{
+                  x: gridConfig.gridX,
+                  y: gridConfig.gridY,
+                  width: gridConfig.gridWidth,
+                  height: gridConfig.gridHeight,
+                }}
+                active={editorMode === 'grid' && gridConfig.miniCalendarShow}
+                onLayoutChange={handleMiniCalendarLayoutChange}
+              >
+                <MiniCalendar
+                  year={monthData.year}
+                  month={monthData.month}
+                  weekStartsOn={monthData.project.weekStartsOn}
+                  config={gridConfig}
+                />
+              </DraggableMiniCalendar>
             </div>
           </div>
         </div>

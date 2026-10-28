@@ -515,6 +515,94 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
           {t('grid.showMoonPhase')}
         </label>
       </section>
+
+      {/* Adjacent months */}
+      <section>
+        <h4 className="text-xs font-medium text-neutral-600 mb-2">{t('grid.miniCalendar')}</h4>
+        <label className="flex items-center gap-2 text-xs text-neutral-700 mb-2">
+          <input
+            type="checkbox"
+            checked={config.miniCalendarShow}
+            onChange={(e) => update('miniCalendarShow', e.target.checked)}
+            className="accent-primary-600"
+          />
+          {t('grid.miniCalendarShow')}
+        </label>
+        {config.miniCalendarShow && (
+          <>
+            <p className="text-[10px] text-neutral-400 mb-2">{t('grid.miniCalendarDragHint')}</p>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <div>
+                <label className="text-[10px] text-neutral-500 block mb-0.5">
+                  {t('grid.miniCalendarX')}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={PAGE_WIDTH}
+                  value={config.miniCalendarX}
+                  onChange={(e) => update('miniCalendarX', Number(e.target.value))}
+                  className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-neutral-500 block mb-0.5">
+                  {t('grid.miniCalendarY')}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={PAGE_HEIGHT}
+                  value={config.miniCalendarY}
+                  onChange={(e) => update('miniCalendarY', Number(e.target.value))}
+                  className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] text-neutral-500 block mb-0.5">
+                  {t('grid.miniCalendarWidth')}
+                </label>
+                <input
+                  type="number"
+                  min={120}
+                  max={300}
+                  value={config.miniCalendarWidth}
+                  onChange={(e) => update('miniCalendarWidth', Number(e.target.value))}
+                  className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-neutral-500 block mb-0.5">
+                  {t('grid.miniCalendarHeight')}
+                </label>
+                <input
+                  type="number"
+                  min={50}
+                  max={160}
+                  value={config.miniCalendarHeight}
+                  onChange={(e) => update('miniCalendarHeight', Number(e.target.value))}
+                  className="w-full text-xs border border-neutral-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-primary-500"
+                />
+              </div>
+            </div>
+            <div className="mt-2">
+              <label className="text-xs text-neutral-500">
+                {t('grid.miniCalendarOpacity', { value: config.miniCalendarBgOpacity })}
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={config.miniCalendarBgOpacity}
+                onChange={(e) => update('miniCalendarBgOpacity', Number(e.target.value))}
+                className="w-full accent-primary-500"
+              />
+            </div>
+          </>
+        )}
+      </section>
     </div>
   )
 }

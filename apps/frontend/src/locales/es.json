@@ -379,7 +379,17 @@
     "monthTitleAlignLabel": "Alineación",
     "monthTitleBgColor": "Color de fondo",
     "monthTitleUppercase": "Mayúsculas",
-    "monthTitleBgOpacity": "Opacidad del fondo"
+    "monthTitleBgOpacity": "Opacidad del fondo",
+    "miniCalendar": "Meses adyacentes",
+    "miniCalendarShow": "Mostrar mes anterior y siguiente",
+    "miniCalendarDragHint": "Arrástralo o usa las asas para moverlo y redimensionarlo. No puede cubrir el grid.",
+    "miniCalendarX": "X (px)",
+    "miniCalendarY": "Y (px)",
+    "miniCalendarWidth": "Ancho (px)",
+    "miniCalendarHeight": "Alto (px)",
+    "miniCalendarOpacity": "Opacidad: {{value}}%",
+    "miniCalendarLabel": "Calendarios de los meses anterior y siguiente",
+    "miniCalendarMonth": "Calendario de {{month}}"
   },
   "objectProps": {
     "noSelection": "Selecciona un elemento para ver sus propiedades",

@@ -110,7 +110,7 @@ export default function CalendarGrid({
   return (
     <div
       data-testid="calendar-grid"
-      className="overflow-hidden flex flex-col h-full"
+      className="relative overflow-hidden flex flex-col h-full"
       style={{
         borderRadius: `${config.borderRadius}px`,
         border: outerBorder,
