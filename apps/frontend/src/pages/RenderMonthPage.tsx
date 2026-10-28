@@ -26,6 +26,7 @@ interface MonthRenderData {
       name: string
       year: number
       autonomyCode: string | null
+      holidayCountryCode: string
     }
     dayCells: DayCell[]
   }

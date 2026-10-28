@@ -25,6 +25,7 @@ export const projectSchema = z.object({
   year: z.number().int().min(2020).max(2050),
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED']),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
+  holidayCountryCode: z.string().length(2).default('ES'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
   createdAt: z.date(),
@@ -35,6 +36,7 @@ export const createProjectSchema = z.object({
   name: z.string().min(1),
   year: z.number().int().min(2020).max(2050),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
+  holidayCountryCode: z.string().length(2).default('ES'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
 })

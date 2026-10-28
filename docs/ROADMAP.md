@@ -399,7 +399,7 @@ considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteri
 - [x] Eventos recurrentes mensuales o semanales
 - Importar eventos desde Google Calendar / archivo .ics
 - Cuenta atrás a un evento destacado ("Faltan X días para…")
-- Festivos internacionales
+- [x] Festivos internacionales
 
 ### Exportación e impresión
 

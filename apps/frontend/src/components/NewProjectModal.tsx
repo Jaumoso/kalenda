@@ -36,26 +36,30 @@ interface Props {
 }
 
 export default function NewProjectModal({ onClose, onCreate }: Props) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const currentYear = new Date().getFullYear()
   const [name, setName] = useState('')
   const [year, setYear] = useState(currentYear + 1)
   const [weekStartsOn, setWeekStartsOn] = useState<'monday' | 'sunday'>('monday')
   const [autonomyCode, setAutonomyCode] = useState('')
+  const [holidayCountryCode, setHolidayCountryCode] = useState('ES')
+  const [holidayCountries, setHolidayCountries] = useState<
+    Array<{ code: string; nameEs: string; nameEn: string }>
+  >([])
   const [templateId, setTemplateId] = useState('')
   const [templates, setTemplates] = useState<TemplateOption[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api
-      .get('/templates')
-      .then(({ data }) => {
-        setTemplates(data.templates)
-        const def = data.templates.find((t: TemplateOption) => t.isDefault)
+    Promise.all([api.get('/templates'), api.get('/holiday-countries')])
+      .then(([templatesResponse, countriesResponse]) => {
+        setTemplates(templatesResponse.data.templates)
+        const def = templatesResponse.data.templates.find((t: TemplateOption) => t.isDefault)
         if (def) setTemplateId(def.id)
+        setHolidayCountries(countriesResponse.data.countries)
       })
-      .catch(() => setError(t('newProject.errorLoadingTemplates')))
+      .catch(() => setError(t('newProject.errorLoadingOptions')))
   }, [t])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +74,8 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         name: name.trim(),
         year,
         weekStartsOn,
-        autonomyCode: autonomyCode || undefined,
+        holidayCountryCode,
+        autonomyCode: holidayCountryCode === 'ES' ? autonomyCode || undefined : undefined,
         templateId: templateId || undefined,
       })
       onCreate()
@@ -87,6 +92,29 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">{t('newProject.title')}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              {t('newProject.holidayCountry')}
+            </label>
+            <select
+              value={holidayCountryCode}
+              onChange={(e) => {
+                setHolidayCountryCode(e.target.value)
+                if (e.target.value !== 'ES') setAutonomyCode('')
+              }}
+              className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            >
+              {holidayCountries.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {i18n.language.startsWith('en') ? country.nameEn : country.nameEs}
+                </option>
+              ))}
+            </select>
+            <p className="text-[10px] text-neutral-400 mt-0.5">
+              {t('newProject.holidayCountryHint')}
+            </p>
+          </div>
+
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
               {t('newProject.nameLabel')}
@@ -148,23 +176,25 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
-              {t('newProject.autonomy')}
-            </label>
-            <select
-              value={autonomyCode}
-              onChange={(e) => setAutonomyCode(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-            >
-              <option value="">{t('newProject.nationalOnly')}</option>
-              {AUTONOMY_CODES.map((a) => (
-                <option key={a.code} value={a.code}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {holidayCountryCode === 'ES' && (
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                {t('newProject.autonomy')}
+              </label>
+              <select
+                value={autonomyCode}
+                onChange={(e) => setAutonomyCode(e.target.value)}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              >
+                <option value="">{t('newProject.nationalOnly')}</option>
+                {AUTONOMY_CODES.map((a) => (
+                  <option key={a.code} value={a.code}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {templates.length > 0 && (
             <div>

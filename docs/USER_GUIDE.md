@@ -20,7 +20,7 @@ activado.
 
 1. Entra en **Mis calendarios**.
 2. Pulsa **Nuevo calendario**.
-3. Indica el nombre, el año y la configuración regional del proyecto.
+3. Indica el nombre, el año, el país de los festivos y la configuración regional del proyecto.
 4. El proyecto se crea con sus doce meses y queda disponible en el dashboard.
 5. Usa el selector de estado para marcarlo como borrador, en progreso o completado.
 
@@ -64,8 +64,12 @@ personalización.
 ## 6. Festivos y eventos
 
 En **Eventos** se pueden crear cumpleaños, aniversarios y eventos personalizados. Cada evento
-puede tener día, mes, año, color y recurrencia anual. Los festivos nacionales y autonómicos
-se incorporan automáticamente al grid según la configuración regional del proyecto.
+puede tener día, mes, año, color y recurrencia anual. Los festivos nacionales, autonómicos e
+internacionales se incorporan automáticamente al grid según el país y la configuración regional
+del proyecto. Kalenda incluye España, Estados Unidos, Reino Unido, Francia, Alemania e Italia;
+los festivos internacionales se calculan para los años 2020–2050 y no se duplican como eventos
+personales. Si el país o el año no tienen datos compatibles, el editor lo indica y conserva el
+resto del calendario.
 
 También se pueden consultar y editar los eventos desde la celda del día correspondiente.
 

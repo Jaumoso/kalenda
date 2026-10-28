@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { prisma } from '../prisma.js'
 import { getSaintsForMonth } from '../data/saints.js'
 import { generateMonthThumbnail } from '../lib/thumbnails.js'
+import { getHolidaysForMonth } from '../lib/holidayService.js'
 
 const gridConfigSchema = z.object({
   bgColor: z.string().optional(),
@@ -105,7 +106,14 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
       where: { id },
       include: {
         project: {
-          select: { userId: true, weekStartsOn: true, name: true, year: true, autonomyCode: true },
+          select: {
+            userId: true,
+            weekStartsOn: true,
+            name: true,
+            year: true,
+            autonomyCode: true,
+            holidayCountryCode: true,
+          },
         },
         dayCells: { orderBy: { dayNumber: 'asc' } },
       },
@@ -115,23 +123,12 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(404).send({ error: 'NOT_FOUND', message: 'Month not found' })
     }
 
-    // Fetch holidays for this month (national + autonomy if project has one)
-    const holidayWhere: Record<string, unknown> = {
-      year: month.year,
-      month: month.month,
-    }
-    if (month.project.autonomyCode) {
-      holidayWhere.OR = [
-        { scope: 'NATIONAL' },
-        { scope: 'AUTONOMY', autonomyCode: month.project.autonomyCode },
-      ]
-    } else {
-      holidayWhere.scope = 'NATIONAL'
-    }
-    const holidays = await prisma.holiday.findMany({
-      where: holidayWhere,
-      orderBy: { day: 'asc' },
-    })
+    const holidayResult = await getHolidaysForMonth(
+      month.year,
+      month.month,
+      month.project.holidayCountryCode,
+      month.project.autonomyCode
+    )
 
     // Fetch user events for this month
     const storedEvents = await prisma.event.findMany({
@@ -146,7 +143,13 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
     // Get saints for this month
     const saints = getSaintsForMonth(month.month)
 
-    reply.send({ month, holidays, events, saints })
+    reply.send({
+      month,
+      holidays: holidayResult.holidays,
+      holidaySupportError: holidayResult.supportError,
+      events,
+      saints,
+    })
   })
 
   // PUT /months/:id — Update month (grid config, canvas JSON, etc.)

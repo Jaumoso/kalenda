@@ -110,6 +110,7 @@ export interface MonthData {
     name: string
     year: number
     autonomyCode: string | null
+    holidayCountryCode: string
   }
   dayCells: DayCell[]
 }
@@ -121,6 +122,7 @@ export interface Holiday {
   day: number
   nameEs: string
   nameEn: string
+  countryCode: string
   scope: 'NATIONAL' | 'AUTONOMY'
   autonomyCode: string | null
 }

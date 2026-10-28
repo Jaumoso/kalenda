@@ -17,6 +17,7 @@ export interface Project {
   year: number
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: 'monday' | 'sunday'
+  holidayCountryCode: string
   autonomyCode?: string
   templateId?: string
   createdAt: Date
@@ -94,6 +95,7 @@ export interface Holiday {
   day: number
   nameEs: string
   nameEn: string
+  countryCode: string
   scope: 'NATIONAL' | 'AUTONOMY'
   autonomyCode?: string
 }
