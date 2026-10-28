@@ -160,11 +160,13 @@ model Event {
   weekday     Int?
   startDate   DateTime? @db.Date
   endDate     DateTime? @db.Date
+  sourceUid   String?
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
 
   @@map("events")
+  @@unique([userId, sourceUid])
 }
 
 model Holiday {

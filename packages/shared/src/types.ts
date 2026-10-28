@@ -84,6 +84,7 @@ export interface Event {
   weekday?: number | null
   startDate?: Date | string | null
   endDate?: Date | string | null
+  sourceUid?: string | null
   createdAt: Date
 }
 
