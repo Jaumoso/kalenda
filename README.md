@@ -49,6 +49,7 @@ POSTGRES_USER=kalenda
 POSTGRES_PASSWORD=$(openssl rand -hex 32)
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=$(openssl rand -base64 24)
+ALLOW_USER_REGISTRATION=false
 COOKIE_SECRET=$(openssl rand -base64 32)
 JWT_SECRET=$(openssl rand -base64 32)
 EOF
@@ -57,7 +58,13 @@ chmod 600 .env
 ```
 
 Change `ADMIN_EMAIL` if required and keep the generated `ADMIN_PASSWORD`: it is the initial
-administrator password. The `.env` file contains secrets and must not be committed or shared.
+administrator password. The production container creates this administrator during its first
+startup; the bootstrap variables remain required even when the user already exists. Set
+`ALLOW_USER_REGISTRATION=true` only when you want users to create their own standard accounts
+from the login page. It defaults to `false`; administrators can always create users from the
+administration panel. The public registration form's username is the user's display name;
+authentication still uses the registered email address. Public registration never grants the
+`ADMIN` role. The `.env` file contains secrets and must not be committed or shared.
 
 ### 3. Start Kalenda
 
@@ -190,6 +197,9 @@ The development seed creates:
 These credentials are for local development only. Never use them in a Compose or production
 installation.
 
+Development Compose enables `ALLOW_USER_REGISTRATION` so the registration flow can be tested
+locally. Production Compose disables it unless explicitly enabled in `.env`.
+
 ### Useful development commands
 
 ```bash
@@ -249,8 +259,8 @@ kalenda/
 - `dev` contains the next development changes.
 - Stable releases use Semantic Versioning (`MAJOR.MINOR.PATCH`) and tags in the form
   `vX.Y.Z`. They must be created from `main`.
-- Development releases use an explicit prerelease suffix, such as `v0.1.9-dev.1`, and must
-  be created from `dev`.
+- Development prereleases use an explicit prerelease suffix, such as `v0.1.9-rc.1`, and must
+  reference a commit contained in `dev`.
 - Every push to `dev` publishes development images with the mutable `dev` tag and an immutable
   `dev-<short-sha>` tag. These images are intended for server validation and never update
   `latest`.
@@ -271,10 +281,10 @@ git push origin v0.1.10
 For a development prerelease, use a clean `dev` branch and an explicit prerelease label:
 
 ```bash
-./scripts/bump.sh patch --prerelease dev.1
+./scripts/bump.sh patch --prerelease rc.1
 git push
-git push origin v0.1.9-dev.1
-./scripts/create-release.sh v0.1.9-dev.1 --prerelease
+git push origin v0.1.9-rc.1
+./scripts/create-release.sh v0.1.9-rc.1 --prerelease
 ```
 
 The bump script updates all workspace package versions, creates the signed release commit

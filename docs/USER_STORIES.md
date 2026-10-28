@@ -44,3 +44,11 @@
 
 - As A, I can manage user accounts and roles
 - As U, I can manage profile and credentials
+- As A, I can choose whether standard users can register publicly
+
+## Current delivery status
+
+Epics 1–8 are implemented for the current MVP. The first administrator is still bootstrapped
+from the required production environment variables; public standard-user registration is an
+optional deployment setting. The v2 ideas in the roadmap are intentionally not part of the
+current delivery scope.

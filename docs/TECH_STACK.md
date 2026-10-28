@@ -3,7 +3,7 @@
 ## Frontend
 
 - React 19
-- Vite 5
+- Vite 6
 - Tailwind CSS 4
 - TypeScript 6
 - Zustand
@@ -33,7 +33,7 @@
 - ESLint + Prettier
 - Husky + lint-staged
 - Vitest (unit)
-- Playwright (planned e2e expansion)
+- Playwright (end-to-end tests for critical flows)
 
 ## Key decisions
 

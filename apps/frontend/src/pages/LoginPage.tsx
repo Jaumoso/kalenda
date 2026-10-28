@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuthStore } from '../stores/authStore'
+import api from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import KalendaLogo from '../components/KalendaLogo'
 
@@ -13,8 +15,25 @@ interface LoginForm {
 export default function LoginPage() {
   const { t } = useTranslation()
   const { login, isLoading } = useAuthStore()
+  const location = useLocation()
   const [error, setError] = useState<string>('')
   const [showPassword, setShowPassword] = useState(false)
+  const [registrationEnabled, setRegistrationEnabled] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    api
+      .get<{ enabled: boolean }>('/auth/registration-status')
+      .then(({ data }) => {
+        if (active) setRegistrationEnabled(data.enabled)
+      })
+      .catch(() => {
+        if (active) setRegistrationEnabled(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
 
   const {
     register,
@@ -40,6 +59,11 @@ export default function LoginPage() {
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">Kalenda</h2>
           <p className="mt-2 text-center text-sm text-neutral-600">{t('auth.signInToAccount')}</p>
+          {location.state?.registered && (
+            <p className="mt-3 text-center text-sm text-green-700">
+              {t('auth.registrationSuccess')}
+            </p>
+          )}
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -65,6 +89,18 @@ export default function LoginPage() {
                 placeholder={t('auth.email')}
               />
             </div>
+
+            {registrationEnabled && (
+              <p className="text-center text-sm text-neutral-600">
+                {t('auth.noAccount')}{' '}
+                <Link
+                  to="/register"
+                  className="font-medium text-primary-600 hover:text-primary-700"
+                >
+                  {t('auth.createAccount')}
+                </Link>
+              </p>
+            )}
             <div className="relative">
               <label htmlFor="password" className="sr-only">
                 {t('auth.password')}

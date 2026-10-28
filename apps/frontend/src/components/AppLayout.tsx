@@ -86,7 +86,12 @@ export default function AppLayout() {
                   </option>
                 ))}
               </select>
-              <span className="text-sm text-neutral-500">{user?.name}</span>
+              <Link
+                to="/profile"
+                className="text-sm text-neutral-500 hover:text-primary-700 transition-colors"
+              >
+                {user?.name}
+              </Link>
               <button
                 onClick={logout}
                 className="text-sm text-neutral-500 hover:text-red-600 transition-colors"

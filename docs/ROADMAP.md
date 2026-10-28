@@ -367,7 +367,10 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 
 ---
 
-## Ideas para v2 (post-MVP)
+## Ideas para v2 (post-MVP, aplazadas)
+
+Estas ideas se conservan como backlog futuro. No deben incorporarse al trabajo actual ni
+considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteriores.
 
 ### Capacidades v2 ya integradas
 
@@ -403,7 +406,6 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 - Más tamaños de papel (A3, Letter, A5 — calendario de escritorio)
 - Marcas de corte y sangrado (bleed) para impresión profesional
 - Exportar meses individuales (no solo el calendario completo)
-- Portada y contraportada personalizadas
 - Exportar como imágenes sueltas (para WhatsApp, redes sociales)
 - Calendario de pared vs. calendario de sobremesa (layouts diferentes)
 - Revisar calendario físico y disposición de páginas. Por delante / detrás, una sola cara, cover y contraportada
