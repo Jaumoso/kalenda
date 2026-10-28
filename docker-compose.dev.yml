@@ -32,7 +32,7 @@ services:
       - ./apps/backend/prisma:/app/apps/backend/prisma
       - ./packages/shared/src:/app/packages/shared/src
       - ./data:/data
-    command: sh -c "pnpm exec prisma migrate deploy && pnpm dev"
+    command: sh -c "cd /app && pnpm --filter @kalenda/shared build && cd /app/apps/backend && pnpm exec prisma migrate deploy && pnpm dev"
     ports:
       - "3000:3000"
     depends_on:
