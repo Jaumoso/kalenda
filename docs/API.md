@@ -5,6 +5,7 @@ Authentication: JWT via httpOnly cookies
 Format: JSON
 
 ## Authentication
+
 - POST /auth/login
 - GET /auth/registration-status
 - POST /auth/register
@@ -18,6 +19,7 @@ display name; users sign in with the registered `email`. Administrator accounts 
 through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
 
 ## Users
+
 - GET /users (admin)
 - POST /users (admin)
 - PATCH /users/:id
@@ -28,21 +30,24 @@ through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
   password. Password changes require the current password.
 
 ## Projects
+
 - GET /projects
 - POST /projects
 - GET /projects/:id
-- PATCH /projects/:id
+- PATCH /projects/:id (incluye `highlightedEventId`, que debe pertenecer al usuario; `null` desactiva la cuenta atrás)
 - POST /projects/:id/duplicate
 - DELETE /projects/:id
 - GET /projects/:id/covers
 - PUT /projects/:id/covers
 
 ## Months
+
 - GET /projects/:id/months/:month
 - PUT /projects/:id/months/:month
 - POST /projects/:id/months/:month/apply-to-all
 
 ## Assets and Folders
+
 - GET /assets
 - POST /assets/upload
 - DELETE /assets/:id
@@ -67,6 +72,7 @@ outside this endpoint's scope and are reported as import errors.
 - GET/POST/DELETE /templates
 
 ## Export
+
 - POST /exports
 - GET /exports/:id
 - GET /exports/:id/download
@@ -74,6 +80,7 @@ outside this endpoint's scope and are reported as import errors.
 - DELETE /exports/:id
 
 ## Rendering and previews
+
 - GET /preview-tokens/:projectId
 - GET /render-data/:monthId
 - GET /render-data/cover/:projectId
@@ -82,6 +89,7 @@ The render-data endpoints use a short-lived token issued by
 `/preview-tokens/:projectId` and are intended for the Puppeteer renderer.
 
 ## Health
+
 - GET /health
 
 With the `/api` base URL, the full endpoint is `/api/health`. It returns the service

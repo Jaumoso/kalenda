@@ -110,6 +110,7 @@ export interface MonthData {
     name: string
     year: number
     autonomyCode: string | null
+    highlightedEvent: CalEvent | null
   }
   dayCells: DayCell[]
 }

@@ -160,6 +160,10 @@
     "customized": "Personalizado",
     "noDesignYet": "Sin diseño aún",
     "errorUpdatingStatus": "Error al actualizar el estado",
+    "errorUpdatingHighlightedEvent": "Error al actualizar el evento destacado",
+    "highlightedEvent": "Evento destacado para la cuenta atrás",
+    "highlightedEventHint": "Se mostrará en todos los meses y en la exportación del calendario.",
+    "noHighlightedEvent": "No mostrar cuenta atrás",
     "errorRefreshing": "Error al actualizar el proyecto",
     "statusDraft": "Borrador",
     "statusInProgress": "En curso",
@@ -177,6 +181,13 @@
     "errorSaving": "Error al guardar",
     "errorSavingCell": "Error al guardar la celda",
     "backToProjectLink": "Volver al proyecto"
+  },
+  "countdown": {
+    "label": "Cuenta atrás",
+    "days": "Faltan {{count}} días para {{name}}",
+    "today": "Hoy es {{name}}",
+    "missing": "Selecciona un evento destacado para mostrar la cuenta atrás.",
+    "expired": "El evento destacado {{name}} ya no está vigente."
   },
   "cover": {
     "frontCover": "Portada",

@@ -5,6 +5,7 @@ import { Canvas as FabricCanvas } from 'fabric'
 import CalendarGrid from '../components/CalendarGrid'
 import DraggableMiniCalendar from '../components/DraggableMiniCalendar'
 import MiniCalendar from '../components/MiniCalendar'
+import EventCountdown from '../components/EventCountdown'
 import type { GridConfig, DayCell, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
 import { DEFAULT_GRID_CONFIG, PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
 
@@ -26,6 +27,7 @@ interface MonthRenderData {
       name: string
       year: number
       autonomyCode: string | null
+      highlightedEvent: CalEvent | null
     }
     dayCells: DayCell[]
   }
@@ -150,6 +152,12 @@ export default function RenderMonthPage() {
     >
       {/* Fabric.js canvas — full page background + art objects */}
       <canvas ref={canvasElRef} style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
+
+      <EventCountdown
+        event={data.month.project.highlightedEvent}
+        projectYear={data.month.year}
+        className="absolute left-16 top-6 z-[3] w-[calc(100%-8rem)]"
+      />
 
       {/* Calendar Grid overlay */}
       <div
