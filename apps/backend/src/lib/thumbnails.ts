@@ -4,6 +4,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 import { getSecret } from '@/config.js'
+import { PAPER_DIMENSIONS, type PaperSize } from '@kalenda/shared'
+import { prisma } from '@/prisma.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const THUMBS_DIR = path.join(
@@ -14,12 +16,8 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 const PUPPETEER_URL = process.env.PUPPETEER_URL || 'http://localhost:4000'
 const JWT_SECRET = getSecret('JWT_SECRET', 'dev-jwt-secret')
 
-// A4 at 96 DPI (matches frontend)
-const PAGE_WIDTH = 794
-const PAGE_HEIGHT = 1123
 // Thumbnail dimensions (scaled down)
 const THUMB_WIDTH = 240
-const THUMB_HEIGHT = Math.round(THUMB_WIDTH * (PAGE_HEIGHT / PAGE_WIDTH))
 
 // cuid format: starts with 'c', followed by alphanumeric chars (typically 25 total)
 const CUID_RE = /^c[a-z0-9]{20,30}$/
@@ -39,15 +37,16 @@ function ensureThumbsDir() {
 /**
  * Capture a screenshot via the external Puppeteer service.
  */
-async function captureScreenshot(pageUrl: string): Promise<Buffer> {
+async function captureScreenshot(pageUrl: string, paperSize: PaperSize): Promise<Buffer> {
+  const paper = PAPER_DIMENSIONS[paperSize]
   console.log(`[thumbnails] Capturing screenshot: ${pageUrl} via ${PUPPETEER_URL}/capture`)
   const res = await fetch(`${PUPPETEER_URL}/capture`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       url: pageUrl,
-      width: PAGE_WIDTH,
-      height: PAGE_HEIGHT,
+      width: paper.widthPx,
+      height: paper.heightPx,
       deviceScaleFactor: 1,
     }),
   })
@@ -72,11 +71,20 @@ export async function generateMonthThumbnail(monthId: string, _userId: string): 
 
   const token = jwt.sign({ monthId, purpose: 'render' }, JWT_SECRET, { expiresIn: '2m' })
   const url = `${FRONTEND_URL}/render/${monthId}?token=${encodeURIComponent(token)}`
+  const month = await prisma.calendarMonth.findUnique({
+    where: { id: monthId },
+    select: { project: { select: { paperSize: true } } },
+  })
+  const paperSize = (month?.project.paperSize ?? 'A4') as PaperSize
 
-  const screenshot = await captureScreenshot(url)
+  const screenshot = await captureScreenshot(url, paperSize)
 
   const outPath = path.join(THUMBS_DIR, `${monthId}.jpg`)
-  await sharp(screenshot).resize(THUMB_WIDTH, THUMB_HEIGHT).jpeg({ quality: 80 }).toFile(outPath)
+  const paper = PAPER_DIMENSIONS[paperSize]
+  await sharp(screenshot)
+    .resize(THUMB_WIDTH, Math.round(THUMB_WIDTH * (paper.heightPx / paper.widthPx)))
+    .jpeg({ quality: 80 })
+    .toFile(outPath)
   console.log(`[thumbnails] Month thumbnail saved: ${outPath}`)
 }
 
@@ -92,10 +100,19 @@ export async function generateCoverThumbnail(
 
   const token = jwt.sign({ projectId, purpose: 'render-cover' }, JWT_SECRET, { expiresIn: '2m' })
   const url = `${FRONTEND_URL}/render-cover/${projectId}?token=${encodeURIComponent(token)}&type=${side}`
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { paperSize: true },
+  })
+  const paperSize = (project?.paperSize ?? 'A4') as PaperSize
 
-  const screenshot = await captureScreenshot(url)
+  const screenshot = await captureScreenshot(url, paperSize)
 
   const outPath = path.join(THUMBS_DIR, `cover-${projectId}-${side}.jpg`)
-  await sharp(screenshot).resize(THUMB_WIDTH, THUMB_HEIGHT).jpeg({ quality: 80 }).toFile(outPath)
+  const paper = PAPER_DIMENSIONS[paperSize]
+  await sharp(screenshot)
+    .resize(THUMB_WIDTH, Math.round(THUMB_WIDTH * (paper.heightPx / paper.widthPx)))
+    .jpeg({ quality: 80 })
+    .toFile(outPath)
   console.log(`[thumbnails] Cover thumbnail saved: ${outPath}`)
 }

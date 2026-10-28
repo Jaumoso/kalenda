@@ -15,7 +15,11 @@ export type {
   AuthUser,
   LoginRequest,
   HighlightedEvent,
+  PaperSize,
+  PaperDimensions,
 } from './types'
+
+export { PAPER_DIMENSIONS } from './types'
 
 // Export schemas
 export {

@@ -109,6 +109,7 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
           select: {
             userId: true,
             weekStartsOn: true,
+            paperSize: true,
             name: true,
             year: true,
             autonomyCode: true,

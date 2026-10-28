@@ -26,6 +26,7 @@ export const projectSchema = z.object({
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED']),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   holidayCountryCode: z.string().length(2).default('ES'),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
   highlightedEventId: z.string().nullable().optional(),
@@ -38,6 +39,7 @@ export const createProjectSchema = z.object({
   year: z.number().int().min(2020).max(2050),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   holidayCountryCode: z.string().length(2).default('ES'),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
 })

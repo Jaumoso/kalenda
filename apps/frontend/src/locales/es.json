@@ -63,6 +63,12 @@
     "es": "Español",
     "en": "English"
   },
+  "paperSizes": {
+    "A4": "A4 (210 × 297 mm)",
+    "A3": "A3 (297 × 420 mm)",
+    "A5": "A5 (148 × 210 mm)",
+    "LETTER": "Carta (8,5 × 11 in)"
+  },
   "common": {
     "cancel": "Cancelar",
     "save": "Guardar",
@@ -320,6 +326,7 @@
     "nameLabel": "Nombre",
     "namePlaceholder": "Ej.: Calendario familiar 2027",
     "yearLabel": "Año",
+    "paperSize": "Tamaño de papel",
     "weekStartsOn": "La semana empieza en",
     "monday": "Lunes",
     "sunday": "Domingo",

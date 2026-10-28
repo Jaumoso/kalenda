@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "paperSize" TEXT NOT NULL DEFAULT 'A4';
