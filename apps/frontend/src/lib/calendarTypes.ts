@@ -26,6 +26,7 @@ export interface GridConfig {
   headerFontColor: string
   headerBgColor: string
   headerFormat: 'short' | 'medium' | 'long'
+  showWeekNumbers: boolean
   monthTitleShow: boolean
   monthTitleFontFamily: string
   monthTitleFontSize: number
@@ -158,6 +159,7 @@ export const DEFAULT_GRID_CONFIG: GridConfig = {
   headerFontColor: '#6B6560',
   headerBgColor: '#F8F7F4',
   headerFormat: 'short',
+  showWeekNumbers: false,
   monthTitleShow: true,
   monthTitleFontFamily: 'Inter Variable',
   monthTitleFontSize: 24,
@@ -195,6 +197,17 @@ export function isWeekend(dayNumber: number, year: number, month: number): boole
   const d = new Date(year, month - 1, dayNumber)
   const dow = d.getDay()
   return dow === 0 || dow === 6
+}
+
+/** Return the ISO 8601 week number for a calendar date. */
+export function getIsoWeekNumber(year: number, month: number, day: number): number {
+  const date = new Date(Date.UTC(year, month - 1, day))
+  const dayOfWeek = date.getUTCDay() || 7
+
+  date.setUTCDate(date.getUTCDate() + 4 - dayOfWeek)
+
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1))
+  return Math.ceil(((date.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7)
 }
 
 export type WeekdayFormat = 'short' | 'medium' | 'long'

@@ -2,27 +2,29 @@
 
 ## Kalenda
 
-**Versión:** 1.1
+**Versión:** 1.2
 **Fecha:** 28 de octubre de 2026
 
 ---
 
 ## Estado actual
 
-Las fases 0 a 5, 6a, 6b, 7, 8, 9 y la mayor parte de la 10 están funcionalmente construidas. La aplicación está desplegada con Docker Compose detrás de Pangolin. El flujo de releases distingue entre imágenes estables de `main` e imágenes de validación de `dev`.
+Las fases 0 a 9 y la funcionalidad principal de la fase 10 están construidas. La aplicación
+se despliega con Docker Compose detrás de Pangolin, con imágenes estables de `main`,
+imágenes de validación de `dev` y releases reproducibles mediante etiquetas SemVer.
 
-Las mejoras recientes de subida desde el editor, restauración del fondo y estado de portada/contraportada ya están implementadas en el código y validadas localmente; queda integrarlas en la rama compartida mediante sus PRs correspondientes.
+El trabajo pendiente real, en orden, es:
 
-El trabajo pendiente funcional y operativo, en orden, es:
+1. Completar y revisar la guía de usuario básica.
+2. Hacer la revisión completa con el usuario principal en el servidor real.
+3. Probar restauración de backups válidos en un entorno controlado.
+4. Validar actualización y rollback entre `dev`, releases versionadas y `latest`.
 
-1. Completar la guía de usuario básica.
-2. Implementar perfil, cambio de credenciales y registro público configurable.
-3. Hacer la revisión completa con el usuario principal en el servidor real.
-4. Probar la restauración de backups en un entorno controlado.
-5. Validar actualización y rollback entre `dev` y releases estables.
-6. Integrar las PRs funcionales recientes y actualizar el estado de producción.
-
-Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hasta terminar estos puntos.
+El perfil, el cambio de credenciales, el registro público opcional, la subida desde el
+selector del editor, la restauración del fondo y los indicadores de portada y contraportada
+ya están implementados. Además, varias ideas que originalmente se planificaron para v2 ya
+forman parte del editor actual; solo se mantienen como pendientes las extensiones que aún
+no están completas.
 
 ---
 
@@ -314,13 +316,13 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 - [x] Tests unitarios iniciales para configuración, schemas compartidos y helpers del calendario
 - [x] Smoke test del stack de desarrollo con Docker Compose
 - [x] Tests de los flujos principales (Playwright)
-- [ ] Documentación de uso básico (guía de usuario en PDF)
+- [x] Documentación de uso básico (guía en `docs/USER_GUIDE.md`; PDF pendiente solo si se necesita distribución offline)
 - [x] Configurar backup automático del volumen de datos y de los archivos persistentes
 - [x] Configurar HTTPS mediante el reverse proxy de Pangolin
-- [ ] Revisión completa con el usuario principal (prueba real)
+- [ ] Revisión completa con el usuario principal (prueba real en el servidor desplegado)
 - [x] Publicar imágenes de validación de `dev` (`dev` y `dev-<short-sha>`)
 - [x] Mantener imágenes estables separadas (`vX.Y.Z` y `latest`) y validadas desde `main`
-- [ ] Probar restauración de backups en un entorno controlado
+- [x] Probar restauración de un backup generado por el servicio en un PostgreSQL aislado
 - [ ] Validar el procedimiento completo de actualización y rollback entre `dev` y releases estables
 - [x] Ejecutar migraciones de Prisma automáticamente durante el despliegue
 - [x] Recuperar y reintentar exportaciones interrumpidas al reiniciar el backend
@@ -344,7 +346,7 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 | 7    | Celdas avanzadas              | Funcional                                                                             |
 | 8    | Plantillas                    | Funcional                                                                             |
 | 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                                                  |
-| 10   | Pulido y producción           | En curso; guía, validación con usuario, restauración de backups y rollback pendientes |
+| 10   | Pulido y producción           | En curso; revisión con usuario y validación de actualización/rollback pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 
@@ -370,22 +372,31 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 Estas ideas se conservan como backlog futuro. No deben incorporarse al trabajo actual ni
 considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteriores.
 
+### Capacidades v2 ya integradas
+
+- [x] Copiar y pegar objetos del canvas
+- [x] Bloquear y desbloquear objetos desde el panel de capas
+- [x] Filtros de imagen (opacidad, brillo, contraste, escala de grises y sepia)
+- [x] Fondos degradados
+- [x] Controles avanzados de texto y tipografía
+
 ### Editor visual
 
-- Máscaras de recorte para imágenes (círculo, corazón, estrella, hexágono)
-- Marcos/bordes decorativos para fotos (polaroid, rasgado, sombra)
-- Formas básicas (rectángulos, círculos, líneas, flechas)
-- Collage automático: layouts predefinidos para la zona de fotos (1 foto, 2 lado a lado, mosaico…)
-- Sombra y resplandor en objetos (drop shadow, glow)
-- Multi-selección y agrupar/desagrupar objetos
-- Texto con contorno (stroke) y degradado
-- Guías de alineación (snap)
+- [x] Máscaras de recorte para imágenes (círculo, corazón, estrella, hexágono)
+- [x] Bordes configurables y sombra básica en objetos
+- [x] Formas básicas (rectángulos, círculos, líneas, flechas)
+- [ ] Collage automático: layouts predefinidos para la zona de fotos (baja prioridad)
+- [ ] Sombra y resplandor avanzado en objetos (drop shadow, glow)
+- [ ] Multi-selección y agrupar/desagrupar objetos
+- [ ] Texto con contorno (stroke) y degradado
+- [ ] Guías de alineación (snap)
 
 ### Calendario y datos
 
-- Números de semana (columna lateral opcional)
+- [x] Números de semana ISO (columna lateral opcional)
 - Mini-calendario del mes anterior/siguiente en una esquina
-- Eventos recurrentes (cada año, cada mes, cada semana)
+- [x] Eventos anuales recurrentes
+- [ ] Eventos recurrentes mensuales o semanales
 - Importar eventos desde Google Calendar / archivo .ics
 - Cuenta atrás a un evento destacado ("Faltan X días para…")
 - Festivos internacionales

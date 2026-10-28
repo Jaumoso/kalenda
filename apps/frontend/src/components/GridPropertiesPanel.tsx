@@ -496,6 +496,15 @@ export default function GridPropertiesPanel({ config, onChange }: Props) {
           />
           {t('grid.showNameDay')}
         </label>
+        <label className="flex items-center gap-2 text-xs text-neutral-700 mt-2">
+          <input
+            type="checkbox"
+            checked={config.showWeekNumbers}
+            onChange={(e) => update('showWeekNumbers', e.target.checked)}
+            className="accent-primary-600"
+          />
+          {t('grid.showWeekNumbers')}
+        </label>
         <label className="flex items-center gap-2 text-xs text-neutral-700">
           <input
             type="checkbox"

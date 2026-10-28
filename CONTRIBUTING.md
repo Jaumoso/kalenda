@@ -65,8 +65,14 @@ advisory process instead.
 ## Releases
 
 Releases are prepared from `dev`, promoted to `main`, and tagged using
-Semantic Versioning (`vMAJOR.MINOR.PATCH`). Every push to `dev` publishes
-validation images tagged `dev` and `dev-<short-sha>`. Published releases create
-immutable versioned images; stable releases from `main` also update `latest`.
-Prereleases must reference a commit contained in `dev`, while stable releases
-must reference a commit contained in `main`.
+Semantic Versioning (`vMAJOR.MINOR.PATCH`). Every push to `dev` publishes validation
+images tagged `dev` and `dev-<short-sha>`. Published releases create immutable
+versioned images; stable releases from `main` also update `latest`. Prereleases
+must reference a commit contained in `dev`, while stable releases must reference
+a commit contained in `main`.
+
+After a tag is pushed, the `Create GitHub Release` workflow runs
+`scripts/create-release.sh`, which validates the branch, extracts highlights from
+`CHANGELOG.md`, lists the associated pull requests and commits, and publishes a
+release titled `Kalenda vX.Y.Z`. Do not use ad-hoc `gh release create` commands or
+add pending roadmap work to release notes.

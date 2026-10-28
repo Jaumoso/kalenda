@@ -10,11 +10,13 @@ import {
   DEFAULT_GRID_CONFIG,
   getDaysInMonth,
   getFirstDayOfWeek,
+  getIsoWeekNumber,
   isWeekend,
   getWeekdayHeaders,
   getMonthNames,
 } from '../lib/calendarTypes'
 import { getMoonEmoji, isNotableMoonPhase } from '../lib/moonPhase'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   year: number
@@ -55,6 +57,7 @@ export default function CalendarGrid({
   saints,
   onCellClick,
 }: Props) {
+  const { t } = useTranslation()
   const config = { ...DEFAULT_GRID_CONFIG, ...gridConfig }
   const daysInMonth = getDaysInMonth(year, month)
   const firstDay = getFirstDayOfWeek(year, month, weekStartsOn)
@@ -82,6 +85,9 @@ export default function CalendarGrid({
 
   const totalCells = firstDay + daysInMonth
   const rows = Math.ceil(totalCells / 7)
+  const calendarColumns = config.showWeekNumbers
+    ? '2.5rem repeat(7, minmax(0, 1fr))'
+    : 'repeat(7, minmax(0, 1fr))'
 
   const outerBorder =
     config.borderStyle === 'none'
@@ -135,9 +141,27 @@ export default function CalendarGrid({
 
       {/* Weekday headers */}
       <div
-        className="grid grid-cols-7 shrink-0"
-        style={{ backgroundColor: tableBg, borderBottom: innerBorder }}
+        className="grid shrink-0"
+        style={{
+          gridTemplateColumns: calendarColumns,
+          backgroundColor: tableBg,
+          borderBottom: innerBorder,
+        }}
       >
+        {config.showWeekNumbers && (
+          <div
+            className="text-center py-2 select-none"
+            style={{
+              fontFamily: config.headerFontFamily,
+              fontSize: `${config.headerFontSize}px`,
+              color: config.headerFontColor,
+              backgroundColor: config.headerBgColor,
+              borderRight: innerBorder,
+            }}
+          >
+            {t('grid.weekNumberShort')}
+          </div>
+        )}
         {weekdays.map((day, i) => (
           <div
             key={i}
@@ -160,9 +184,30 @@ export default function CalendarGrid({
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
-            className="grid grid-cols-7 flex-1"
-            style={{ borderBottom: row < rows - 1 ? innerBorder : undefined }}
+            className="grid flex-1"
+            style={{
+              gridTemplateColumns: calendarColumns,
+              borderBottom: row < rows - 1 ? innerBorder : undefined,
+            }}
           >
+            {config.showWeekNumbers && (
+              <div
+                className="flex items-center justify-center select-none"
+                style={{
+                  fontFamily: config.headerFontFamily,
+                  fontSize: `${Math.max(8, config.headerFontSize - 1)}px`,
+                  color: config.headerFontColor,
+                  backgroundColor: config.headerBgColor,
+                  borderRight: innerBorder,
+                }}
+              >
+                {getIsoWeekNumber(
+                  year,
+                  month,
+                  Math.min(daysInMonth, Math.max(1, row * 7 - firstDay + 1))
+                )}
+              </div>
+            )}
             {Array.from({ length: 7 }, (_, col) => {
               const cellIndex = row * 7 + col
               const dayNumber = cellIndex - firstDay + 1

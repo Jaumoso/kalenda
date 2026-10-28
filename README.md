@@ -30,11 +30,11 @@ want to run:
 ```bash
 mkdir kalenda
 cd kalenda
-curl -fsSL https://raw.githubusercontent.com/Jaumoso/kalenda/v0.1.8/docker-compose.yml \
+curl -fsSL https://raw.githubusercontent.com/Jaumoso/kalenda/v0.1.10/docker-compose.yml \
   -o docker-compose.yml
 ```
 
-To follow a different release, replace `v0.1.8` in the URL and in `APP_TAG` below.
+To follow a different release, replace `v0.1.10` in the URL and in `APP_TAG` below.
 
 ### 2. Create the environment file
 
@@ -43,7 +43,7 @@ administrator and signing secrets. Create a `.env` file next to `docker-compose.
 
 ```bash
 cat > .env <<EOF
-APP_TAG=v0.1.8
+APP_TAG=v0.1.10
 POSTGRES_DB=kalenda
 POSTGRES_USER=kalenda
 POSTGRES_PASSWORD=$(openssl rand -hex 32)
@@ -152,6 +152,11 @@ The Compose stack is suitable for a private or internal installation. For intern
 use, put it behind a reverse proxy with HTTPS, restrict access to the Docker host, and
 copy `./backups` to independent storage, and do not expose the PostgreSQL, Puppeteer or
 backup service publicly.
+
+## User guide and operations
+
+- [Basic user guide](docs/USER_GUIDE.md)
+- [Operations runbook](docs/OPERATIONS.md)
 
 ## Development
 
@@ -270,7 +275,7 @@ To prepare a stable release from a clean `main` branch:
 ./scripts/bump.sh patch
 git push
 git push origin v0.1.10
-gh release create v0.1.10
+./scripts/create-release.sh v0.1.10
 ```
 
 For a development prerelease, use a clean `dev` branch and an explicit prerelease label:
@@ -279,11 +284,16 @@ For a development prerelease, use a clean `dev` branch and an explicit prereleas
 ./scripts/bump.sh patch --prerelease rc.1
 git push
 git push origin v0.1.9-rc.1
-gh release create v0.1.9-rc.1 --prerelease
+./scripts/create-release.sh v0.1.9-rc.1 --prerelease
 ```
 
-The script updates all workspace package versions, creates the signed release commit and
-tag, and rejects release attempts from feature branches or unmarked releases from `dev`.
+The bump script updates all workspace package versions, creates the signed release commit
+and tag, and rejects release attempts from feature branches or unmarked releases from
+`dev`. The release script validates that the tag belongs to the correct branch, extracts
+the highlights from `CHANGELOG.md`, lists the associated pull requests and commits, and
+always uses the title `Kalenda vX.Y.Z`. A tag push also runs
+`.github/workflows/create-release.yml`, so releases are created consistently without
+manually composing release notes.
 
 To test the latest code merged into `dev` without creating a release, set this in the server's
 `.env` file and pull the images:

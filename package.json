@@ -16,7 +16,8 @@
     "e2e:ui": "playwright test --ui",
     "clean": "pnpm -r clean",
     "install:all": "pnpm install",
-    "bump": "./scripts/bump.sh"
+    "bump": "./scripts/bump.sh",
+    "release": "./scripts/create-release.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
