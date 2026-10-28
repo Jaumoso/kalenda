@@ -72,7 +72,7 @@ export default function CellModal({
   const [newEventIcon, setNewEventIcon] = useState('')
   const [showEventEmojiPicker, setShowEventEmojiPicker] = useState(false)
   const [newEventEndYear, setNewEventEndYear] = useState('')
-  const [newEventEndMonth, setNewEventEndMonth] = useState('')
+  const [newEventEndMonth, setNewEventEndMonth] = useState<number | ''>('')
   const [newEventEndDate, setNewEventEndDate] = useState('')
   const [newEventWeekday, setNewEventWeekday] = useState(
     new Date(year, month - 1, dayNumber).getDay()
@@ -141,9 +141,13 @@ export default function CellModal({
           : newEventRecurrence === 'MONTHLY'
             ? {
                 startDate,
-                endDate: newEventEndMonth
-                  ? `${newEventEndMonth}-${getLastDayOfMonth(newEventEndMonth)}`
-                  : null,
+                endDate:
+                  newEventEndMonth && newEventEndYear
+                    ? `${newEventEndYear}-${String(newEventEndMonth).padStart(2, '0')}-${getLastDayOfMonth(
+                        Number(newEventEndYear),
+                        newEventEndMonth
+                      )}`
+                    : null,
               }
             : { startDate, endDate: newEventEndDate || null }
     try {
@@ -374,13 +378,31 @@ export default function CellModal({
                     />
                   )}
                   {newEventRecurrence === 'MONTHLY' && (
-                    <input
-                      type="month"
-                      min={`${year}-${String(month).padStart(2, '0')}`}
-                      value={newEventEndMonth}
-                      onChange={(e) => setNewEventEndMonth(e.target.value)}
-                      className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
-                    />
+                    <div className="flex gap-1">
+                      <select
+                        value={newEventEndMonth}
+                        onChange={(e) =>
+                          setNewEventEndMonth(e.target.value ? Number(e.target.value) : '')
+                        }
+                        className="min-w-0 flex-1 px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                      >
+                        <option value="">{t('common.month')}</option>
+                        {getMonthNames().map((monthName, index) => (
+                          <option key={monthName} value={index + 1}>
+                            {monthName}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="number"
+                        min={year}
+                        max={2050}
+                        value={newEventEndYear}
+                        onChange={(e) => setNewEventEndYear(e.target.value)}
+                        placeholder={t('common.year')}
+                        className="w-20 px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                      />
+                    </div>
                   )}
                   {newEventRecurrence === 'WEEKLY' && (
                     <input
@@ -680,7 +702,6 @@ export default function CellModal({
   )
 }
 
-function getLastDayOfMonth(value: string): number {
-  const [year, month] = value.split('-').map(Number)
+function getLastDayOfMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }

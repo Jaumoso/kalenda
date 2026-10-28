@@ -213,8 +213,12 @@ function EventForm({
   const eventEndDate = event?.endDate?.slice(0, 10) || ''
   const [startYear, setStartYear] = useState(eventStartDate.slice(0, 4))
   const [endYear, setEndYear] = useState(eventEndDate.slice(0, 4))
-  const [startMonth, setStartMonth] = useState(eventStartDate.slice(0, 7))
-  const [endMonth, setEndMonth] = useState(eventEndDate.slice(0, 7))
+  const [startMonth, setStartMonth] = useState<number | ''>(
+    eventStartDate ? Number(eventStartDate.slice(5, 7)) : ''
+  )
+  const [endMonth, setEndMonth] = useState<number | ''>(
+    eventEndDate ? Number(eventEndDate.slice(5, 7)) : ''
+  )
   const [startDate, setStartDate] = useState(eventStartDate)
   const [endDate, setEndDate] = useState(eventEndDate)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
@@ -239,8 +243,17 @@ function EventForm({
             }
           : recurrence === 'MONTHLY'
             ? {
-                startDate: startMonth ? `${startMonth}-01` : null,
-                endDate: endMonth ? `${endMonth}-${getLastDayOfMonth(endMonth)}` : null,
+                startDate:
+                  startMonth && startYear
+                    ? `${startYear}-${String(startMonth).padStart(2, '0')}-01`
+                    : null,
+                endDate:
+                  endMonth && endYear
+                    ? `${endYear}-${String(endMonth).padStart(2, '0')}-${getLastDayOfMonth(
+                        Number(endYear),
+                        endMonth
+                      )}`
+                    : null,
               }
             : {
                 startDate: startDate || null,
@@ -440,12 +453,31 @@ function EventForm({
                   />
                 )}
                 {recurrence === 'MONTHLY' && (
-                  <input
-                    type="month"
-                    value={startMonth}
-                    onChange={(e) => setStartMonth(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-                  />
+                  <div className="flex gap-2">
+                    <select
+                      value={startMonth}
+                      onChange={(e) => setStartMonth(e.target.value ? Number(e.target.value) : '')}
+                      className="min-w-0 flex-1 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.month')}
+                    >
+                      <option value="">{t('common.month')}</option>
+                      {monthNames.map((monthName, index) => (
+                        <option key={monthName} value={index + 1}>
+                          {monthName}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      min={2020}
+                      max={2050}
+                      value={startYear}
+                      onChange={(e) => setStartYear(e.target.value)}
+                      placeholder={t('common.year')}
+                      className="w-24 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.year')}
+                    />
+                  </div>
                 )}
                 {recurrence === 'WEEKLY' && (
                   <input
@@ -472,13 +504,31 @@ function EventForm({
                   />
                 )}
                 {recurrence === 'MONTHLY' && (
-                  <input
-                    type="month"
-                    value={endMonth}
-                    min={startMonth || undefined}
-                    onChange={(e) => setEndMonth(e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-                  />
+                  <div className="flex gap-2">
+                    <select
+                      value={endMonth}
+                      onChange={(e) => setEndMonth(e.target.value ? Number(e.target.value) : '')}
+                      className="min-w-0 flex-1 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.month')}
+                    >
+                      <option value="">{t('common.month')}</option>
+                      {monthNames.map((monthName, index) => (
+                        <option key={monthName} value={index + 1}>
+                          {monthName}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      min={startYear || 2020}
+                      max={2050}
+                      value={endYear}
+                      onChange={(e) => setEndYear(e.target.value)}
+                      placeholder={t('common.year')}
+                      className="w-24 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.year')}
+                    />
+                  </div>
                 )}
                 {recurrence === 'WEEKLY' && (
                   <input
@@ -614,7 +664,6 @@ function formatValidity(
   return ` · ${t('events.validity')}: ${start} - ${end}`
 }
 
-function getLastDayOfMonth(value: string): number {
-  const [year, month] = value.split('-').map(Number)
+function getLastDayOfMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }
