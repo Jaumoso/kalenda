@@ -32,7 +32,10 @@ export default function PrintSettingsPanel({ config, onChange }: Props) {
               max={10}
               step={0.5}
               value={config.bleedMm}
-              onChange={(e) => update({ bleedMm: Number(e.target.value) })}
+              onChange={(e) => {
+                const value = Number(e.target.value)
+                update({ bleedMm: Number.isFinite(value) ? Math.min(10, Math.max(0, value)) : 0 })
+              }}
               className="mt-1 w-full text-sm border border-neutral-300 rounded-md px-2 py-1.5"
             />
           </label>
