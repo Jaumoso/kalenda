@@ -62,7 +62,9 @@ administrator password. The production container creates this administrator duri
 startup; the bootstrap variables remain required even when the user already exists. Set
 `ALLOW_USER_REGISTRATION=true` only when you want users to create their own standard accounts
 from the login page. It defaults to `false`; administrators can always create users from the
-administration panel. The `.env` file contains secrets and must not be committed or shared.
+administration panel. The public registration form's username is the user's display name;
+authentication still uses the registered email address. Public registration never grants the
+`ADMIN` role. The `.env` file contains secrets and must not be committed or shared.
 
 ### 3. Start Kalenda
 

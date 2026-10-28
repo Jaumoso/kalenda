@@ -12,6 +12,11 @@ Format: JSON
 - POST /auth/refresh
 - GET /auth/me
 
+`POST /auth/register` creates a standard `USER` only when `ALLOW_USER_REGISTRATION=true`
+and an administrator has already been bootstrapped. The registration `name` is the user's
+display name; users sign in with the registered `email`. Administrator accounts are created
+through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
+
 ## Users
 - GET /users (admin)
 - POST /users (admin)

@@ -13,6 +13,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Display front-cover and back-cover customization status in "My Calendars".
 - Add a user profile page with name, language and password management.
 - Add optional public standard-user registration controlled by `ALLOW_USER_REGISTRATION`.
+- Label account names as usernames while keeping email-based authentication explicit.
 
 ### Fixed
 
