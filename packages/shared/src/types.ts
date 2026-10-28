@@ -23,6 +23,8 @@ export interface Project {
   autonomyCode?: string
   templateId?: string
   highlightedEventId?: string | null
+  countdownEventIds?: string[]
+  countdownEvents?: HighlightedEvent[]
   createdAt: Date
   updatedAt: Date
 }
@@ -37,12 +39,39 @@ export interface PrintConfig {
   cropMarkOffsetMm: number
 }
 
+export interface PrintGeometry {
+  bleedPx: number
+  cropMarginPx: number
+  contentOffsetPx: number
+  outputWidthPx: number
+  outputHeightPx: number
+}
+
 export const DEFAULT_PRINT_CONFIG: PrintConfig = {
   bleedEnabled: false,
   bleedMm: 3,
   cropMarks: false,
   cropMarkLengthMm: 10,
   cropMarkOffsetMm: 2,
+}
+
+export function getPrintGeometry(
+  config: Partial<PrintConfig> | null | undefined,
+  paper: Pick<PaperDimensions, 'widthPx' | 'heightPx'>
+): PrintGeometry {
+  const resolved = { ...DEFAULT_PRINT_CONFIG, ...(config ?? {}) }
+  const bleedPx = resolved.bleedEnabled ? Math.round((resolved.bleedMm / 25.4) * 96) : 0
+  const cropLengthPx = (resolved.cropMarkLengthMm / 25.4) * 96
+  const cropOffsetPx = (resolved.cropMarkOffsetMm / 25.4) * 96
+  const cropMarginPx = resolved.cropMarks ? Math.ceil(cropLengthPx + cropOffsetPx) : 0
+  const contentOffsetPx = cropMarginPx + bleedPx
+  return {
+    bleedPx,
+    cropMarginPx,
+    contentOffsetPx,
+    outputWidthPx: paper.widthPx + 2 * contentOffsetPx,
+    outputHeightPx: paper.heightPx + 2 * contentOffsetPx,
+  }
 }
 
 export interface PaperDimensions {
@@ -196,7 +225,7 @@ export interface ExportJob {
   projectId: string
   userId: string
   format: 'PDF' | 'PNG'
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
   progress: number
   totalPages: number
   currentPage: number

@@ -9,7 +9,7 @@ import EventCountdown from '../components/EventCountdown'
 import type { GridConfig, DayCell, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
 import {
   DEFAULT_PRINT_CONFIG,
-  getBleedPixels,
+  getPrintGeometry,
   getGridConfigForPaper,
   getPaperDimensions,
   type PaperSize,
@@ -36,6 +36,8 @@ interface MonthRenderData {
       autonomyCode: string | null
       paperSize: PaperSize
       highlightedEvent: CalEvent | null
+      countdownEventIds: string[]
+      countdownEvents: CalEvent[]
     }
     dayCells: DayCell[]
   }
@@ -72,9 +74,18 @@ export default function RenderMonthPage() {
   const canvasElRef = useRef<HTMLCanvasElement>(null)
   const fabricRef = useRef<FabricCanvas | null>(null)
   const paperDimensions = getPaperDimensions(data?.month.project.paperSize)
-  const bleedPx = getBleedPixels(printConfig)
-  const outputWidth = paperDimensions.widthPx + bleedPx * 2
-  const outputHeight = paperDimensions.heightPx + bleedPx * 2
+  const geometry = getPrintGeometry(printConfig, paperDimensions)
+
+  useEffect(() => {
+    const previousMargin = document.body.style.margin
+    const previousPadding = document.body.style.padding
+    document.body.style.margin = '0'
+    document.body.style.padding = '0'
+    return () => {
+      document.body.style.margin = previousMargin
+      document.body.style.padding = previousPadding
+    }
+  }, [])
 
   // Fetch render data
   useEffect(() => {
@@ -94,8 +105,8 @@ export default function RenderMonthPage() {
     if (!data || !canvasElRef.current) return
 
     const canvas = new FabricCanvas(canvasElRef.current, {
-      width: outputWidth,
-      height: outputHeight,
+      width: geometry.outputWidthPx,
+      height: geometry.outputHeightPx,
       selection: false,
       interactive: false,
       renderOnAddRemove: true,
@@ -130,8 +141,8 @@ export default function RenderMonthPage() {
     return (
       <div
         style={{
-          width: outputWidth,
-          height: outputHeight,
+          width: geometry.outputWidthPx,
+          height: geometry.outputHeightPx,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -147,8 +158,8 @@ export default function RenderMonthPage() {
     return (
       <div
         style={{
-          width: outputWidth,
-          height: outputHeight,
+          width: geometry.outputWidthPx,
+          height: geometry.outputHeightPx,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -164,8 +175,8 @@ export default function RenderMonthPage() {
   return (
     <div
       style={{
-        width: paperDimensions.widthPx,
-        height: paperDimensions.heightPx,
+        width: geometry.outputWidthPx,
+        height: geometry.outputHeightPx,
         position: 'relative',
         overflow: 'hidden',
         margin: 0,
@@ -176,21 +187,27 @@ export default function RenderMonthPage() {
       {/* Fabric.js canvas — full page background + art objects */}
       <canvas
         ref={canvasElRef}
-        style={{ position: 'absolute', top: bleedPx, left: bleedPx, zIndex: 1 }}
+        style={{
+          position: 'absolute',
+          top: geometry.contentOffsetPx,
+          left: geometry.contentOffsetPx,
+          zIndex: 1,
+        }}
       />
 
       <EventCountdown
-        event={data.month.project.highlightedEvent}
+        events={data.month.project.countdownEvents}
         projectYear={data.month.year}
-        className="absolute left-16 top-6 z-[3] w-[calc(100%-8rem)]"
+        className="absolute z-[3] w-[calc(100%-8rem)]"
+        style={{ left: geometry.contentOffsetPx + 64, top: geometry.contentOffsetPx + 24 }}
       />
 
       {/* Calendar Grid overlay */}
       <div
         style={{
           position: 'absolute',
-          left: gridConfig.gridX + bleedPx,
-          top: gridConfig.gridY + bleedPx,
+          left: gridConfig.gridX + geometry.contentOffsetPx,
+          top: gridConfig.gridY + geometry.contentOffsetPx,
           width: gridConfig.gridWidth,
           height: gridConfig.gridHeight,
           opacity: gridConfig.gridOverlayOpacity / 100,
@@ -232,7 +249,7 @@ export default function RenderMonthPage() {
       </DraggableMiniCalendar>
       {printConfig.cropMarks && (
         <CropMarks
-          bleedPx={bleedPx}
+          contentOffsetPx={geometry.contentOffsetPx}
           width={paperDimensions.widthPx}
           height={paperDimensions.heightPx}
           length={(printConfig.cropMarkLengthMm / 25.4) * 96}
@@ -244,13 +261,13 @@ export default function RenderMonthPage() {
 }
 
 function CropMarks({
-  bleedPx,
+  contentOffsetPx,
   width,
   height,
   length,
   offset,
 }: {
-  bleedPx: number
+  contentOffsetPx: number
   width: number
   height: number
   length: number
@@ -263,8 +280,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx - offset - length,
-          top: bleedPx,
+          left: contentOffsetPx - offset - length,
+          top: contentOffsetPx,
           width: length,
           height: 1,
         }}
@@ -272,8 +289,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx,
-          top: bleedPx - offset - length,
+          left: contentOffsetPx,
+          top: contentOffsetPx - offset - length,
           width: 1,
           height: length,
         }}
@@ -281,8 +298,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width + offset,
-          top: bleedPx,
+          left: contentOffsetPx + width + offset,
+          top: contentOffsetPx,
           width: length,
           height: 1,
         }}
@@ -290,8 +307,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width,
-          top: bleedPx - offset - length,
+          left: contentOffsetPx + width,
+          top: contentOffsetPx - offset - length,
           width: 1,
           height: length,
         }}
@@ -299,8 +316,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx - offset - length,
-          top: bleedPx + height,
+          left: contentOffsetPx - offset - length,
+          top: contentOffsetPx + height,
           width: length,
           height: 1,
         }}
@@ -308,8 +325,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx,
-          top: bleedPx + height + offset,
+          left: contentOffsetPx,
+          top: contentOffsetPx + height + offset,
           width: 1,
           height: length,
         }}
@@ -317,8 +334,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width + offset,
-          top: bleedPx + height,
+          left: contentOffsetPx + width + offset,
+          top: contentOffsetPx + height,
           width: length,
           height: 1,
         }}
@@ -326,8 +343,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width,
-          top: bleedPx + height + offset,
+          left: contentOffsetPx + width,
+          top: contentOffsetPx + height + offset,
           width: 1,
           height: length,
         }}

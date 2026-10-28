@@ -8,7 +8,6 @@ import ExportModal from '../components/ExportModal'
 import PrintPreviewModal from '../components/PrintPreviewModal'
 import PrintSettingsPanel from '../components/PrintSettingsPanel'
 import { DEFAULT_PRINT_CONFIG, type PrintConfig } from '../lib/calendarTypes'
-import type { CalEvent } from '../lib/calendarTypes'
 
 interface CalendarMonth {
   id: string
@@ -28,8 +27,6 @@ interface Project {
   templateId: string | null
   coverJson: Record<string, unknown> | null
   backCoverJson: Record<string, unknown> | null
-  highlightedEventId: string | null
-  highlightedEvent: CalEvent | null
   months: CalendarMonth[]
 }
 
@@ -51,18 +48,13 @@ export default function ProjectPage() {
   const [showPrintPreview, setShowPrintPreview] = useState(false)
   const [thumbVersion, setThumbVersion] = useState(Date.now())
   const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG)
-  const [events, setEvents] = useState<CalEvent[]>([])
 
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const [{ data: projectData }, { data: eventsData }] = await Promise.all([
-          api.get(`/projects/${id}`),
-          api.get('/events'),
-        ])
+        const { data: projectData } = await api.get(`/projects/${id}`)
         setProject(projectData.project)
         setPrintConfig({ ...DEFAULT_PRINT_CONFIG, ...(projectData.project.printConfigJson ?? {}) })
-        setEvents(eventsData.events)
         setThumbVersion(Date.now())
       } catch {
         setError(t('project.notFound'))
@@ -91,18 +83,6 @@ export default function ProjectPage() {
       setProject(data.project)
     } catch {
       setError(t('project.errorUpdatingPrintSettings'))
-    }
-  }
-
-  const handleHighlightedEventChange = async (highlightedEventId: string) => {
-    if (!project) return
-    try {
-      const { data } = await api.patch(`/projects/${project.id}`, {
-        highlightedEventId: highlightedEventId || null,
-      })
-      setProject(data.project)
-    } catch {
-      setError(t('project.errorUpdatingHighlightedEvent'))
     }
   }
 
@@ -191,26 +171,6 @@ export default function ProjectPage() {
 
       <div className="mb-8 max-w-xl">
         <PrintSettingsPanel config={printConfig} onChange={handlePrintConfigChange} />
-      </div>
-
-      <div className="mb-8 rounded-lg border border-primary-100 bg-primary-50/50 p-4">
-        <label htmlFor="highlighted-event" className="block text-sm font-semibold text-primary-900">
-          {t('project.highlightedEvent')}
-        </label>
-        <p className="mt-1 text-xs text-primary-700">{t('project.highlightedEventHint')}</p>
-        <select
-          id="highlighted-event"
-          value={project.highlightedEventId || ''}
-          onChange={(e) => handleHighlightedEventChange(e.target.value)}
-          className="mt-3 w-full max-w-xl rounded-md border border-primary-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary-500"
-        >
-          <option value="">{t('project.noHighlightedEvent')}</option>
-          {events.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.name}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* 12-month grid + covers */}

@@ -196,7 +196,10 @@
     "days": "Faltan {{count}} días para {{name}}",
     "today": "Hoy es {{name}}",
     "missing": "Selecciona un evento destacado para mostrar la cuenta atrás.",
-    "expired": "El evento destacado {{name}} ya no está vigente."
+    "expired": "El evento configurado {{name}} ya no está vigente.",
+    "settingsTitle": "Eventos para la cuenta atrás",
+    "settingsHint": "Selecciona uno o más eventos. Solo aparecen en la vista previa y las exportaciones.",
+    "noEvents": "No hay eventos disponibles."
   },
   "cover": {
     "frontCover": "Portada",
@@ -324,7 +327,10 @@
     "starting": "Iniciando...",
     "exportFormat": "Exportar {{format}}",
     "errorStarting": "Error al iniciar la exportación",
-    "errorCheckingStatus": "No se puede actualizar el estado. Reintentando..."
+    "errorCheckingStatus": "No se puede actualizar el estado. Reintentando...",
+    "cancelExport": "Cancelar exportación",
+    "cancelled": "Exportación cancelada",
+    "errorCancelling": "Error al cancelar la exportación"
   },
   "newProject": {
     "title": "Nuevo calendario",

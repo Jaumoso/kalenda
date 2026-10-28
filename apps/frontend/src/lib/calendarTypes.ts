@@ -1,5 +1,6 @@
 import { t } from 'i18next'
 import type { PaperSize, PrintConfig } from '@kalenda/shared'
+import { getPrintGeometry as getSharedPrintGeometry } from '@kalenda/shared'
 
 export type { PaperSize }
 export type { PrintConfig }
@@ -115,6 +116,8 @@ export function getBleedPixels(config: Partial<PrintConfig> | null | undefined):
     (Math.min(Math.max(config.bleedMm ?? DEFAULT_PRINT_CONFIG.bleedMm, 0), 10) / 25.4) * 96
   )
 }
+
+export const getPrintGeometry = getSharedPrintGeometry
 export function scaleGridConfig(config: GridConfig, paperSize: PaperSize): GridConfig {
   const dimensions = getPaperDimensions(paperSize)
   const scaleX = dimensions.widthPx / PAGE_WIDTH
@@ -207,6 +210,8 @@ export interface MonthData {
     paperSize: PaperSize
     holidayCountryCode: string
     highlightedEvent: CalEvent | null
+    countdownEventIds: string[]
+    countdownEvents: CalEvent[]
   }
   dayCells: DayCell[]
 }

@@ -4,7 +4,7 @@ import axios from 'axios'
 import { Canvas as FabricCanvas } from 'fabric'
 import {
   DEFAULT_PRINT_CONFIG,
-  getBleedPixels,
+  getPrintGeometry,
   getPaperDimensions,
   type PaperSize,
   type PrintConfig,
@@ -43,9 +43,18 @@ export default function RenderCoverPage() {
   const [error, setError] = useState<string | null>(null)
   const canvasElRef = useRef<HTMLCanvasElement>(null)
   const paperDimensions = getPaperDimensions(paperSize)
-  const bleedPx = getBleedPixels(printConfig)
-  const outputWidth = paperDimensions.widthPx + bleedPx * 2
-  const outputHeight = paperDimensions.heightPx + bleedPx * 2
+  const geometry = getPrintGeometry(printConfig, paperDimensions)
+
+  useEffect(() => {
+    const previousMargin = document.body.style.margin
+    const previousPadding = document.body.style.padding
+    document.body.style.margin = '0'
+    document.body.style.padding = '0'
+    return () => {
+      document.body.style.margin = previousMargin
+      document.body.style.padding = previousPadding
+    }
+  }, [])
 
   useEffect(() => {
     if (!projectId || !token) return
@@ -67,8 +76,8 @@ export default function RenderCoverPage() {
     if (!loaded || !canvasElRef.current) return
 
     const canvas = new FabricCanvas(canvasElRef.current, {
-      width: outputWidth,
-      height: outputHeight,
+      width: geometry.outputWidthPx,
+      height: geometry.outputHeightPx,
       selection: false,
       interactive: false,
       renderOnAddRemove: true,
@@ -102,8 +111,8 @@ export default function RenderCoverPage() {
     return (
       <div
         style={{
-          width: outputWidth,
-          height: outputHeight,
+          width: geometry.outputWidthPx,
+          height: geometry.outputHeightPx,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -118,8 +127,8 @@ export default function RenderCoverPage() {
   return (
     <div
       style={{
-        width: paperDimensions.widthPx,
-        height: paperDimensions.heightPx,
+        width: geometry.outputWidthPx,
+        height: geometry.outputHeightPx,
         position: 'relative',
         overflow: 'hidden',
         margin: 0,
@@ -127,10 +136,17 @@ export default function RenderCoverPage() {
         backgroundColor: '#fff',
       }}
     >
-      <canvas ref={canvasElRef} style={{ position: 'absolute', top: bleedPx, left: bleedPx }} />
+      <canvas
+        ref={canvasElRef}
+        style={{
+          position: 'absolute',
+          top: geometry.contentOffsetPx,
+          left: geometry.contentOffsetPx,
+        }}
+      />
       {printConfig.cropMarks && (
         <CropMarks
-          bleedPx={bleedPx}
+          contentOffsetPx={geometry.contentOffsetPx}
           width={paperDimensions.widthPx}
           height={paperDimensions.heightPx}
           length={(printConfig.cropMarkLengthMm / 25.4) * 96}
@@ -142,13 +158,13 @@ export default function RenderCoverPage() {
 }
 
 function CropMarks({
-  bleedPx,
+  contentOffsetPx,
   width,
   height,
   length,
   offset,
 }: {
-  bleedPx: number
+  contentOffsetPx: number
   width: number
   height: number
   length: number
@@ -160,8 +176,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx - offset - length,
-          top: bleedPx,
+          left: contentOffsetPx - offset - length,
+          top: contentOffsetPx,
           width: length,
           height: 1,
         }}
@@ -169,8 +185,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx,
-          top: bleedPx - offset - length,
+          left: contentOffsetPx,
+          top: contentOffsetPx - offset - length,
           width: 1,
           height: length,
         }}
@@ -178,8 +194,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width + offset,
-          top: bleedPx,
+          left: contentOffsetPx + width + offset,
+          top: contentOffsetPx,
           width: length,
           height: 1,
         }}
@@ -187,8 +203,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width,
-          top: bleedPx - offset - length,
+          left: contentOffsetPx + width,
+          top: contentOffsetPx - offset - length,
           width: 1,
           height: length,
         }}
@@ -196,8 +212,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx - offset - length,
-          top: bleedPx + height,
+          left: contentOffsetPx - offset - length,
+          top: contentOffsetPx + height,
           width: length,
           height: 1,
         }}
@@ -205,8 +221,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx,
-          top: bleedPx + height + offset,
+          left: contentOffsetPx,
+          top: contentOffsetPx + height + offset,
           width: 1,
           height: length,
         }}
@@ -214,8 +230,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width + offset,
-          top: bleedPx + height,
+          left: contentOffsetPx + width + offset,
+          top: contentOffsetPx + height,
           width: length,
           height: 1,
         }}
@@ -223,8 +239,8 @@ function CropMarks({
       <div
         style={{
           ...common,
-          left: bleedPx + width,
-          top: bleedPx + height + offset,
+          left: contentOffsetPx + width,
+          top: contentOffsetPx + height + offset,
           width: 1,
           height: length,
         }}

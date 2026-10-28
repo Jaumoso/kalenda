@@ -11,6 +11,7 @@ const PORT = parseInt(process.env.PORT || '4000')
 const CHROMIUM_PATH = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser'
 
 let browser = null
+const activeCaptures = new Map()
 
 async function getBrowser() {
   if (!browser || !browser.connected) {
@@ -30,9 +31,11 @@ async function getBrowser() {
   return browser
 }
 
-async function capture(url, width, height, deviceScaleFactor) {
+async function capture(captureId, url, width, height, deviceScaleFactor) {
   const b = await getBrowser()
   const page = await b.newPage()
+  const captureState = { page, cancelled: false }
+  activeCaptures.set(captureId, captureState)
 
   // Log browser console messages for debugging
   page.on('console', (msg) => {
@@ -54,12 +57,14 @@ async function capture(url, width, height, deviceScaleFactor) {
   // Small delay for final paint
   await new Promise((r) => setTimeout(r, 500))
 
+  if (captureState.cancelled) throw new Error('Capture cancelled')
   const screenshot = await page.screenshot({
     type: 'png',
     clip: { x: 0, y: 0, width, height },
   })
 
   await page.close()
+  activeCaptures.delete(captureId)
   return screenshot
 }
 
@@ -75,13 +80,19 @@ const server = http.createServer(async (req, res) => {
     req.on('data', (chunk) => (body += chunk))
     req.on('end', async () => {
       try {
-        const { url, width, height, deviceScaleFactor } = JSON.parse(body)
+        const { captureId, url, width, height, deviceScaleFactor } = JSON.parse(body)
         if (!url || !width || !height) {
           res.writeHead(400, { 'Content-Type': 'application/json' })
           return res.end(JSON.stringify({ error: 'Missing url, width, or height' }))
         }
 
-        const png = await capture(url, width, height, deviceScaleFactor || 1)
+        const png = await capture(
+          captureId || `${Date.now()}`,
+          url,
+          width,
+          height,
+          deviceScaleFactor || 1
+        )
         res.writeHead(200, {
           'Content-Type': 'image/png',
           'Content-Length': png.length,
@@ -94,6 +105,23 @@ const server = http.createServer(async (req, res) => {
       }
     })
     return
+  }
+
+  if (req.method === 'DELETE' && req.url.startsWith('/capture/')) {
+    const captureId = decodeURIComponent(req.url.slice('/capture/'.length))
+    const captureIds = [...activeCaptures.keys()].filter(
+      (id) => id === captureId || id.startsWith(`${captureId}-`)
+    )
+    for (const activeId of captureIds) {
+      const capture = activeCaptures.get(activeId)
+      if (capture) {
+        capture.cancelled = true
+        await capture.page.close().catch(() => undefined)
+        activeCaptures.delete(activeId)
+      }
+    }
+    res.writeHead(204)
+    return res.end()
   }
 
   res.writeHead(404)

@@ -4,9 +4,11 @@ import path from 'path'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../prisma.js'
 import { getSecret } from '../config.js'
+import { isExportCancellable } from './exportStatus.js'
 import {
   DEFAULT_PRINT_CONFIG,
   PAPER_DIMENSIONS,
+  getPrintGeometry,
   type PaperSize,
   type PrintConfig,
 } from '@kalenda/shared'
@@ -33,6 +35,7 @@ interface RenderOptions {
 }
 
 const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
+const activeExports = new Map<string, AbortController>()
 
 async function ensureExportsDir() {
   if (!fs.existsSync(EXPORTS_DIR)) {
@@ -51,11 +54,19 @@ export async function renderProject(
   const scaleFactor = options.dpi / 96
   const paper = PAPER_DIMENSIONS[options.paperSize]
   const printConfig = options.printConfig
-  const bleedPx = printConfig.bleedEnabled ? Math.round((printConfig.bleedMm / 25.4) * 96) : 0
-  const outputWidth = paper.widthPx + bleedPx * 2
-  const outputHeight = paper.heightPx + bleedPx * 2
+  const geometry = getPrintGeometry(printConfig, paper)
+  const outputWidth = geometry.outputWidthPx
+  const outputHeight = geometry.outputHeightPx
+  const controller = new AbortController()
+  activeExports.set(jobId, controller)
 
   try {
+    const currentJob = await prisma.exportJob.findUnique({
+      where: { id: jobId },
+      select: { status: true },
+    })
+    if (!currentJob || currentJob.status === 'CANCELLED') return
+
     // Update job status to PROCESSING
     await prisma.exportJob.update({
       where: { id: jobId },
@@ -77,6 +88,7 @@ export async function renderProject(
 
     // Helper to capture a single page via the Puppeteer service
     async function capturePage(url: string, pngPath: string, pageNum: number) {
+      if (controller.signal.aborted) throw new Error('Export cancelled')
       await prisma.exportJob.update({
         where: { id: jobId },
         data: { currentPage: pageNum, progress: Math.round(((pageNum - 1) / totalPages) * 100) },
@@ -90,7 +102,9 @@ export async function renderProject(
           width: outputWidth,
           height: outputHeight,
           deviceScaleFactor: scaleFactor,
+          captureId: `${jobId}-${pageNum}`,
         }),
+        signal: controller.signal,
       })
 
       if (!res.ok) {
@@ -99,6 +113,7 @@ export async function renderProject(
       }
 
       const buffer = Buffer.from(await res.arrayBuffer())
+      if (controller.signal.aborted) throw new Error('Export cancelled')
       fs.writeFileSync(pngPath, buffer)
       pngPaths.push(pngPath)
     }
@@ -165,6 +180,10 @@ export async function renderProject(
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
+    if (controller.signal.aborted || message === 'Export cancelled') {
+      await cleanupExportFiles(jobId)
+      return
+    }
     console.error(`Export job ${jobId} failed:`, message)
 
     await prisma.exportJob.update({
@@ -174,6 +193,31 @@ export async function renderProject(
         error: message,
       },
     })
+  } finally {
+    activeExports.delete(jobId)
+  }
+}
+
+export async function cancelExportJob(jobId: string): Promise<boolean> {
+  const job = await prisma.exportJob.findUnique({ where: { id: jobId }, select: { status: true } })
+  if (!job || !isExportCancellable(job.status)) return false
+  await prisma.exportJob.update({
+    where: { id: jobId },
+    data: { status: 'CANCELLED', error: 'Export cancelled' },
+  })
+  const controller = activeExports.get(jobId)
+  controller?.abort()
+  void fetch(`${PUPPETEER_URL}/capture/${encodeURIComponent(jobId)}`, { method: 'DELETE' }).catch(
+    () => undefined
+  )
+  await cleanupExportFiles(jobId)
+  return true
+}
+
+async function cleanupExportFiles(jobId: string) {
+  const jobDir = path.join(EXPORTS_DIR, jobId)
+  if (fs.existsSync(jobDir)) {
+    fs.rmSync(jobDir, { recursive: true, force: true })
   }
 }
 
@@ -250,28 +294,29 @@ async function assemblePDF(
 ) {
   const pdfDoc = await PDFDocument.create()
   const paper = PAPER_DIMENSIONS[paperSize]
-  const bleedPt = printConfig.bleedEnabled ? (printConfig.bleedMm / 25.4) * 72 : 0
+  const geometry = getPrintGeometry(printConfig, paper)
+  const marginPt = (geometry.contentOffsetPx / 96) * 72
 
   for (const pngPath of pngPaths) {
     const pngBytes = fs.readFileSync(pngPath)
     const pngImage = await pdfDoc.embedPng(pngBytes)
 
-    const page = pdfDoc.addPage([paper.widthPt + bleedPt * 2, paper.heightPt + bleedPt * 2])
+    const page = pdfDoc.addPage([paper.widthPt + marginPt * 2, paper.heightPt + marginPt * 2])
 
     // Draw the PNG scaled to fill the A4 page
     page.drawImage(pngImage, {
       x: 0,
       y: 0,
-      width: paper.widthPt + bleedPt * 2,
-      height: paper.heightPt + bleedPt * 2,
+      width: paper.widthPt + marginPt * 2,
+      height: paper.heightPt + marginPt * 2,
     })
 
     // Optional binding guide (center line)
     if (bindingGuide) {
-      const centerX = (paper.widthPt + bleedPt * 2) / 2
+      const centerX = (paper.widthPt + marginPt * 2) / 2
       page.drawLine({
         start: { x: centerX, y: 0 },
-        end: { x: centerX, y: paper.heightPt + bleedPt * 2 },
+        end: { x: centerX, y: paper.heightPt + marginPt * 2 },
         thickness: 0.25,
         color: rgb(0.8, 0.8, 0.8),
         opacity: 0.5,
