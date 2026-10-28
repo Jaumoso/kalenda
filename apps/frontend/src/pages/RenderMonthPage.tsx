@@ -7,7 +7,14 @@ import DraggableMiniCalendar from '../components/DraggableMiniCalendar'
 import MiniCalendar from '../components/MiniCalendar'
 import EventCountdown from '../components/EventCountdown'
 import type { GridConfig, DayCell, Holiday, CalEvent, Saint } from '../lib/calendarTypes'
-import { getGridConfigForPaper, getPaperDimensions, type PaperSize } from '../lib/calendarTypes'
+import {
+  DEFAULT_PRINT_CONFIG,
+  getBleedPixels,
+  getGridConfigForPaper,
+  getPaperDimensions,
+  type PaperSize,
+  type PrintConfig,
+} from '../lib/calendarTypes'
 
 // Import all fonts so they render correctly in Puppeteer
 import '../components/FontSelector'
@@ -27,9 +34,8 @@ interface MonthRenderData {
       name: string
       year: number
       autonomyCode: string | null
-      holidayCountryCode: string
-      highlightedEvent: CalEvent | null
       paperSize: PaperSize
+      highlightedEvent: CalEvent | null
     }
     dayCells: DayCell[]
   }
@@ -48,12 +54,27 @@ export default function RenderMonthPage() {
   const { monthId } = useParams<{ monthId: string }>()
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
+  const printConfig: PrintConfig = {
+    ...DEFAULT_PRINT_CONFIG,
+    bleedEnabled: Number(searchParams.get('bleed') ?? 0) > 0,
+    bleedMm: Number(searchParams.get('bleed') ?? DEFAULT_PRINT_CONFIG.bleedMm),
+    cropMarks: searchParams.get('cropMarks') === 'true',
+    cropMarkLengthMm: Number(
+      searchParams.get('cropMarkLength') ?? DEFAULT_PRINT_CONFIG.cropMarkLengthMm
+    ),
+    cropMarkOffsetMm: Number(
+      searchParams.get('cropMarkOffset') ?? DEFAULT_PRINT_CONFIG.cropMarkOffsetMm
+    ),
+  }
 
   const [data, setData] = useState<MonthRenderData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const canvasElRef = useRef<HTMLCanvasElement>(null)
   const fabricRef = useRef<FabricCanvas | null>(null)
   const paperDimensions = getPaperDimensions(data?.month.project.paperSize)
+  const bleedPx = getBleedPixels(printConfig)
+  const outputWidth = paperDimensions.widthPx + bleedPx * 2
+  const outputHeight = paperDimensions.heightPx + bleedPx * 2
 
   // Fetch render data
   useEffect(() => {
@@ -73,8 +94,8 @@ export default function RenderMonthPage() {
     if (!data || !canvasElRef.current) return
 
     const canvas = new FabricCanvas(canvasElRef.current, {
-      width: paperDimensions.widthPx,
-      height: paperDimensions.heightPx,
+      width: outputWidth,
+      height: outputHeight,
       selection: false,
       interactive: false,
       renderOnAddRemove: true,
@@ -109,8 +130,8 @@ export default function RenderMonthPage() {
     return (
       <div
         style={{
-          width: paperDimensions.widthPx,
-          height: paperDimensions.heightPx,
+          width: outputWidth,
+          height: outputHeight,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -126,8 +147,8 @@ export default function RenderMonthPage() {
     return (
       <div
         style={{
-          width: paperDimensions.widthPx,
-          height: paperDimensions.heightPx,
+          width: outputWidth,
+          height: outputHeight,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -153,7 +174,10 @@ export default function RenderMonthPage() {
       }}
     >
       {/* Fabric.js canvas — full page background + art objects */}
-      <canvas ref={canvasElRef} style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
+      <canvas
+        ref={canvasElRef}
+        style={{ position: 'absolute', top: bleedPx, left: bleedPx, zIndex: 1 }}
+      />
 
       <EventCountdown
         event={data.month.project.highlightedEvent}
@@ -165,8 +189,8 @@ export default function RenderMonthPage() {
       <div
         style={{
           position: 'absolute',
-          left: gridConfig.gridX,
-          top: gridConfig.gridY,
+          left: gridConfig.gridX + bleedPx,
+          top: gridConfig.gridY + bleedPx,
           width: gridConfig.gridWidth,
           height: gridConfig.gridHeight,
           opacity: gridConfig.gridOverlayOpacity / 100,
@@ -206,7 +230,109 @@ export default function RenderMonthPage() {
           config={gridConfig}
         />
       </DraggableMiniCalendar>
+      {printConfig.cropMarks && (
+        <CropMarks
+          bleedPx={bleedPx}
+          width={paperDimensions.widthPx}
+          height={paperDimensions.heightPx}
+          length={(printConfig.cropMarkLengthMm / 25.4) * 96}
+          offset={(printConfig.cropMarkOffsetMm / 25.4) * 96}
+        />
+      )}
     </div>
+  )
+}
+
+function CropMarks({
+  bleedPx,
+  width,
+  height,
+  length,
+  offset,
+}: {
+  bleedPx: number
+  width: number
+  height: number
+  length: number
+  offset: number
+}) {
+  const stroke = '#111'
+  const common = { position: 'absolute' as const, backgroundColor: stroke }
+  return (
+    <>
+      <div
+        style={{
+          ...common,
+          left: bleedPx - offset - length,
+          top: bleedPx,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx,
+          top: bleedPx - offset - length,
+          width: 1,
+          height: length,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width + offset,
+          top: bleedPx,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width,
+          top: bleedPx - offset - length,
+          width: 1,
+          height: length,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx - offset - length,
+          top: bleedPx + height,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx,
+          top: bleedPx + height + offset,
+          width: 1,
+          height: length,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width + offset,
+          top: bleedPx + height,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width,
+          top: bleedPx + height + offset,
+          width: 1,
+          height: length,
+        }}
+      />
+    </>
   )
 }
 

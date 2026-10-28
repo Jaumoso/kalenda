@@ -17,8 +17,9 @@ export interface Project {
   year: number
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: 'monday' | 'sunday'
-  holidayCountryCode: string
   paperSize: PaperSize
+  printConfigJson?: PrintConfig
+  holidayCountryCode: string
   autonomyCode?: string
   templateId?: string
   highlightedEventId?: string | null
@@ -26,23 +27,23 @@ export interface Project {
   updatedAt: Date
 }
 
-export interface HighlightedEvent {
-  id: string
-  name: string
-  day: number
-  month: number
-  year: number | null
-  type: 'BIRTHDAY' | 'ANNIVERSARY' | 'SAINT' | 'CUSTOM'
-  color: string
-  icon?: string | null
-  userId: string
-  recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
-  isRecurring: boolean
-  startDate?: Date | string | null
-  endDate?: Date | string | null
+export type PaperSize = 'A4' | 'A3' | 'A5' | 'LETTER'
+
+export interface PrintConfig {
+  bleedEnabled: boolean
+  bleedMm: number
+  cropMarks: boolean
+  cropMarkLengthMm: number
+  cropMarkOffsetMm: number
 }
 
-export type PaperSize = 'A4' | 'A3' | 'A5' | 'LETTER'
+export const DEFAULT_PRINT_CONFIG: PrintConfig = {
+  bleedEnabled: false,
+  bleedMm: 3,
+  cropMarks: false,
+  cropMarkLengthMm: 10,
+  cropMarkOffsetMm: 2,
+}
 
 export interface PaperDimensions {
   widthMm: number
@@ -86,6 +87,22 @@ export const PAPER_DIMENSIONS: Record<PaperSize, PaperDimensions> = {
     widthPt: 612,
     heightPt: 792,
   },
+}
+
+export interface HighlightedEvent {
+  id: string
+  name: string
+  day: number
+  month: number
+  year: number | null
+  type: 'BIRTHDAY' | 'ANNIVERSARY' | 'SAINT' | 'CUSTOM'
+  color: string
+  icon?: string | null
+  userId: string
+  recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+  isRecurring: boolean
+  startDate?: Date | string | null
+  endDate?: Date | string | null
 }
 
 export interface CalendarMonth {

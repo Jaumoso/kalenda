@@ -1,7 +1,15 @@
 import { t } from 'i18next'
-import type { PaperSize } from '@kalenda/shared'
+import type { PaperSize, PrintConfig } from '@kalenda/shared'
 
 export type { PaperSize }
+export type { PrintConfig }
+export const DEFAULT_PRINT_CONFIG: PrintConfig = {
+  bleedEnabled: false,
+  bleedMm: 3,
+  cropMarks: false,
+  cropMarkLengthMm: 10,
+  cropMarkOffsetMm: 2,
+}
 
 export const PAPER_DIMENSIONS = {
   A4: {
@@ -101,6 +109,12 @@ export function getPaperDimensions(paperSize: PaperSize = 'A4') {
   return PAPER_DIMENSIONS[paperSize] ?? PAPER_DIMENSIONS.A4
 }
 
+export function getBleedPixels(config: Partial<PrintConfig> | null | undefined): number {
+  if (!config?.bleedEnabled) return 0
+  return Math.round(
+    (Math.min(Math.max(config.bleedMm ?? DEFAULT_PRINT_CONFIG.bleedMm, 0), 10) / 25.4) * 96
+  )
+}
 export function scaleGridConfig(config: GridConfig, paperSize: PaperSize): GridConfig {
   const dimensions = getPaperDimensions(paperSize)
   const scaleX = dimensions.widthPx / PAGE_WIDTH
@@ -189,9 +203,10 @@ export interface MonthData {
     name: string
     year: number
     autonomyCode: string | null
+    printConfigJson?: PrintConfig
+    paperSize: PaperSize
     holidayCountryCode: string
     highlightedEvent: CalEvent | null
-    paperSize: PaperSize
   }
   dayCells: DayCell[]
 }

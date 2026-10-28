@@ -11,6 +11,8 @@ import {
   XCircle,
 } from 'lucide-react'
 import api from '../lib/api'
+import PrintSettingsPanel from './PrintSettingsPanel'
+import { DEFAULT_PRINT_CONFIG, type PrintConfig } from '../lib/calendarTypes'
 
 interface ExportJob {
   id: string
@@ -28,10 +30,19 @@ interface Props {
   readonly projectId: string
   readonly projectName: string
   readonly projectYear: number
+  readonly printConfig?: PrintConfig
+  readonly onPrintConfigChange?: (config: PrintConfig) => void
   readonly onClose: () => void
 }
 
-export default function ExportModal({ projectId, projectName, projectYear, onClose }: Props) {
+export default function ExportModal({
+  projectId,
+  projectName,
+  projectYear,
+  printConfig = DEFAULT_PRINT_CONFIG,
+  onPrintConfigChange,
+  onClose,
+}: Props) {
   const { t } = useTranslation()
   const [format, setFormat] = useState<'PDF' | 'PNG'>('PDF')
   const [dpi, setDpi] = useState(300)
@@ -82,6 +93,7 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
         dpi,
         bindingGuide,
         filename: filename.trim() || `${projectName}-${projectYear}`,
+        printConfigJson: printConfig,
       })
       setJob(data.job)
       setPollError(null)
@@ -222,6 +234,11 @@ export default function ExportModal({ projectId, projectName, projectYear, onClo
                   <span className="text-sm text-neutral-700">{t('exportModal.bindingGuide')}</span>
                 </label>
               )}
+
+              <PrintSettingsPanel
+                config={printConfig}
+                onChange={(config) => onPrintConfigChange?.(config)}
+              />
 
               {/* Filename */}
               <div>

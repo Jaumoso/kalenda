@@ -2,7 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, ChevronLeft, ChevronRight, Book, Loader2 } from 'lucide-react'
 import api from '../lib/api'
-import { getPaperDimensions, type PaperSize } from '../lib/calendarTypes'
+import {
+  DEFAULT_PRINT_CONFIG,
+  getPaperDimensions,
+  type PaperSize,
+  type PrintConfig,
+} from '../lib/calendarTypes'
 
 interface CalendarMonth {
   id: string
@@ -16,6 +21,7 @@ interface Props {
   readonly projectName: string
   readonly projectYear: number
   readonly paperSize: PaperSize
+  readonly printConfig?: PrintConfig
   readonly months: CalendarMonth[]
   readonly onClose: () => void
 }
@@ -35,24 +41,25 @@ function buildPages(
   projectId: string,
   months: CalendarMonth[],
   monthNames: string[],
-  t: (key: string) => string
+  t: (key: string) => string,
+  renderQuery: string
 ): PageInfo[] {
   const sorted = months.slice().sort((a, b) => a.month - b.month)
   return [
     {
       label: t('project.frontCover'),
-      renderUrl: `/render-cover/${projectId}?token=${encodeURIComponent(data.coverToken)}&type=front`,
+      renderUrl: `/render-cover/${projectId}?token=${encodeURIComponent(data.coverToken)}&type=front&${renderQuery}`,
     },
     ...sorted.map((m) => {
       const tok = data.monthTokens.find((mt) => mt.monthId === m.id)
       return {
         label: `${monthNames[m.month - 1]} ${m.year}`,
-        renderUrl: `/render/${m.id}?token=${encodeURIComponent(tok?.token ?? '')}`,
+        renderUrl: `/render/${m.id}?token=${encodeURIComponent(tok?.token ?? '')}&${renderQuery}`,
       }
     }),
     {
       label: t('project.backCover'),
-      renderUrl: `/render-cover/${projectId}?token=${encodeURIComponent(data.coverToken)}&type=back`,
+      renderUrl: `/render-cover/${projectId}?token=${encodeURIComponent(data.coverToken)}&type=back&${renderQuery}`,
     },
   ]
 }
@@ -62,12 +69,20 @@ export default function PrintPreviewModal({
   projectName,
   projectYear,
   paperSize,
+  printConfig = DEFAULT_PRINT_CONFIG,
   months,
   onClose,
 }: Props) {
   const { t } = useTranslation()
   const monthNames = t('months', { returnObjects: true }) as string[]
   const paper = getPaperDimensions(paperSize)
+  const bleedPx = printConfig.bleedEnabled ? Math.round((printConfig.bleedMm / 25.4) * 96) : 0
+  const renderQuery = new URLSearchParams({
+    bleed: printConfig.bleedEnabled ? String(printConfig.bleedMm) : '0',
+    cropMarks: String(printConfig.cropMarks),
+    cropMarkLength: String(printConfig.cropMarkLengthMm),
+    cropMarkOffset: String(printConfig.cropMarkOffsetMm),
+  }).toString()
 
   const [pages, setPages] = useState<PageInfo[]>([])
   const [loading, setLoading] = useState(true)
@@ -80,14 +95,14 @@ export default function PrintPreviewModal({
     api
       .get(`/preview-tokens/${projectId}`)
       .then(({ data }) => {
-        setPages(buildPages(data, projectId, months, monthNames, t))
+        setPages(buildPages(data, projectId, months, monthNames, t, renderQuery))
         setLoading(false)
       })
       .catch(() => {
         setError(t('printPreview.errorLoading'))
         setLoading(false)
       })
-  }, [projectId])
+  }, [projectId, renderQuery])
 
   const page = pages[currentPage]
   const [paperScale, setPaperScale] = useState(0.5)
@@ -96,10 +111,10 @@ export default function PrintPreviewModal({
     // Modal is max-h-[90vh], header ~60px, nav ~56px, padding ~32px, label ~32px = ~180px chrome
     const availH = window.innerHeight * 0.9 - 180
     const availW = Math.min(window.innerWidth - 64, 768 - 48) // modal max-w-3xl minus padding
-    const scaleW = availW / paper.widthPx
-    const scaleH = availH / paper.heightPx
+    const scaleW = availW / (paper.widthPx + bleedPx * 2)
+    const scaleH = availH / (paper.heightPx + bleedPx * 2)
     setPaperScale(Math.min(scaleW, scaleH, 1))
-  }, [])
+  }, [bleedPx, paper])
 
   useEffect(() => {
     recalcScale()
@@ -154,8 +169,8 @@ export default function PrintPreviewModal({
               <div
                 className="relative bg-white shadow-[0_4px_40px_rgba(0,0,0,0.5)] rounded-sm overflow-hidden flex-shrink-0"
                 style={{
-                  width: paper.widthPx * paperScale,
-                  height: paper.heightPx * paperScale,
+                  width: (paper.widthPx + bleedPx * 2) * paperScale,
+                  height: (paper.heightPx + bleedPx * 2) * paperScale,
                 }}
               >
                 {/* Loading spinner overlay */}
@@ -170,8 +185,8 @@ export default function PrintPreviewModal({
                   title={page.label}
                   className="border-0 absolute top-0 left-0"
                   style={{
-                    width: paper.widthPx,
-                    height: paper.heightPx,
+                    width: paper.widthPx + bleedPx * 2,
+                    height: paper.heightPx + bleedPx * 2,
                     transform: `scale(${paperScale})`,
                     transformOrigin: 'top left',
                   }}

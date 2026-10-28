@@ -166,6 +166,7 @@
     "customized": "Customized",
     "noDesignYet": "No design yet",
     "errorUpdatingStatus": "Error updating status",
+    "errorUpdatingPrintSettings": "Error updating print settings",
     "errorUpdatingHighlightedEvent": "Error updating the highlighted event",
     "highlightedEvent": "Highlighted event countdown",
     "highlightedEventHint": "It will appear on every month and in calendar exports.",
@@ -642,5 +643,12 @@
     "noContent": "No content yet",
     "loading": "Loading preview…",
     "errorLoading": "Could not load preview"
+  },
+  "printSettings": {
+    "title": "Print settings",
+    "enableBleed": "Add bleed outside the trim area",
+    "bleed": "Bleed (mm)",
+    "cropMarks": "Include crop marks",
+    "cropMarkLength": "Mark length (mm)"
   }
 }

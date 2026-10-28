@@ -1,5 +1,7 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
+import { DEFAULT_PRINT_CONFIG } from '@kalenda/shared'
+import { Prisma } from '@prisma/client'
 import fs from 'fs'
 import { prisma } from '../prisma.js'
 import { startExportJob } from '../lib/renderer.js'
@@ -13,6 +15,15 @@ const createExportSchema = z.object({
   dpi: z.number().min(72).max(600).default(300),
   bindingGuide: z.boolean().default(false),
   filename: z.string().optional(),
+  printConfigJson: z
+    .object({
+      bleedEnabled: z.boolean().default(DEFAULT_PRINT_CONFIG.bleedEnabled),
+      bleedMm: z.number().min(0).max(10).default(DEFAULT_PRINT_CONFIG.bleedMm),
+      cropMarks: z.boolean().default(DEFAULT_PRINT_CONFIG.cropMarks),
+      cropMarkLengthMm: z.number().min(1).max(30).default(DEFAULT_PRINT_CONFIG.cropMarkLengthMm),
+      cropMarkOffsetMm: z.number().min(0).max(10).default(DEFAULT_PRINT_CONFIG.cropMarkOffsetMm),
+    })
+    .optional(),
 })
 
 const exportRoutes: FastifyPluginAsync = async (fastify) => {
@@ -29,7 +40,7 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
         })
       }
 
-      const { projectId, format, dpi, bindingGuide, filename } = parsed.data
+      const { projectId, format, dpi, bindingGuide, filename, printConfigJson } = parsed.data
 
       // Verify project ownership
       const project = await prisma.project.findFirst({
@@ -50,6 +61,9 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
           format,
           dpi,
           bindingGuide,
+          printConfigJson: (printConfigJson ??
+            project.printConfigJson ??
+            DEFAULT_PRINT_CONFIG) as Prisma.InputJsonValue,
           filename: exportFilename,
           totalPages: project.months.length + 2, // +2 for covers
         },

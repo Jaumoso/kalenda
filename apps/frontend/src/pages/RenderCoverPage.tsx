@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { Canvas as FabricCanvas } from 'fabric'
-import { getPaperDimensions, type PaperSize } from '../lib/calendarTypes'
+import {
+  DEFAULT_PRINT_CONFIG,
+  getBleedPixels,
+  getPaperDimensions,
+  type PaperSize,
+  type PrintConfig,
+} from '../lib/calendarTypes'
 
 // Import all fonts so they render correctly in Puppeteer
 import '../components/FontSelector'
@@ -18,6 +24,18 @@ export default function RenderCoverPage() {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
   const type = searchParams.get('type') || 'front'
+  const printConfig: PrintConfig = {
+    ...DEFAULT_PRINT_CONFIG,
+    bleedEnabled: Number(searchParams.get('bleed') ?? 0) > 0,
+    bleedMm: Number(searchParams.get('bleed') ?? DEFAULT_PRINT_CONFIG.bleedMm),
+    cropMarks: searchParams.get('cropMarks') === 'true',
+    cropMarkLengthMm: Number(
+      searchParams.get('cropMarkLength') ?? DEFAULT_PRINT_CONFIG.cropMarkLengthMm
+    ),
+    cropMarkOffsetMm: Number(
+      searchParams.get('cropMarkOffset') ?? DEFAULT_PRINT_CONFIG.cropMarkOffsetMm
+    ),
+  }
 
   const [canvasJson, setCanvasJson] = useState<unknown>(null)
   const [paperSize, setPaperSize] = useState<PaperSize>('A4')
@@ -25,6 +43,9 @@ export default function RenderCoverPage() {
   const [error, setError] = useState<string | null>(null)
   const canvasElRef = useRef<HTMLCanvasElement>(null)
   const paperDimensions = getPaperDimensions(paperSize)
+  const bleedPx = getBleedPixels(printConfig)
+  const outputWidth = paperDimensions.widthPx + bleedPx * 2
+  const outputHeight = paperDimensions.heightPx + bleedPx * 2
 
   useEffect(() => {
     if (!projectId || !token) return
@@ -46,8 +67,8 @@ export default function RenderCoverPage() {
     if (!loaded || !canvasElRef.current) return
 
     const canvas = new FabricCanvas(canvasElRef.current, {
-      width: paperDimensions.widthPx,
-      height: paperDimensions.heightPx,
+      width: outputWidth,
+      height: outputHeight,
       selection: false,
       interactive: false,
       renderOnAddRemove: true,
@@ -81,8 +102,8 @@ export default function RenderCoverPage() {
     return (
       <div
         style={{
-          width: paperDimensions.widthPx,
-          height: paperDimensions.heightPx,
+          width: outputWidth,
+          height: outputHeight,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -106,8 +127,109 @@ export default function RenderCoverPage() {
         backgroundColor: '#fff',
       }}
     >
-      <canvas ref={canvasElRef} style={{ position: 'absolute', top: 0, left: 0 }} />
+      <canvas ref={canvasElRef} style={{ position: 'absolute', top: bleedPx, left: bleedPx }} />
+      {printConfig.cropMarks && (
+        <CropMarks
+          bleedPx={bleedPx}
+          width={paperDimensions.widthPx}
+          height={paperDimensions.heightPx}
+          length={(printConfig.cropMarkLengthMm / 25.4) * 96}
+          offset={(printConfig.cropMarkOffsetMm / 25.4) * 96}
+        />
+      )}
     </div>
+  )
+}
+
+function CropMarks({
+  bleedPx,
+  width,
+  height,
+  length,
+  offset,
+}: {
+  bleedPx: number
+  width: number
+  height: number
+  length: number
+  offset: number
+}) {
+  const common = { position: 'absolute' as const, backgroundColor: '#111' }
+  return (
+    <>
+      <div
+        style={{
+          ...common,
+          left: bleedPx - offset - length,
+          top: bleedPx,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx,
+          top: bleedPx - offset - length,
+          width: 1,
+          height: length,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width + offset,
+          top: bleedPx,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width,
+          top: bleedPx - offset - length,
+          width: 1,
+          height: length,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx - offset - length,
+          top: bleedPx + height,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx,
+          top: bleedPx + height + offset,
+          width: 1,
+          height: length,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width + offset,
+          top: bleedPx + height,
+          width: length,
+          height: 1,
+        }}
+      />
+      <div
+        style={{
+          ...common,
+          left: bleedPx + width,
+          top: bleedPx + height + offset,
+          width: 1,
+          height: length,
+        }}
+      />
+    </>
   )
 }
 

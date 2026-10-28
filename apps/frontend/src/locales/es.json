@@ -166,6 +166,7 @@
     "customized": "Personalizado",
     "noDesignYet": "Sin diseño aún",
     "errorUpdatingStatus": "Error al actualizar el estado",
+    "errorUpdatingPrintSettings": "Error al actualizar los ajustes de impresión",
     "errorUpdatingHighlightedEvent": "Error al actualizar el evento destacado",
     "highlightedEvent": "Evento destacado para la cuenta atrás",
     "highlightedEventHint": "Se mostrará en todos los meses y en la exportación del calendario.",
@@ -642,5 +643,12 @@
     "noContent": "Sin contenido aún",
     "loading": "Cargando vista previa…",
     "errorLoading": "No se pudo cargar la vista previa"
+  },
+  "printSettings": {
+    "title": "Ajustes de impresión",
+    "enableBleed": "Añadir sangrado fuera del área de corte",
+    "bleed": "Sangrado (mm)",
+    "cropMarks": "Incluir marcas de corte",
+    "cropMarkLength": "Longitud de marca (mm)"
   }
 }
