@@ -30,11 +30,11 @@ want to run:
 ```bash
 mkdir kalenda
 cd kalenda
-curl -fsSL https://raw.githubusercontent.com/Jaumoso/kalenda/v0.1.8/docker-compose.yml \
+curl -fsSL https://raw.githubusercontent.com/Jaumoso/kalenda/v0.1.10/docker-compose.yml \
   -o docker-compose.yml
 ```
 
-To follow a different release, replace `v0.1.8` in the URL and in `APP_TAG` below.
+To follow a different release, replace `v0.1.10` in the URL and in `APP_TAG` below.
 
 ### 2. Create the environment file
 
@@ -43,7 +43,7 @@ administrator and signing secrets. Create a `.env` file next to `docker-compose.
 
 ```bash
 cat > .env <<EOF
-APP_TAG=v0.1.8
+APP_TAG=v0.1.10
 POSTGRES_DB=kalenda
 POSTGRES_USER=kalenda
 POSTGRES_PASSWORD=$(openssl rand -hex 32)
