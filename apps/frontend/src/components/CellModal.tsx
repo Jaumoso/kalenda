@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Building2, CalendarDays, Image, X, Smile, Palette, Cake, Heart, Pin } from 'lucide-react'
-import type { DayCell, Holiday, CalEvent } from '../lib/calendarTypes'
-import { getMonthNames } from '../lib/calendarTypes'
+import {
+  getEventRecurrence,
+  getMonthNames,
+  type DayCell,
+  type Holiday,
+  type CalEvent,
+} from '../lib/calendarTypes'
 import ColorPicker from './ColorPicker'
 import AssetPickerModal from './AssetPickerModal'
 import StickerPickerModal from './StickerPickerModal'
@@ -60,6 +65,18 @@ export default function CellModal({
   const [showNewEvent, setShowNewEvent] = useState(false)
   const [newEventName, setNewEventName] = useState('')
   const [newEventType, setNewEventType] = useState<'BIRTHDAY' | 'ANNIVERSARY' | 'CUSTOM'>('CUSTOM')
+  const [newEventRecurrence, setNewEventRecurrence] = useState<
+    'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+  >('YEARLY')
+  const [newEventColor, setNewEventColor] = useState('#C8502A')
+  const [newEventIcon, setNewEventIcon] = useState('')
+  const [showEventEmojiPicker, setShowEventEmojiPicker] = useState(false)
+  const [newEventEndYear, setNewEventEndYear] = useState('')
+  const [newEventEndMonth, setNewEventEndMonth] = useState<number | ''>('')
+  const [newEventEndDate, setNewEventEndDate] = useState('')
+  const [newEventWeekday, setNewEventWeekday] = useState(
+    new Date(year, month - 1, dayNumber).getDay()
+  )
   const [savingEvent, setSavingEvent] = useState(false)
   const [eventError, setEventError] = useState<string | null>(null)
   const [showImagePicker, setShowImagePicker] = useState(false)
@@ -112,13 +129,40 @@ export default function CellModal({
     if (!newEventName.trim()) return
     setSavingEvent(true)
     setEventError(null)
+    const startDate = new Date(Date.UTC(year, month - 1, dayNumber)).toISOString().slice(0, 10)
+    const validity =
+      newEventRecurrence === 'NONE'
+        ? { startDate: null, endDate: null }
+        : newEventRecurrence === 'YEARLY'
+          ? {
+              startDate,
+              endDate: newEventEndYear ? `${newEventEndYear}-12-31` : null,
+            }
+          : newEventRecurrence === 'MONTHLY'
+            ? {
+                startDate,
+                endDate:
+                  newEventEndMonth && newEventEndYear
+                    ? `${newEventEndYear}-${String(newEventEndMonth).padStart(2, '0')}-${getLastDayOfMonth(
+                        Number(newEventEndYear),
+                        newEventEndMonth
+                      )}`
+                    : null,
+              }
+            : { startDate, endDate: newEventEndDate || null }
     try {
       await api.post('/events', {
         name: newEventName.trim(),
         day: dayNumber,
         month,
         type: newEventType,
-        isRecurring: true,
+        color: newEventColor,
+        icon: newEventIcon.trim() || null,
+        isRecurring: newEventRecurrence !== 'NONE',
+        recurrence: newEventRecurrence,
+        weekday: newEventRecurrence === 'WEEKLY' ? newEventWeekday : null,
+        year: newEventRecurrence === 'NONE' ? year : null,
+        ...validity,
       })
       setNewEventName('')
       setShowNewEvent(false)
@@ -193,8 +237,14 @@ export default function CellModal({
               >
                 <span style={{ color: ev.color }}>
                   {ev.icon || '•'} {ev.name}
-                  {ev.isRecurring && (
+                  {getEventRecurrence(ev) === 'YEARLY' && (
                     <span className="text-neutral-400 ml-1">{t('cell.yearly')}</span>
+                  )}
+                  {getEventRecurrence(ev) === 'MONTHLY' && (
+                    <span className="text-neutral-400 ml-1">{t('cell.monthly')}</span>
+                  )}
+                  {getEventRecurrence(ev) === 'WEEKLY' && (
+                    <span className="text-neutral-400 ml-1">{t('cell.weekly')}</span>
                   )}
                 </span>
                 <button
@@ -243,6 +293,130 @@ export default function CellModal({
                   </button>
                 ))}
               </div>
+              <div className="flex gap-1">
+                {['#C8502A', '#2563EB', '#059669', '#7C3AED', '#DB2777', '#EA580C'].map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setNewEventColor(color)}
+                    className={`w-6 h-6 rounded-full border-2 ${
+                      newEventColor === color
+                        ? 'border-neutral-900 scale-110'
+                        : 'border-transparent'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    aria-label={t('common.color')}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                {newEventIcon && (
+                  <button
+                    type="button"
+                    onClick={() => setNewEventIcon('')}
+                    className="w-8 h-8 rounded border border-primary-300 bg-primary-50 text-xl"
+                    title={t('events.clearIcon')}
+                  >
+                    {newEventIcon}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowEventEmojiPicker(true)}
+                  className="px-2 py-1.5 border border-neutral-300 rounded text-xs hover:bg-neutral-100"
+                >
+                  {t('events.chooseIcon')}
+                </button>
+              </div>
+              <select
+                value={newEventRecurrence}
+                onChange={(e) =>
+                  setNewEventRecurrence(e.target.value as 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY')
+                }
+                className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+              >
+                <option value="NONE">{t('events.once')}</option>
+                <option value="YEARLY">{t('events.yearlyOption')}</option>
+                <option value="MONTHLY">{t('events.monthlyOption')}</option>
+                <option value="WEEKLY">{t('events.weeklyOption')}</option>
+              </select>
+              {newEventRecurrence === 'WEEKLY' && (
+                <select
+                  value={newEventWeekday}
+                  onChange={(e) => setNewEventWeekday(Number(e.target.value))}
+                  className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                >
+                  {[
+                    'sunday',
+                    'monday',
+                    'tuesday',
+                    'wednesday',
+                    'thursday',
+                    'friday',
+                    'saturday',
+                  ].map((weekday, index) => (
+                    <option key={weekday} value={index}>
+                      {t(`weekDays.long.${weekday}`)}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {newEventRecurrence !== 'NONE' && (
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1">
+                    {t('events.validUntil')}
+                  </label>
+                  {newEventRecurrence === 'YEARLY' && (
+                    <input
+                      type="number"
+                      min={year}
+                      max={2050}
+                      value={newEventEndYear}
+                      onChange={(e) => setNewEventEndYear(e.target.value)}
+                      placeholder={String(year + 1)}
+                      className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                    />
+                  )}
+                  {newEventRecurrence === 'MONTHLY' && (
+                    <div className="flex gap-1">
+                      <select
+                        value={newEventEndMonth}
+                        onChange={(e) =>
+                          setNewEventEndMonth(e.target.value ? Number(e.target.value) : '')
+                        }
+                        className="min-w-0 flex-1 px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                      >
+                        <option value="">{t('common.month')}</option>
+                        {getMonthNames().map((monthName, index) => (
+                          <option key={monthName} value={index + 1}>
+                            {monthName}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="number"
+                        min={year}
+                        max={2050}
+                        value={newEventEndYear}
+                        onChange={(e) => setNewEventEndYear(e.target.value)}
+                        placeholder={t('common.year')}
+                        className="w-20 px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                      />
+                    </div>
+                  )}
+                  {newEventRecurrence === 'WEEKLY' && (
+                    <input
+                      type="date"
+                      min={new Date(Date.UTC(year, month - 1, dayNumber))
+                        .toISOString()
+                        .slice(0, 10)}
+                      value={newEventEndDate}
+                      onChange={(e) => setNewEventEndDate(e.target.value)}
+                      className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                    />
+                  )}
+                </div>
+              )}
               <div className="flex gap-1 justify-end">
                 <button
                   onClick={() => setShowNewEvent(false)}
@@ -516,6 +690,18 @@ export default function CellModal({
           setShowStickerPicker(false)
         }}
       />
+      <StickerPickerModal
+        isOpen={showEventEmojiPicker}
+        onClose={() => setShowEventEmojiPicker(false)}
+        onSelect={(selectedEmoji) => {
+          setNewEventIcon(selectedEmoji)
+          setShowEventEmojiPicker(false)
+        }}
+      />
     </div>
   )
+}
+
+function getLastDayOfMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }
