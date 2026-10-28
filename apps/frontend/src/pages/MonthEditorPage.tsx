@@ -42,6 +42,7 @@ export default function MonthEditorPage() {
   const [holidays, setHolidays] = useState<Holiday[]>([])
   const [events, setEvents] = useState<CalEvent[]>([])
   const [saints, setSaints] = useState<Saint[]>([])
+  const [holidaySupportError, setHolidaySupportError] = useState<string | null>(null)
 
   // Canvas state
   const canvasEditorRef = useRef<CanvasEditorHandle>(null)
@@ -86,6 +87,7 @@ export default function MonthEditorPage() {
         setHolidays(data.holidays || [])
         setEvents(data.events || [])
         setSaints(data.saints || [])
+        setHolidaySupportError(data.holidaySupportError || null)
         setDirty(false)
         setLastSaved(null)
         setError(null)
@@ -381,6 +383,9 @@ export default function MonthEditorPage() {
       {/* Top bar */}
       <div className="bg-surface border-b border-neutral-200 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
+          {holidaySupportError && (
+            <span className="text-xs text-amber-600">{t(`editor.${holidaySupportError}`)}</span>
+          )}
           <Link
             to={`/projects/${projectId}`}
             className="text-neutral-400 hover:text-neutral-600 transition-colors text-sm"

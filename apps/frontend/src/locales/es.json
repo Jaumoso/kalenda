@@ -180,7 +180,9 @@
     "errorLoading": "No se pudo cargar el mes",
     "errorSaving": "Error al guardar",
     "errorSavingCell": "Error al guardar la celda",
-    "backToProjectLink": "Volver al proyecto"
+    "backToProjectLink": "Volver al proyecto",
+    "unsupportedCountry": "No hay datos de festivos para este país.",
+    "unsupportedYear": "No hay datos de festivos para este año."
   },
   "countdown": {
     "label": "Cuenta atrás",
@@ -323,13 +325,16 @@
     "sunday": "Domingo",
     "autonomy": "Comunidad Autónoma (festivos)",
     "nationalOnly": "Solo festivos nacionales",
+    "holidayCountry": "País de los festivos",
+    "holidayCountryHint": "Los festivos internacionales se calculan automáticamente para años compatibles (2020–2050).",
     "baseTemplate": "Plantilla base",
     "noTemplate": "Sin plantilla",
     "templateHint": "La plantilla se aplicará a los 12 meses al crear el proyecto",
     "creating": "Creando...",
     "createCalendar": "Crear calendario",
     "errorCreating": "Error al crear proyecto",
-    "errorLoadingTemplates": "Error al cargar las plantillas"
+    "errorLoadingTemplates": "Error al cargar las plantillas",
+    "errorLoadingOptions": "Error al cargar las opciones del calendario"
   },
   "assetPicker": {
     "selectImage": "Seleccionar imagen",

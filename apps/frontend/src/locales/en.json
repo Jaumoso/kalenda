@@ -180,7 +180,9 @@
     "errorLoading": "Could not load month",
     "errorSaving": "Error saving",
     "errorSavingCell": "Error saving cell",
-    "backToProjectLink": "Back to project"
+    "backToProjectLink": "Back to project",
+    "unsupportedCountry": "Holiday data is not available for this country.",
+    "unsupportedYear": "Holiday data is not available for this year."
   },
   "countdown": {
     "label": "Countdown",
@@ -323,13 +325,16 @@
     "sunday": "Sunday",
     "autonomy": "Autonomous Community (holidays)",
     "nationalOnly": "National holidays only",
+    "holidayCountry": "Holiday country",
+    "holidayCountryHint": "International holidays are calculated automatically for supported years (2020–2050).",
     "baseTemplate": "Base template",
     "noTemplate": "No template",
     "templateHint": "The template will be applied to all 12 months when creating the project",
     "creating": "Creating...",
     "createCalendar": "Create calendar",
     "errorCreating": "Error creating project",
-    "errorLoadingTemplates": "Error loading templates"
+    "errorLoadingTemplates": "Error loading templates",
+    "errorLoadingOptions": "Error loading calendar options"
   },
   "assetPicker": {
     "selectImage": "Select image",
