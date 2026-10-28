@@ -19,6 +19,8 @@ export default function EventsPage() {
   const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null)
+  const [importing, setImporting] = useState(false)
+  const [importMessage, setImportMessage] = useState<string | null>(null)
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -57,6 +59,31 @@ export default function EventsPage() {
     fetchEvents()
   }
 
+  const handleImport = async (file: File) => {
+    setImporting(true)
+    setError(null)
+    setImportMessage(null)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const { data } = await api.post('/events/import', formData)
+      const details = data.errors?.length
+        ? ` ${t('events.importWarnings', { count: data.errors.length })}`
+        : ''
+      setImportMessage(
+        `${t('events.importResult', { imported: data.imported, skipped: data.skipped })}${details}`
+      )
+      await fetchEvents()
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message ||
+        t('events.errorImporting')
+      setError(message)
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const grouped = events.reduce(
     (acc, e) => {
       const recurrence = getEventRecurrence(e)
@@ -77,18 +104,40 @@ export default function EventsPage() {
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">{t('events.title')}</h1>
           <p className="text-sm text-neutral-500 mt-1">{t('events.description')}</p>
+          <p className="text-xs text-neutral-400 mt-1">{t('events.importHelp')}</p>
         </div>
-        <button
-          onClick={() => {
-            setEditingEvent(null)
-            setShowForm(true)
-          }}
-          className="btn btn-primary"
-        >
-          {t('events.newEvent')}
-        </button>
+        <div className="flex items-center gap-2">
+          <label className="btn btn-secondary cursor-pointer">
+            {importing ? t('events.importing') : t('events.importIcs')}
+            <input
+              type="file"
+              accept=".ics,text/calendar"
+              className="sr-only"
+              disabled={importing}
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                event.target.value = ''
+                if (file) void handleImport(file)
+              }}
+            />
+          </label>
+          <button
+            onClick={() => {
+              setEditingEvent(null)
+              setShowForm(true)
+            }}
+            className="btn btn-primary"
+          >
+            {t('events.newEvent')}
+          </button>
+        </div>
       </div>
 
+      {importMessage && (
+        <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+          {importMessage}
+        </div>
+      )}
       {error && (
         <div className="mb-4 flex items-center justify-between gap-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           <span>{error}</span>
