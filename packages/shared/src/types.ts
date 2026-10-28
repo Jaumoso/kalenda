@@ -82,6 +82,8 @@ export interface Event {
   isRecurring: boolean
   recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
   weekday?: number | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
   createdAt: Date
 }
 

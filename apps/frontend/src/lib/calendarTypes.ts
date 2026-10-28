@@ -137,6 +137,8 @@ export interface CalEvent {
   isRecurring: boolean
   recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
   weekday?: number | null
+  startDate?: string | null
+  endDate?: string | null
   userId: string
 }
 

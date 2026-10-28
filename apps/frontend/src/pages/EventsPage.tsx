@@ -59,8 +59,7 @@ export default function EventsPage() {
   const grouped = events.reduce(
     (acc, e) => {
       const recurrence = getEventRecurrence(e)
-      const key =
-        recurrence === 'MONTHLY' || recurrence === 'WEEKLY' ? 'recurring' : String(e.month)
+      const key = recurrence !== 'NONE' ? 'recurring' : String(e.month)
       if (!acc[key]) acc[key] = []
       acc[key].push(e)
       return acc
@@ -209,6 +208,8 @@ function EventForm({
   )
   const [weekday, setWeekday] = useState(event?.weekday ?? 0)
   const [year, setYear] = useState<number | ''>(event?.year || '')
+  const [startDate, setStartDate] = useState(event?.startDate?.slice(0, 10) || '')
+  const [endDate, setEndDate] = useState(event?.endDate?.slice(0, 10) || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -231,6 +232,8 @@ function EventForm({
       recurrence,
       weekday: recurrence === 'WEEKLY' ? weekday : null,
       year: recurrence === 'NONE' ? year || null : null,
+      startDate: recurrence === 'NONE' ? null : startDate || null,
+      endDate: recurrence === 'NONE' ? null : endDate || null,
     }
 
     try {
@@ -394,6 +397,34 @@ function EventForm({
             </div>
           )}
 
+          {recurrence !== 'NONE' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  {t('events.validFrom')}
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  {t('events.validUntil')}
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate || undefined}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Color */}
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">
@@ -465,11 +496,20 @@ function formatEventSchedule(event: CalEvent, monthNames: string[], t: (key: str
       'friday',
       'saturday',
     ][event.weekday ?? 0]
-    return `${t(`weekDays.long.${weekdayKey}`)}${t('events.everyWeek')}`
+    return `${t(`weekDays.long.${weekdayKey}`)}${t('events.everyWeek')}${formatValidity(event, t)}`
   }
-  if (recurrence === 'MONTHLY') return `${t('common.day')} ${event.day}${t('events.everyMonth')}`
+  if (recurrence === 'MONTHLY') {
+    return `${t('common.day')} ${event.day}${t('events.everyMonth')}${formatValidity(event, t)}`
+  }
   if (recurrence === 'YEARLY') {
-    return `${monthNames[event.month - 1]} ${event.day}${t('events.everyYear')}`
+    return `${monthNames[event.month - 1]} ${event.day}${t('events.everyYear')}${formatValidity(event, t)}`
   }
   return `${monthNames[event.month - 1]} ${event.day}${event.year ? ` · ${event.year}` : ''}`
+}
+
+function formatValidity(event: CalEvent, t: (key: string) => string) {
+  if (!event.startDate && !event.endDate) return ''
+  const start = event.startDate?.slice(0, 10) || '...'
+  const end = event.endDate?.slice(0, 10) || '...'
+  return ` · ${t('events.validity')}: ${start} - ${end}`
 }

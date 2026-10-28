@@ -12,6 +12,8 @@ export interface RecurringEventInput {
   isRecurring: boolean
   recurrence?: EventRecurrence | null
   weekday?: number | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
   userId: string
   createdAt?: Date
 }
@@ -22,6 +24,26 @@ export function getEventRecurrence(event: Pick<RecurringEventInput, 'isRecurring
 
 export function getDaysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate()
+}
+
+function dateKey(value: Date | string | null | undefined): string | null {
+  if (!value) return null
+  if (typeof value === 'string') return value.slice(0, 10)
+  return value.toISOString().slice(0, 10)
+}
+
+function isWithinRange(
+  event: RecurringEventInput,
+  year: number,
+  month: number,
+  day: number
+): boolean {
+  const occurrence = `${year.toString().padStart(4, '0')}-${month
+    .toString()
+    .padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+  const start = dateKey(event.startDate)
+  const end = dateKey(event.endDate)
+  return (!start || occurrence >= start) && (!end || occurrence <= end)
 }
 
 export function expandEventForMonth<T extends RecurringEventInput>(
@@ -36,18 +58,27 @@ export function expandEventForMonth<T extends RecurringEventInput>(
   }
 
   if (recurrence === 'YEARLY') {
-    return event.month === month && event.day <= getDaysInMonth(year, month) ? [event] : []
+    return event.month === month &&
+      event.day <= getDaysInMonth(year, month) &&
+      isWithinRange(event, year, month, event.day)
+      ? [event]
+      : []
   }
 
   if (recurrence === 'MONTHLY') {
-    return event.day <= getDaysInMonth(year, month) ? [{ ...event, month } as T] : []
+    return event.day <= getDaysInMonth(year, month) && isWithinRange(event, year, month, event.day)
+      ? [{ ...event, month } as T]
+      : []
   }
 
   if (event.weekday === null || event.weekday === undefined) return []
 
   const occurrences: T[] = []
   for (let day = 1; day <= getDaysInMonth(year, month); day += 1) {
-    if (new Date(Date.UTC(year, month - 1, day)).getUTCDay() === event.weekday) {
+    if (
+      new Date(Date.UTC(year, month - 1, day)).getUTCDay() === event.weekday &&
+      isWithinRange(event, year, month, day)
+    ) {
       occurrences.push({ ...event, day, month } as T)
     }
   }

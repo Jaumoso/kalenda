@@ -90,6 +90,8 @@ export const eventSchema = z.object({
   isRecurring: z.boolean(),
   recurrence: z.enum(['NONE', 'YEARLY', 'MONTHLY', 'WEEKLY']).optional(),
   weekday: z.number().int().min(0).max(6).nullable().optional(),
+  startDate: z.string().date().nullable().optional(),
+  endDate: z.string().date().nullable().optional(),
   createdAt: z.date(),
 })
 
@@ -104,6 +106,8 @@ export const createEventSchema = z.object({
   isRecurring: z.boolean().default(true),
   recurrence: z.enum(['NONE', 'YEARLY', 'MONTHLY', 'WEEKLY']).optional(),
   weekday: z.number().int().min(0).max(6).nullable().optional(),
+  startDate: z.string().date().nullable().optional(),
+  endDate: z.string().date().nullable().optional(),
 })
 
 // API response schemas

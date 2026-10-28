@@ -11,6 +11,8 @@ const baseEvent: {
   color: string
   icon: string | null
   isRecurring: boolean
+  startDate: string | null
+  endDate: string | null
   userId: string
 } = {
   id: 'event-1',
@@ -22,6 +24,8 @@ const baseEvent: {
   color: '#000000',
   icon: null,
   isRecurring: true,
+  startDate: null,
+  endDate: null,
   userId: 'user-1',
 }
 
@@ -64,5 +68,21 @@ describe('event recurrence expansion', () => {
 
     expect(expandEventsForMonth([event], 2026, 1)).toHaveLength(1)
     expect(expandEventsForMonth([event], 2026, 2)).toHaveLength(0)
+  })
+
+  it('limits recurring events to their validity range', () => {
+    const event = {
+      ...baseEvent,
+      recurrence: 'YEARLY' as const,
+      month: 1,
+      day: 2,
+      startDate: '2027-01-02',
+      endDate: '2028-12-31',
+    }
+
+    expect(expandEventForMonth(event, 2026, 1)).toHaveLength(0)
+    expect(expandEventForMonth(event, 2027, 1)).toHaveLength(1)
+    expect(expandEventForMonth(event, 2028, 1)).toHaveLength(1)
+    expect(expandEventForMonth(event, 2029, 1)).toHaveLength(0)
   })
 })

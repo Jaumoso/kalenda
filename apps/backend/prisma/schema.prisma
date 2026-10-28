@@ -158,6 +158,8 @@ model Event {
   isRecurring Boolean   @default(true)
   recurrence  EventRecurrence @default(YEARLY)
   weekday     Int?
+  startDate   DateTime? @db.Date
+  endDate     DateTime? @db.Date
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())

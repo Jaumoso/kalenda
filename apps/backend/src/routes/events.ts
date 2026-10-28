@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { prisma } from '../prisma.js'
 
 const recurrenceSchema = z.enum(['NONE', 'YEARLY', 'MONTHLY', 'WEEKLY'])
+const dateOnlySchema = z.string().date()
 
 const createEventSchema = z
   .object({
@@ -17,6 +18,8 @@ const createEventSchema = z
     isRecurring: z.boolean().default(true),
     recurrence: recurrenceSchema.optional(),
     weekday: z.number().int().min(0).max(6).nullable().optional(),
+    startDate: dateOnlySchema.nullable().optional(),
+    endDate: dateOnlySchema.nullable().optional(),
   })
   .superRefine((value, ctx) => {
     const recurrence = value.recurrence ?? (value.isRecurring ? 'YEARLY' : 'NONE')
@@ -25,6 +28,13 @@ const createEventSchema = z
         code: 'custom',
         path: ['weekday'],
         message: 'Weekday is required for weekly events',
+      })
+    }
+    if (value.startDate && value.endDate && value.endDate < value.startDate) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['endDate'],
+        message: 'End date must be on or after start date',
       })
     }
   })
@@ -40,7 +50,20 @@ const updateEventSchema = z.object({
   isRecurring: z.boolean().optional(),
   recurrence: recurrenceSchema.optional(),
   weekday: z.number().int().min(0).max(6).nullable().optional(),
+  startDate: dateOnlySchema.nullable().optional(),
+  endDate: dateOnlySchema.nullable().optional(),
 })
+
+function toDateOnly(value: string | Date | null | undefined): Date | null {
+  if (!value) return null
+  if (value instanceof Date) return value
+  return new Date(`${value}T00:00:00.000Z`)
+}
+
+function dateKey(value: string | Date | null | undefined): string | null {
+  if (!value) return null
+  return value instanceof Date ? value.toISOString().slice(0, 10) : value
+}
 
 const eventRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /events — List all events for the current user
@@ -87,14 +110,22 @@ const eventRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     const recurrence = parsed.data.recurrence ?? (parsed.data.isRecurring ? 'YEARLY' : 'NONE')
+    const startDate = recurrence === 'NONE' ? null : toDateOnly(parsed.data.startDate)
+    const endDate = recurrence === 'NONE' ? null : toDateOnly(parsed.data.endDate)
     const event = await prisma.event.create({
       data: {
-        ...parsed.data,
-        year: parsed.data.year ?? null,
-        icon: parsed.data.icon ?? null,
+        name: parsed.data.name,
+        day: parsed.data.day,
+        month: parsed.data.month,
+        type: parsed.data.type,
+        color: parsed.data.color,
         isRecurring: recurrence !== 'NONE',
+        year: recurrence === 'NONE' ? (parsed.data.year ?? null) : null,
+        icon: parsed.data.icon ?? null,
         recurrence,
         weekday: recurrence === 'WEEKLY' ? (parsed.data.weekday ?? null) : null,
+        startDate,
+        endDate,
         userId: request.user!.id,
       },
     })
@@ -128,20 +159,37 @@ const eventRoutes: FastifyPluginAsync = async (fastify) => {
           ? 'YEARLY'
           : 'NONE')
     const weekday = parsed.data.weekday !== undefined ? parsed.data.weekday : existing.weekday
-    if (recurrence === 'WEEKLY' && weekday === null) {
+    if (recurrence === 'WEEKLY' && weekday == null) {
       return reply.code(400).send({
         error: 'VALIDATION_ERROR',
         message: 'Weekday is required for weekly events',
+      })
+    }
+    const startDate =
+      parsed.data.startDate !== undefined ? parsed.data.startDate : existing.startDate
+    const endDate = parsed.data.endDate !== undefined ? parsed.data.endDate : existing.endDate
+    if (startDate && endDate && (dateKey(endDate) ?? '') < (dateKey(startDate) ?? '')) {
+      return reply.code(400).send({
+        error: 'VALIDATION_ERROR',
+        message: 'End date must be on or after start date',
       })
     }
 
     const event = await prisma.event.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...(parsed.data.name !== undefined ? { name: parsed.data.name } : {}),
+        ...(parsed.data.day !== undefined ? { day: parsed.data.day } : {}),
+        ...(parsed.data.month !== undefined ? { month: parsed.data.month } : {}),
+        ...(parsed.data.type !== undefined ? { type: parsed.data.type } : {}),
+        ...(parsed.data.color !== undefined ? { color: parsed.data.color } : {}),
+        ...(parsed.data.icon !== undefined ? { icon: parsed.data.icon } : {}),
+        year: recurrence === 'NONE' ? (parsed.data.year ?? existing.year) : null,
         isRecurring: recurrence !== 'NONE',
         recurrence,
         weekday: recurrence === 'WEEKLY' ? weekday : null,
+        startDate: recurrence === 'NONE' ? null : toDateOnly(startDate),
+        endDate: recurrence === 'NONE' ? null : toDateOnly(endDate),
       },
     })
 

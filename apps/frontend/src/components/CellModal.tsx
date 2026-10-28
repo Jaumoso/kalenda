@@ -68,6 +68,9 @@ export default function CellModal({
   const [newEventRecurrence, setNewEventRecurrence] = useState<
     'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
   >('YEARLY')
+  const [newEventColor, setNewEventColor] = useState('#C8502A')
+  const [newEventIcon, setNewEventIcon] = useState('')
+  const [newEventEndDate, setNewEventEndDate] = useState('')
   const [newEventWeekday, setNewEventWeekday] = useState(
     new Date(year, month - 1, dayNumber).getDay()
   )
@@ -129,10 +132,17 @@ export default function CellModal({
         day: dayNumber,
         month,
         type: newEventType,
+        color: newEventColor,
+        icon: newEventIcon.trim() || null,
         isRecurring: newEventRecurrence !== 'NONE',
         recurrence: newEventRecurrence,
         weekday: newEventRecurrence === 'WEEKLY' ? newEventWeekday : null,
         year: newEventRecurrence === 'NONE' ? year : null,
+        startDate:
+          newEventRecurrence === 'NONE'
+            ? null
+            : new Date(Date.UTC(year, month - 1, dayNumber)).toISOString().slice(0, 10),
+        endDate: newEventRecurrence === 'NONE' ? null : newEventEndDate || null,
       })
       setNewEventName('')
       setShowNewEvent(false)
@@ -263,6 +273,30 @@ export default function CellModal({
                   </button>
                 ))}
               </div>
+              <div className="flex gap-1">
+                {['#C8502A', '#2563EB', '#059669', '#7C3AED', '#DB2777', '#EA580C'].map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setNewEventColor(color)}
+                    className={`w-6 h-6 rounded-full border-2 ${
+                      newEventColor === color
+                        ? 'border-neutral-900 scale-110'
+                        : 'border-transparent'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    aria-label={t('common.color')}
+                  />
+                ))}
+              </div>
+              <input
+                type="text"
+                value={newEventIcon}
+                onChange={(e) => setNewEventIcon(e.target.value)}
+                placeholder={t('events.iconLabel')}
+                className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                maxLength={4}
+              />
               <select
                 value={newEventRecurrence}
                 onChange={(e) =>
@@ -295,6 +329,20 @@ export default function CellModal({
                     </option>
                   ))}
                 </select>
+              )}
+              {newEventRecurrence !== 'NONE' && (
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1">
+                    {t('events.validUntil')}
+                  </label>
+                  <input
+                    type="date"
+                    value={newEventEndDate}
+                    min={new Date(Date.UTC(year, month - 1, dayNumber)).toISOString().slice(0, 10)}
+                    onChange={(e) => setNewEventEndDate(e.target.value)}
+                    className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                  />
+                </div>
               )}
               <div className="flex gap-1 justify-end">
                 <button
