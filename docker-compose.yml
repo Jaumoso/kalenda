@@ -88,7 +88,7 @@ services:
       - ./scripts/backup.sh:/usr/local/bin/kalenda-backup:ro
     entrypoint: ['/usr/local/bin/kalenda-backup']
     depends_on:
-      postgres:
+      backend:
         condition: service_healthy
     restart: unless-stopped
 

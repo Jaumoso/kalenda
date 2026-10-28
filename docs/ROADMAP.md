@@ -2,22 +2,28 @@
 
 ## Kalenda
 
-**Versión:** 1.0  
-**Fecha:** Octubre 2026
+**Versión:** 1.2
+**Fecha:** 28 de octubre de 2026
 
 ---
 
 ## Estado actual
 
-Las fases 0 a 5, 6a, 6b, 7, 8, 9 y la implementación base de la 10 están funcionalmente construidas. La aplicación está desplegada en el servidor con Docker Compose detrás de Pangolin, y el flujo de releases distingue entre imágenes estables de `main` e imágenes de validación de `dev`. El trabajo pendiente se concentra en:
+Las fases 0 a 9 y la funcionalidad principal de la fase 10 están construidas. La aplicación
+se despliega con Docker Compose detrás de Pangolin, con imágenes estables de `main`,
+imágenes de validación de `dev` y releases reproducibles mediante etiquetas SemVer.
 
-1. Documentación de uso básico para que el usuario pueda trabajar sin asistencia.
-2. Revisión completa con el usuario principal sobre el servidor real.
-3. Validación operativa de restauración de backups y actualización entre canales `dev` y releases estables.
-4. Permitir subir un medio nuevo a la biblioteca directamente desde el editor al añadir una imagen.
-5. Incluir el estado personalizado de portada y contraportada en la vista de "Mis Calendarios".
+El trabajo pendiente real, en orden, es:
 
-Las casillas marcadas como completadas reflejan funcionalidad presente en el código o validada en el entorno de despliegue actual. Las tareas restantes son de documentación, validación de uso y operación continuada.
+1. Completar y revisar la guía de usuario básica.
+2. Hacer la revisión completa con el usuario principal en el servidor real.
+3. Probar restauración de backups válidos en un entorno controlado.
+4. Validar actualización y rollback entre `dev`, releases versionadas y `latest`.
+
+El perfil, el cambio de credenciales, el registro público opcional, la subida desde el
+selector del editor, la restauración del fondo y los indicadores de portada y contraportada
+ya están implementados. Las ideas de v2 permanecen aplazadas hasta cerrar estos cuatro
+puntos operativos.
 
 ---
 
@@ -90,7 +96,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Frontend: modal "Nuevo proyecto"
 - [x] Frontend: Vista general de proyecto (12 meses en grid)
 - [x] Frontend: estado visual de cada mes (vacío/con contenido/personalizado)
-- [ ] Frontend: reflejar en "Mis Calendarios" si la portada y la contraportada están personalizadas
+- [x] Frontend: reflejar en "Mis Calendarios" si la portada y la contraportada están personalizadas
 
 **Entregable:** Se pueden crear y organizar proyectos. La vista de 12 meses es navegable.
 
@@ -111,7 +117,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Frontend: página de Biblioteca (grid de imágenes, árbol de carpetas)
 - [x] Frontend: subida drag & drop con barra de progreso
 - [x] Frontend: búsqueda y filtrado
-- [ ] Permitir subir un medio nuevo desde el selector de imágenes del editor y reutilizarlo inmediatamente
+- [x] Permitir subir un medio nuevo desde el selector de imágenes del editor y reutilizarlo inmediatamente
 
 **Entregable:** Puede subir todas sus fotos una vez y acceder a ellas siempre.
 
@@ -298,6 +304,8 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Optimización de rendimiento (lazy loading de páginas con React.lazy + Suspense)
 - [x] Rate limiting en rutas de autenticación y API (`@fastify/rate-limit`)
 - [x] Toggle mostrar/ocultar contraseña en login
+- [x] Perfil de usuario y cambio de contraseña
+- [x] Registro público opcional mediante `ALLOW_USER_REGISTRATION`, manteniendo el bootstrap obligatorio del administrador
 - [x] Corrección build frontend para TypeScript 6
 - [x] Endpoints de health básicos
 - [x] Endurecimiento inicial de secretos: el compose de producción exige `COOKIE_SECRET`, `JWT_SECRET` y credenciales de administrador
@@ -307,13 +315,13 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 - [x] Tests unitarios iniciales para configuración, schemas compartidos y helpers del calendario
 - [x] Smoke test del stack de desarrollo con Docker Compose
 - [x] Tests de los flujos principales (Playwright)
-- [ ] Documentación de uso básico (guía de usuario en PDF)
+- [x] Documentación de uso básico (guía en `docs/USER_GUIDE.md`; PDF pendiente solo si se necesita distribución offline)
 - [x] Configurar backup automático del volumen de datos y de los archivos persistentes
 - [x] Configurar HTTPS mediante el reverse proxy de Pangolin
-- [ ] Revisión completa con el usuario principal (prueba real)
+- [ ] Revisión completa con el usuario principal (prueba real en el servidor desplegado)
 - [x] Publicar imágenes de validación de `dev` (`dev` y `dev-<short-sha>`)
 - [x] Mantener imágenes estables separadas (`vX.Y.Z` y `latest`) y validadas desde `main`
-- [ ] Probar restauración de backups en un entorno controlado
+- [x] Probar restauración de un backup generado por el servicio en un PostgreSQL aislado
 - [ ] Validar el procedimiento completo de actualización y rollback entre `dev` y releases estables
 - [x] Ejecutar migraciones de Prisma automáticamente durante el despliegue
 - [x] Recuperar y reintentar exportaciones interrumpidas al reiniciar el backend
@@ -337,7 +345,7 @@ Las casillas marcadas como completadas reflejan funcionalidad presente en el có
 | 7    | Celdas avanzadas              | Funcional                                                                             |
 | 8    | Plantillas                    | Funcional                                                                             |
 | 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                                                  |
-| 10   | Pulido y producción           | En curso; guía, validación con usuario, restauración de backups y rollback pendientes |
+| 10   | Pulido y producción           | En curso; revisión con usuario y validación de actualización/rollback pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 
