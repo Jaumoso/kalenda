@@ -34,7 +34,48 @@ const updateProjectSchema = z.object({
   holidayCountryCode: z.string().length(2).optional(),
   autonomyCode: z.string().max(10).nullable().optional(),
   highlightedEventId: z.string().nullable().optional(),
+  countdownEventIds: z.array(z.string()).optional(),
 })
+
+const countdownEventSelect = {
+  id: true,
+  name: true,
+  day: true,
+  month: true,
+  year: true,
+  type: true,
+  color: true,
+  icon: true,
+  isRecurring: true,
+  recurrence: true,
+  weekday: true,
+  startDate: true,
+  endDate: true,
+  userId: true,
+} as const
+
+async function attachCountdownEvents<
+  T extends { countdownEventIds: string[]; highlightedEventId: string | null; userId: string },
+>(project: T) {
+  const ids = project.countdownEventIds.length
+    ? project.countdownEventIds
+    : project.highlightedEventId
+      ? [project.highlightedEventId]
+      : []
+  const events = await prisma.event.findMany({
+    where: { userId: project.userId, id: { in: ids } },
+    select: countdownEventSelect,
+  })
+  const byId = new Map(events.map((event) => [event.id, event]))
+  const countdownEvents = ids
+    .map((id) => byId.get(id))
+    .filter((event): event is (typeof events)[number] => Boolean(event))
+  return {
+    ...project,
+    countdownEventIds: countdownEvents.map((event) => event.id),
+    countdownEvents,
+  }
+}
 
 const projectRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /projects — List current user's projects
@@ -203,7 +244,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(404).send({ error: 'NOT_FOUND', message: 'Project not found' })
     }
 
-    reply.send({ project })
+    reply.send({ project: await attachCountdownEvents(project) })
   })
 
   // PATCH /projects/:id — Update project
@@ -247,9 +288,40 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       }
     }
 
+    const requestedCountdownIds =
+      parsed.data.countdownEventIds ??
+      (parsed.data.highlightedEventId !== undefined
+        ? parsed.data.highlightedEventId
+          ? [parsed.data.highlightedEventId]
+          : []
+        : undefined)
+    if (requestedCountdownIds) {
+      const uniqueIds = [...new Set(requestedCountdownIds)]
+      const events = await prisma.event.findMany({
+        where: { id: { in: uniqueIds }, userId: request.user!.id },
+        select: { id: true },
+      })
+      if (events.length !== uniqueIds.length) {
+        return reply.code(400).send({
+          error: 'VALIDATION_ERROR',
+          message: 'One or more countdown events were not found',
+        })
+      }
+    }
+
+    const updateData = {
+      ...parsed.data,
+      ...(requestedCountdownIds
+        ? {
+            countdownEventIds: [...new Set(requestedCountdownIds)],
+            highlightedEventId: requestedCountdownIds[0] ?? null,
+          }
+        : {}),
+    }
+
     const project = await prisma.project.update({
       where: { id },
-      data: parsed.data,
+      data: updateData,
       include: {
         highlightedEvent: {
           select: {
@@ -275,7 +347,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       },
     })
 
-    reply.send({ project })
+    reply.send({ project: await attachCountdownEvents(project) })
   })
 
   // DELETE /projects/:id — Delete project (cascade deletes months)
@@ -321,6 +393,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
           paperSize: source.paperSize,
           autonomyCode: source.autonomyCode,
           highlightedEventId: source.highlightedEventId,
+          countdownEventIds: source.countdownEventIds,
           userId: request.user!.id,
           status: 'DRAFT',
           months: {
@@ -344,7 +417,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         },
       })
 
-      reply.code(201).send({ project: duplicate })
+      reply.code(201).send({ project: await attachCountdownEvents(duplicate) })
     }
   )
 }

@@ -56,6 +56,7 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
               year: true,
               autonomyCode: true,
               holidayCountryCode: true,
+              countdownEventIds: true,
               highlightedEvent: {
                 select: {
                   id: true,
@@ -99,11 +100,27 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
         orderBy: { day: 'asc' },
       })
       const events = expandEventsForMonth(storedEvents, month.year, month.month)
+      const countdownIds = month.project.countdownEventIds.length
+        ? month.project.countdownEventIds
+        : month.project.highlightedEvent
+          ? [month.project.highlightedEvent.id]
+          : []
+      const countdownEvents = await prisma.event.findMany({
+        where: { userId: month.project.userId, id: { in: countdownIds } },
+        orderBy: { createdAt: 'asc' },
+      })
 
       const saints = getSaintsForMonth(month.month)
 
       reply.send({
-        month,
+        month: {
+          ...month,
+          project: {
+            ...month.project,
+            countdownEventIds: countdownEvents.map((event) => event.id),
+            countdownEvents,
+          },
+        },
         holidays: holidayResult.holidays,
         holidaySupportError: holidayResult.supportError,
         events,

@@ -65,7 +65,7 @@ test.describe('core user flows', () => {
       .click()
     await page.getByPlaceholder(/event name|nombre del evento/i).fill('E2E birthday')
     await page.getByRole('button', { name: /^(add|añadir)$/i }).click()
-    await expect(page.getByText(/E2E birthday/)).toBeVisible()
+    await expect(page.getByText('E2E birthday', { exact: true })).toBeVisible()
 
     await page.getByRole('button', { name: /save|guardar/i }).last().click()
     await expect(page.getByText(/unsaved|sin guardar/i)).not.toBeVisible()

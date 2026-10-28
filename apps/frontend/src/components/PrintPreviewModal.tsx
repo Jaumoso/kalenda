@@ -5,6 +5,7 @@ import api from '../lib/api'
 import {
   DEFAULT_PRINT_CONFIG,
   getPaperDimensions,
+  getPrintGeometry,
   type PaperSize,
   type PrintConfig,
 } from '../lib/calendarTypes'
@@ -77,7 +78,7 @@ export default function PrintPreviewModal({
   const { t } = useTranslation()
   const monthNames = t('months', { returnObjects: true }) as string[]
   const paper = getPaperDimensions(paperSize)
-  const bleedPx = printConfig.bleedEnabled ? Math.round((printConfig.bleedMm / 25.4) * 96) : 0
+  const geometry = getPrintGeometry(printConfig, paper)
   const renderQuery = new URLSearchParams({
     bleed: printConfig.bleedEnabled ? String(printConfig.bleedMm) : '0',
     cropMarks: String(printConfig.cropMarks),
@@ -112,10 +113,10 @@ export default function PrintPreviewModal({
     // Modal is max-h-[90vh], header ~60px, nav ~56px, padding ~32px, label ~32px = ~180px chrome
     const availH = window.innerHeight * 0.9 - 180
     const availW = Math.min(window.innerWidth - 64, 768 - 48) // modal max-w-3xl minus padding
-    const scaleW = availW / (paper.widthPx + bleedPx * 2)
-    const scaleH = availH / (paper.heightPx + bleedPx * 2)
+    const scaleW = availW / geometry.outputWidthPx
+    const scaleH = availH / geometry.outputHeightPx
     setPaperScale(Math.min(scaleW, scaleH, 1))
-  }, [bleedPx, paper])
+  }, [geometry, paper])
 
   useEffect(() => {
     recalcScale()
@@ -170,8 +171,8 @@ export default function PrintPreviewModal({
               <div
                 className="relative bg-white shadow-[0_4px_40px_rgba(0,0,0,0.5)] rounded-sm overflow-hidden flex-shrink-0"
                 style={{
-                  width: (paper.widthPx + bleedPx * 2) * paperScale,
-                  height: (paper.heightPx + bleedPx * 2) * paperScale,
+                  width: geometry.outputWidthPx * paperScale,
+                  height: geometry.outputHeightPx * paperScale,
                 }}
               >
                 {/* Loading spinner overlay */}
@@ -186,8 +187,8 @@ export default function PrintPreviewModal({
                   title={page.label}
                   className="border-0 absolute top-0 left-0"
                   style={{
-                    width: paper.widthPx + bleedPx * 2,
-                    height: paper.heightPx + bleedPx * 2,
+                    width: geometry.outputWidthPx,
+                    height: geometry.outputHeightPx,
                     transform: `scale(${paperScale})`,
                     transformOrigin: 'top left',
                   }}

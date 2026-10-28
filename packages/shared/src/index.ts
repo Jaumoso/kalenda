@@ -17,10 +17,11 @@ export type {
   PaperSize,
   PaperDimensions,
   PrintConfig,
+  PrintGeometry,
   HighlightedEvent,
 } from './types'
 
-export { DEFAULT_PRINT_CONFIG, PAPER_DIMENSIONS } from './types'
+export { DEFAULT_PRINT_CONFIG, PAPER_DIMENSIONS, getPrintGeometry } from './types'
 
 // Export schemas
 export {

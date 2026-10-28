@@ -34,7 +34,8 @@ through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
 - GET /projects
 - POST /projects
 - GET /projects/:id
-- PATCH /projects/:id (incluye `highlightedEventId`, que debe pertenecer al usuario; `null` desactiva la cuenta atrás)
+- PATCH /projects/:id (accepts ordered `countdownEventIds`; every ID must belong to the user.
+  The legacy `highlightedEventId` remains supported and maps to the first configured event.)
 - POST /projects/:id/duplicate
 - DELETE /projects/:id
 - GET /projects/:id/covers
@@ -77,6 +78,7 @@ outside this endpoint's scope and are reported as import errors.
 
 - POST /exports
 - GET /exports/:id
+- POST /exports/:id/cancel
 - GET /exports/:id/download
 - GET /exports
 - DELETE /exports/:id
@@ -86,6 +88,8 @@ outside this endpoint's scope and are reported as import errors.
 the captured PNG/PDF page outside the selected paper's trim dimensions; the calendar
 content remains positioned relative to the trim box. A4 is the default when no paper
 or print configuration is provided.
+Cancellation changes a pending or processing job to `CANCELLED` and stops active Puppeteer
+capture work when possible.
 
 ## Rendering and previews
 

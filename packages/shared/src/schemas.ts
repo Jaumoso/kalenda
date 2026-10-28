@@ -31,6 +31,7 @@ export const projectSchema = z.object({
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
   highlightedEventId: z.string().nullable().optional(),
+  countdownEventIds: z.array(z.string()).default([]),
   createdAt: z.date(),
   updatedAt: z.date(),
 })

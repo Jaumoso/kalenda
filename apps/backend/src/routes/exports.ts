@@ -4,8 +4,9 @@ import { DEFAULT_PRINT_CONFIG } from '@kalenda/shared'
 import { Prisma } from '@prisma/client'
 import fs from 'fs'
 import { prisma } from '../prisma.js'
-import { startExportJob } from '../lib/renderer.js'
+import { cancelExportJob, startExportJob } from '../lib/renderer.js'
 import { rateLimitConfig } from '@/config.js'
+import { isExportCancellable } from '../lib/exportStatus.js'
 
 const rateLimit = rateLimitConfig.strict
 
@@ -109,6 +110,28 @@ const exportRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       reply.send({ job })
+    }
+  )
+
+  // POST /exports/:id/cancel — Cancel a pending or active export job
+  fastify.post(
+    '/exports/:id/cancel',
+    { preHandler: fastify.authenticate, config: { rateLimit } },
+    async (request, reply) => {
+      const { id } = request.params as { id: string }
+      const job = await prisma.exportJob.findFirst({ where: { id, userId: request.user!.id } })
+      if (!job) {
+        return reply.code(404).send({ error: 'NOT_FOUND', message: 'Export job not found' })
+      }
+      if (!isExportCancellable(job.status)) {
+        return reply.code(409).send({
+          error: 'CONFLICT',
+          message: 'Export job cannot be cancelled in its current state',
+        })
+      }
+      await cancelExportJob(id)
+      const cancelled = await prisma.exportJob.findUnique({ where: { id } })
+      return reply.send({ job: cancelled })
     }
   )
 

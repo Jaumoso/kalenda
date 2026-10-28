@@ -196,7 +196,10 @@
     "days": "{{count}} days until {{name}}",
     "today": "Today is {{name}}",
     "missing": "Select a highlighted event to show the countdown.",
-    "expired": "The highlighted event {{name}} is no longer valid."
+    "expired": "The configured event {{name}} is no longer valid.",
+    "settingsTitle": "Countdown events",
+    "settingsHint": "Select one or more events. They appear only in preview and exports.",
+    "noEvents": "No events available."
   },
   "cover": {
     "frontCover": "Front cover",
@@ -324,7 +327,10 @@
     "starting": "Starting...",
     "exportFormat": "Export {{format}}",
     "errorStarting": "Error starting export",
-    "errorCheckingStatus": "Unable to update export status. Retrying..."
+    "errorCheckingStatus": "Unable to update export status. Retrying...",
+    "cancelExport": "Cancel export",
+    "cancelled": "Export cancelled",
+    "errorCancelling": "Error cancelling export"
   },
   "newProject": {
     "title": "New calendar",

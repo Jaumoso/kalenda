@@ -17,7 +17,7 @@ import { DEFAULT_PRINT_CONFIG, type PrintConfig } from '../lib/calendarTypes'
 interface ExportJob {
   id: string
   format: 'PDF' | 'PNG'
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'
   progress: number
   totalPages: number
   currentPage: number
@@ -61,7 +61,12 @@ export default function ExportModal({
 
   // Poll job status
   useEffect(() => {
-    if (!job || job.status === 'COMPLETED' || job.status === 'FAILED') {
+    if (
+      !job ||
+      job.status === 'COMPLETED' ||
+      job.status === 'FAILED' ||
+      job.status === 'CANCELLED'
+    ) {
       if (pollRef.current) {
         clearInterval(pollRef.current)
         pollRef.current = null
@@ -118,6 +123,20 @@ export default function ExportModal({
     if (!job) return
     // Open download URL in new tab
     window.open(`/api/exports/${job.id}/download`, '_blank')
+  }
+
+  const handleCancel = async () => {
+    if (!job) return
+    try {
+      const { data } = await api.post(`/exports/${job.id}/cancel`)
+      setJob(data.job)
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined
+      setError(msg || t('exportModal.errorCancelling'))
+    }
   }
 
   const formatFileSize = (bytes: number | null) => {
@@ -381,6 +400,17 @@ export default function ExportModal({
                     </button>
                   </div>
                 )}
+                {job.status === 'CANCELLED' && (
+                  <div className="space-y-2">
+                    <p className="text-neutral-600 font-medium">
+                      <XCircle size={16} className="inline mr-1" />
+                      {t('exportModal.cancelled')}
+                    </p>
+                    <button onClick={() => setJob(null)} className="btn btn-secondary text-sm">
+                      {t('common.retry')}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -402,9 +432,17 @@ export default function ExportModal({
               </button>
             </>
           )}
-          {job && (job.status === 'COMPLETED' || job.status === 'FAILED') && (
-            <button onClick={onClose} className="btn btn-secondary text-sm">
-              {t('common.close')}
+          {job &&
+            (job.status === 'COMPLETED' ||
+              job.status === 'FAILED' ||
+              job.status === 'CANCELLED') && (
+              <button onClick={onClose} className="btn btn-secondary text-sm">
+                {t('common.close')}
+              </button>
+            )}
+          {job && (job.status === 'PENDING' || job.status === 'PROCESSING') && (
+            <button onClick={handleCancel} className="btn btn-secondary text-sm">
+              {t('exportModal.cancelExport')}
             </button>
           )}
         </div>

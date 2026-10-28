@@ -28,7 +28,7 @@ import DraggableMiniCalendar, {
 } from '../components/DraggableMiniCalendar'
 import MiniCalendar from '../components/MiniCalendar'
 import SaveAsTemplateModal from '../components/SaveAsTemplateModal'
-import EventCountdown from '../components/EventCountdown'
+import CountdownSettingsPanel from '../components/CountdownSettingsPanel'
 
 const AUTOSAVE_INTERVAL = 30_000 // 30 seconds
 
@@ -529,12 +529,6 @@ export default function MonthEditorPage() {
                 />
               </div>
 
-              <EventCountdown
-                event={monthData.project.highlightedEvent}
-                projectYear={monthData.year}
-                className="absolute left-16 top-6 z-[3] w-[calc(100%-8rem)] pointer-events-none"
-              />
-
               {/* Calendar Grid overlay — draggable & resizable */}
               <DraggableGridOverlay
                 x={gridConfig.gridX}
@@ -613,6 +607,27 @@ export default function MonthEditorPage() {
                   refreshKey={canvasRefreshKey}
                 />
               </div>
+              <CountdownSettingsPanel
+                events={events}
+                selectedIds={monthData.project.countdownEventIds}
+                onChange={async (ids) => {
+                  const { data } = await api.patch(`/projects/${monthData.projectId}`, {
+                    countdownEventIds: ids,
+                  })
+                  setMonthData((current) =>
+                    current
+                      ? {
+                          ...current,
+                          project: {
+                            ...current.project,
+                            countdownEventIds: data.project.countdownEventIds,
+                            countdownEvents: data.project.countdownEvents,
+                          },
+                        }
+                      : current
+                  )
+                }}
+              />
             </div>
           ) : (
             <GridPropertiesPanel
