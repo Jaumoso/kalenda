@@ -298,6 +298,10 @@
     "errorDeleting": "Error al eliminar"
   },
   "exportModal": {
+    "scope": "Qué exportar",
+    "fullCalendar": "Calendario completo",
+    "singleMonth": "Un solo mes",
+    "month": "Mes",
     "title": "Exportar calendario",
     "format": "Formato",
     "pdfLabel": "PDF",

@@ -32,6 +32,7 @@ interface Props {
   readonly projectYear: number
   readonly printConfig?: PrintConfig
   readonly onPrintConfigChange?: (config: PrintConfig) => void
+  readonly months: readonly { id: string; month: number; year: number }[]
   readonly onClose: () => void
 }
 
@@ -41,13 +42,17 @@ export default function ExportModal({
   projectYear,
   printConfig = DEFAULT_PRINT_CONFIG,
   onPrintConfigChange,
+  months,
   onClose,
 }: Props) {
   const { t } = useTranslation()
+  const monthNames = t('months', { returnObjects: true }) as string[]
   const [format, setFormat] = useState<'PDF' | 'PNG'>('PDF')
   const [dpi, setDpi] = useState(300)
   const [bindingGuide, setBindingGuide] = useState(false)
   const [filename, setFilename] = useState(`${projectName}-${projectYear}`)
+  const [scope, setScope] = useState<'calendar' | 'month'>('calendar')
+  const [monthId, setMonthId] = useState(months[0]?.id ?? '')
   const [job, setJob] = useState<ExportJob | null>(null)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -89,6 +94,7 @@ export default function ExportModal({
     try {
       const { data } = await api.post('/exports', {
         projectId,
+        monthId: scope === 'month' ? monthId : undefined,
         format,
         dpi,
         bindingGuide,
@@ -146,6 +152,51 @@ export default function ExportModal({
           {/* If no job started yet, show options */}
           {!job && (
             <>
+              <div>
+                <p className="text-sm font-medium text-neutral-700 mb-2">
+                  {t('exportModal.scope')}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setScope('calendar')}
+                    className={`flex-1 px-3 py-2 rounded-md text-sm ${
+                      scope === 'calendar'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                    }`}
+                  >
+                    {t('exportModal.fullCalendar')}
+                  </button>
+                  <button
+                    onClick={() => setScope('month')}
+                    className={`flex-1 px-3 py-2 rounded-md text-sm ${
+                      scope === 'month'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                    }`}
+                  >
+                    {t('exportModal.singleMonth')}
+                  </button>
+                </div>
+              </div>
+
+              {scope === 'month' && (
+                <label className="block text-sm font-medium text-neutral-700">
+                  {t('exportModal.month')}
+                  <select
+                    value={monthId}
+                    onChange={(e) => setMonthId(e.target.value)}
+                    className="mt-1 w-full text-sm border border-neutral-300 rounded-md px-3 py-1.5"
+                  >
+                    {months.map((month) => (
+                      <option key={month.id} value={month.id}>
+                        {monthNames[month.month - 1]} {month.year}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
               {/* Format */}
               <div>
                 <p className="text-sm font-medium text-neutral-700 mb-2">
@@ -254,7 +305,7 @@ export default function ExportModal({
                     placeholder={t('exportModal.filenamePlaceholder')}
                   />
                   <span className="text-sm text-neutral-400">
-                    .{format === 'PDF' ? 'pdf' : 'zip'}
+                    .{format === 'PDF' ? 'pdf' : scope === 'month' ? 'png' : 'zip'}
                   </span>
                 </div>
               </div>
@@ -344,7 +395,7 @@ export default function ExportModal({
               </button>
               <button
                 onClick={handleStart}
-                disabled={starting}
+                disabled={starting || (scope === 'month' && !monthId)}
                 className="btn btn-primary text-sm disabled:opacity-50"
               >
                 {starting ? t('exportModal.starting') : t('exportModal.exportFormat', { format })}
