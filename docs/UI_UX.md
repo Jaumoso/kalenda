@@ -32,3 +32,10 @@
 - Friendly toast notifications
 - Actionable validation messages
 - Clear loading and empty states
+
+## Current delivery status
+
+The login, dashboard, project overview, asset library, events, templates, editor and export
+flows are implemented. The editor includes contextual tooltips, immediate visual feedback,
+manual save and autosave. The remaining UX work is the user profile/credential flow, the
+basic user guide and validation of the complete workflow with the primary user.
