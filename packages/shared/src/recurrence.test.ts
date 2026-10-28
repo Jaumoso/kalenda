@@ -1,0 +1,68 @@
+import { describe, expect, it } from 'vitest'
+import { expandEventForMonth, expandEventsForMonth } from './recurrence'
+
+const baseEvent: {
+  id: string
+  name: string
+  day: number
+  month: number
+  year: number | null
+  type: string
+  color: string
+  icon: string | null
+  isRecurring: boolean
+  userId: string
+} = {
+  id: 'event-1',
+  name: 'Team sync',
+  day: 15,
+  month: 1,
+  year: null,
+  type: 'CUSTOM',
+  color: '#000000',
+  icon: null,
+  isRecurring: true,
+  userId: 'user-1',
+}
+
+describe('event recurrence expansion', () => {
+  it('expands a monthly event on the configured day', () => {
+    const occurrences = expandEventForMonth(
+      { ...baseEvent, recurrence: 'MONTHLY' as const },
+      2026,
+      2
+    )
+
+    expect(occurrences).toHaveLength(1)
+    expect(occurrences[0].day).toBe(15)
+    expect(occurrences[0].month).toBe(2)
+  })
+
+  it('does not render a monthly day that does not exist', () => {
+    const occurrences = expandEventForMonth(
+      { ...baseEvent, day: 31, recurrence: 'MONTHLY' as const },
+      2026,
+      2
+    )
+
+    expect(occurrences).toHaveLength(0)
+  })
+
+  it('expands weekly events to every matching weekday', () => {
+    const occurrences = expandEventForMonth(
+      { ...baseEvent, recurrence: 'WEEKLY' as const, weekday: 1 },
+      2026,
+      2
+    )
+
+    expect(occurrences.map((event) => event.day)).toEqual([2, 9, 16, 23])
+    expect(occurrences.every((event) => event.month === 2)).toBe(true)
+  })
+
+  it('keeps one-time events limited to their date', () => {
+    const event = { ...baseEvent, isRecurring: false, recurrence: 'NONE' as const, year: 2026 }
+
+    expect(expandEventsForMonth([event], 2026, 1)).toHaveLength(1)
+    expect(expandEventsForMonth([event], 2026, 2)).toHaveLength(0)
+  })
+})

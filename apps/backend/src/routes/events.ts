@@ -1,17 +1,33 @@
 import { FastifyPluginAsync } from 'fastify'
+import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { prisma } from '../prisma.js'
 
-const createEventSchema = z.object({
-  name: z.string().min(1).max(100),
-  day: z.number().int().min(1).max(31),
-  month: z.number().int().min(1).max(12),
-  year: z.number().int().min(2020).max(2050).nullable().optional(),
-  type: z.enum(['BIRTHDAY', 'ANNIVERSARY', 'CUSTOM']).default('CUSTOM'),
-  color: z.string().max(20).default('#C8502A'),
-  icon: z.string().max(10).nullable().optional(),
-  isRecurring: z.boolean().default(true),
-})
+const recurrenceSchema = z.enum(['NONE', 'YEARLY', 'MONTHLY', 'WEEKLY'])
+
+const createEventSchema = z
+  .object({
+    name: z.string().min(1).max(100),
+    day: z.number().int().min(1).max(31),
+    month: z.number().int().min(1).max(12),
+    year: z.number().int().min(2020).max(2050).nullable().optional(),
+    type: z.enum(['BIRTHDAY', 'ANNIVERSARY', 'CUSTOM']).default('CUSTOM'),
+    color: z.string().max(20).default('#C8502A'),
+    icon: z.string().max(10).nullable().optional(),
+    isRecurring: z.boolean().default(true),
+    recurrence: recurrenceSchema.optional(),
+    weekday: z.number().int().min(0).max(6).nullable().optional(),
+  })
+  .superRefine((value, ctx) => {
+    const recurrence = value.recurrence ?? (value.isRecurring ? 'YEARLY' : 'NONE')
+    if (recurrence === 'WEEKLY' && value.weekday == null) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['weekday'],
+        message: 'Weekday is required for weekly events',
+      })
+    }
+  })
 
 const updateEventSchema = z.object({
   name: z.string().min(1).max(100).optional(),
@@ -22,6 +38,8 @@ const updateEventSchema = z.object({
   color: z.string().max(20).optional(),
   icon: z.string().max(10).nullable().optional(),
   isRecurring: z.boolean().optional(),
+  recurrence: recurrenceSchema.optional(),
+  weekday: z.number().int().min(0).max(6).nullable().optional(),
 })
 
 const eventRoutes: FastifyPluginAsync = async (fastify) => {
@@ -40,15 +58,18 @@ const eventRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
-    const where: Record<string, unknown> = { userId: request.user!.id }
-    if (parsed.data.month !== undefined) where.month = parsed.data.month
-    // For recurring events, show them regardless of year; for non-recurring, filter by year
+    const filters: Prisma.EventWhereInput[] = []
+    if (parsed.data.month !== undefined) {
+      filters.push({
+        OR: [{ month: parsed.data.month }, { recurrence: 'MONTHLY' }, { recurrence: 'WEEKLY' }],
+      })
+    }
     if (parsed.data.year !== undefined) {
-      where.OR = [{ isRecurring: true }, { year: parsed.data.year }]
+      filters.push({ OR: [{ isRecurring: true }, { year: parsed.data.year }] })
     }
 
     const events = await prisma.event.findMany({
-      where,
+      where: { userId: request.user!.id, AND: filters },
       orderBy: [{ month: 'asc' }, { day: 'asc' }],
     })
 
@@ -65,11 +86,15 @@ const eventRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
+    const recurrence = parsed.data.recurrence ?? (parsed.data.isRecurring ? 'YEARLY' : 'NONE')
     const event = await prisma.event.create({
       data: {
         ...parsed.data,
         year: parsed.data.year ?? null,
         icon: parsed.data.icon ?? null,
+        isRecurring: recurrence !== 'NONE',
+        recurrence,
+        weekday: recurrence === 'WEEKLY' ? (parsed.data.weekday ?? null) : null,
         userId: request.user!.id,
       },
     })
@@ -95,9 +120,29 @@ const eventRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(404).send({ error: 'NOT_FOUND', message: 'Event not found' })
     }
 
+    const recurrence =
+      parsed.data.recurrence ??
+      (parsed.data.isRecurring === undefined
+        ? existing.recurrence
+        : parsed.data.isRecurring
+          ? 'YEARLY'
+          : 'NONE')
+    const weekday = parsed.data.weekday !== undefined ? parsed.data.weekday : existing.weekday
+    if (recurrence === 'WEEKLY' && weekday === null) {
+      return reply.code(400).send({
+        error: 'VALIDATION_ERROR',
+        message: 'Weekday is required for weekly events',
+      })
+    }
+
     const event = await prisma.event.update({
       where: { id },
-      data: parsed.data,
+      data: {
+        ...parsed.data,
+        isRecurring: recurrence !== 'NONE',
+        recurrence,
+        weekday: recurrence === 'WEEKLY' ? weekday : null,
+      },
     })
 
     reply.send({ event })

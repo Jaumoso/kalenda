@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from 'fastify'
 import { Prisma } from '@prisma/client'
+import { expandEventsForMonth } from '@kalenda/shared'
 import { z } from 'zod'
 import { prisma } from '../prisma.js'
 import { getSaintsForMonth } from '../data/saints.js'
@@ -133,14 +134,14 @@ const monthRoutes: FastifyPluginAsync = async (fastify) => {
     })
 
     // Fetch user events for this month
-    const events = await prisma.event.findMany({
+    const storedEvents = await prisma.event.findMany({
       where: {
         userId: request.user!.id,
-        month: month.month,
         OR: [{ isRecurring: true }, { year: month.year }],
       },
       orderBy: { day: 'asc' },
     })
+    const events = expandEventsForMonth(storedEvents, month.year, month.month)
 
     // Get saints for this month
     const saints = getSaintsForMonth(month.month)

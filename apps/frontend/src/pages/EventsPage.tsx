@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cake, Heart, Pin, Calendar, Pencil, Trash2 } from 'lucide-react'
 import api from '../lib/api'
-import type { CalEvent } from '../lib/calendarTypes'
+import { getEventRecurrence, type CalEvent } from '../lib/calendarTypes'
 
 const EVENT_TYPES = [
   { value: 'BIRTHDAY', label: 'events.birthday', icon: <Cake size={16} /> },
@@ -58,12 +58,14 @@ export default function EventsPage() {
 
   const grouped = events.reduce(
     (acc, e) => {
-      const key = e.month
+      const recurrence = getEventRecurrence(e)
+      const key =
+        recurrence === 'MONTHLY' || recurrence === 'WEEKLY' ? 'recurring' : String(e.month)
       if (!acc[key]) acc[key] = []
       acc[key].push(e)
       return acc
     },
-    {} as Record<number, CalEvent[]>
+    {} as Record<string, CalEvent[]>
   )
 
   const typeIcon = (type: string) =>
@@ -108,15 +110,15 @@ export default function EventsPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {Array.from({ length: 12 }, (_, i) => i + 1)
-            .filter((m) => grouped[m])
-            .map((m) => (
-              <div key={m}>
+          {['recurring', ...Array.from({ length: 12 }, (_, i) => String(i + 1))]
+            .filter((key) => grouped[key])
+            .map((key) => (
+              <div key={key}>
                 <h2 className="text-sm font-semibold text-neutral-700 uppercase tracking-wider mb-2">
-                  {monthNames[m - 1]}
+                  {key === 'recurring' ? t('events.recurringGroup') : monthNames[Number(key) - 1]}
                 </h2>
                 <div className="bg-surface rounded-lg border border-neutral-200 divide-y divide-neutral-100">
-                  {grouped[m]
+                  {grouped[key]
                     .sort((a, b) => a.day - b.day)
                     .map((event) => (
                       <div
@@ -133,12 +135,7 @@ export default function EventsPage() {
                           <div>
                             <p className="text-sm font-medium text-neutral-900">{event.name}</p>
                             <p className="text-xs text-neutral-500">
-                              {monthNames[event.month - 1]} {event.day}
-                              {event.isRecurring
-                                ? t('events.everyYear')
-                                : event.year
-                                  ? ` · ${event.year}`
-                                  : ''}
+                              {formatEventSchedule(event, monthNames, t)}
                             </p>
                           </div>
                         </div>
@@ -190,6 +187,15 @@ function EventForm({
 }) {
   const { t } = useTranslation()
   const monthNames = t('months', { returnObjects: true }) as string[]
+  const weekdayNames = [
+    t('weekDays.long.sunday'),
+    t('weekDays.long.monday'),
+    t('weekDays.long.tuesday'),
+    t('weekDays.long.wednesday'),
+    t('weekDays.long.thursday'),
+    t('weekDays.long.friday'),
+    t('weekDays.long.saturday'),
+  ]
   const [name, setName] = useState(event?.name || '')
   const [day, setDay] = useState(event?.day || 1)
   const [month, setMonth] = useState(event?.month || 1)
@@ -198,7 +204,10 @@ function EventForm({
   )
   const [color, setColor] = useState(event?.color || '#C8502A')
   const [icon, setIcon] = useState(event?.icon || '')
-  const [isRecurring, setIsRecurring] = useState(event?.isRecurring ?? true)
+  const [recurrence, setRecurrence] = useState<'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'>(
+    getEventRecurrence(event || { isRecurring: true })
+  )
+  const [weekday, setWeekday] = useState(event?.weekday ?? 0)
   const [year, setYear] = useState<number | ''>(event?.year || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -213,13 +222,15 @@ function EventForm({
 
     const payload = {
       name: name.trim(),
-      day,
-      month,
+      day: recurrence === 'WEEKLY' ? 1 : day,
+      month: recurrence === 'YEARLY' || recurrence === 'NONE' ? month : 1,
       type,
       color,
       icon: icon || null,
-      isRecurring,
-      year: isRecurring ? null : year || null,
+      isRecurring: recurrence !== 'NONE',
+      recurrence,
+      weekday: recurrence === 'WEEKLY' ? weekday : null,
+      year: recurrence === 'NONE' ? year || null : null,
     }
 
     try {
@@ -294,53 +305,80 @@ function EventForm({
           </div>
 
           {/* Date */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                {t('common.day')}
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={31}
-                value={day}
-                onChange={(e) => setDay(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-              />
+          {recurrence !== 'WEEKLY' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  {t('common.day')}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={31}
+                  value={day}
+                  onChange={(e) => setDay(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+              {recurrence !== 'MONTHLY' && (
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">
+                    {t('common.month')}
+                  </label>
+                  <select
+                    value={month}
+                    onChange={(e) => setMonth(Number(e.target.value))}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  >
+                    {monthNames.map((m, i) => (
+                      <option key={i} value={i + 1}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              {t('events.recurrence')}
+            </label>
+            <select
+              value={recurrence}
+              onChange={(e) =>
+                setRecurrence(e.target.value as 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY')
+              }
+              className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+            >
+              <option value="NONE">{t('events.once')}</option>
+              <option value="YEARLY">{t('events.yearlyOption')}</option>
+              <option value="MONTHLY">{t('events.monthlyOption')}</option>
+              <option value="WEEKLY">{t('events.weeklyOption')}</option>
+            </select>
+          </div>
+
+          {recurrence === 'WEEKLY' && (
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
-                {t('common.month')}
+                {t('events.weekday')}
               </label>
               <select
-                value={month}
-                onChange={(e) => setMonth(Number(e.target.value))}
+                value={weekday}
+                onChange={(e) => setWeekday(Number(e.target.value))}
                 className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
               >
-                {monthNames.map((m, i) => (
-                  <option key={i} value={i + 1}>
-                    {m}
+                {weekdayNames.map((weekdayName, value) => (
+                  <option key={value} value={value}>
+                    {weekdayName}
                   </option>
                 ))}
               </select>
             </div>
-          </div>
+          )}
 
-          {/* Recurring */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="recurring"
-              checked={isRecurring}
-              onChange={(e) => setIsRecurring(e.target.checked)}
-              className="accent-primary-600"
-            />
-            <label htmlFor="recurring" className="text-sm text-neutral-700">
-              {t('events.repeatsEveryYear')}
-            </label>
-          </div>
-
-          {!isRecurring && (
+          {recurrence === 'NONE' && (
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
                 {t('common.year')}
@@ -413,4 +451,25 @@ function EventForm({
       </div>
     </div>
   )
+}
+
+function formatEventSchedule(event: CalEvent, monthNames: string[], t: (key: string) => string) {
+  const recurrence = getEventRecurrence(event)
+  if (recurrence === 'WEEKLY') {
+    const weekdayKey = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ][event.weekday ?? 0]
+    return `${t(`weekDays.long.${weekdayKey}`)}${t('events.everyWeek')}`
+  }
+  if (recurrence === 'MONTHLY') return `${t('common.day')} ${event.day}${t('events.everyMonth')}`
+  if (recurrence === 'YEARLY') {
+    return `${monthNames[event.month - 1]} ${event.day}${t('events.everyYear')}`
+  }
+  return `${monthNames[event.month - 1]} ${event.day}${event.year ? ` · ${event.year}` : ''}`
 }

@@ -83,11 +83,13 @@ export const eventSchema = z.object({
   name: z.string().min(1),
   day: z.number().int().min(1).max(31),
   month: z.number().int().min(1).max(12),
-  year: z.number().int().optional(),
+  year: z.number().int().nullable().optional(),
   type: z.enum(['BIRTHDAY', 'ANNIVERSARY', 'SAINT', 'CUSTOM']),
   color: z.string(),
-  icon: z.string().optional(),
+  icon: z.string().nullable().optional(),
   isRecurring: z.boolean(),
+  recurrence: z.enum(['NONE', 'YEARLY', 'MONTHLY', 'WEEKLY']).optional(),
+  weekday: z.number().int().min(0).max(6).nullable().optional(),
   createdAt: z.date(),
 })
 
@@ -95,11 +97,13 @@ export const createEventSchema = z.object({
   name: z.string().min(1),
   day: z.number().int().min(1).max(31),
   month: z.number().int().min(1).max(12),
-  year: z.number().int().optional(),
+  year: z.number().int().nullable().optional(),
   type: z.enum(['BIRTHDAY', 'ANNIVERSARY', 'SAINT', 'CUSTOM']),
   color: z.string().default('#C8502A'),
-  icon: z.string().optional(),
+  icon: z.string().nullable().optional(),
   isRecurring: z.boolean().default(true),
+  recurrence: z.enum(['NONE', 'YEARLY', 'MONTHLY', 'WEEKLY']).optional(),
+  weekday: z.number().int().min(0).max(6).nullable().optional(),
 })
 
 // API response schemas

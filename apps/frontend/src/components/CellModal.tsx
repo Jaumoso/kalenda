@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Building2, CalendarDays, Image, X, Smile, Palette, Cake, Heart, Pin } from 'lucide-react'
-import type { DayCell, Holiday, CalEvent } from '../lib/calendarTypes'
-import { getMonthNames } from '../lib/calendarTypes'
+import {
+  getEventRecurrence,
+  getMonthNames,
+  type DayCell,
+  type Holiday,
+  type CalEvent,
+} from '../lib/calendarTypes'
 import ColorPicker from './ColorPicker'
 import AssetPickerModal from './AssetPickerModal'
 import StickerPickerModal from './StickerPickerModal'
@@ -60,6 +65,12 @@ export default function CellModal({
   const [showNewEvent, setShowNewEvent] = useState(false)
   const [newEventName, setNewEventName] = useState('')
   const [newEventType, setNewEventType] = useState<'BIRTHDAY' | 'ANNIVERSARY' | 'CUSTOM'>('CUSTOM')
+  const [newEventRecurrence, setNewEventRecurrence] = useState<
+    'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+  >('YEARLY')
+  const [newEventWeekday, setNewEventWeekday] = useState(
+    new Date(year, month - 1, dayNumber).getDay()
+  )
   const [savingEvent, setSavingEvent] = useState(false)
   const [eventError, setEventError] = useState<string | null>(null)
   const [showImagePicker, setShowImagePicker] = useState(false)
@@ -118,7 +129,10 @@ export default function CellModal({
         day: dayNumber,
         month,
         type: newEventType,
-        isRecurring: true,
+        isRecurring: newEventRecurrence !== 'NONE',
+        recurrence: newEventRecurrence,
+        weekday: newEventRecurrence === 'WEEKLY' ? newEventWeekday : null,
+        year: newEventRecurrence === 'NONE' ? year : null,
       })
       setNewEventName('')
       setShowNewEvent(false)
@@ -193,8 +207,14 @@ export default function CellModal({
               >
                 <span style={{ color: ev.color }}>
                   {ev.icon || '•'} {ev.name}
-                  {ev.isRecurring && (
+                  {getEventRecurrence(ev) === 'YEARLY' && (
                     <span className="text-neutral-400 ml-1">{t('cell.yearly')}</span>
+                  )}
+                  {getEventRecurrence(ev) === 'MONTHLY' && (
+                    <span className="text-neutral-400 ml-1">{t('cell.monthly')}</span>
+                  )}
+                  {getEventRecurrence(ev) === 'WEEKLY' && (
+                    <span className="text-neutral-400 ml-1">{t('cell.weekly')}</span>
                   )}
                 </span>
                 <button
@@ -243,6 +263,39 @@ export default function CellModal({
                   </button>
                 ))}
               </div>
+              <select
+                value={newEventRecurrence}
+                onChange={(e) =>
+                  setNewEventRecurrence(e.target.value as 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY')
+                }
+                className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+              >
+                <option value="NONE">{t('events.once')}</option>
+                <option value="YEARLY">{t('events.yearlyOption')}</option>
+                <option value="MONTHLY">{t('events.monthlyOption')}</option>
+                <option value="WEEKLY">{t('events.weeklyOption')}</option>
+              </select>
+              {newEventRecurrence === 'WEEKLY' && (
+                <select
+                  value={newEventWeekday}
+                  onChange={(e) => setNewEventWeekday(Number(e.target.value))}
+                  className="w-full px-2 py-1.5 border border-neutral-300 rounded text-xs"
+                >
+                  {[
+                    'sunday',
+                    'monday',
+                    'tuesday',
+                    'wednesday',
+                    'thursday',
+                    'friday',
+                    'saturday',
+                  ].map((weekday, index) => (
+                    <option key={weekday} value={index}>
+                      {t(`weekDays.long.${weekday}`)}
+                    </option>
+                  ))}
+                </select>
+              )}
               <div className="flex gap-1 justify-end">
                 <button
                   onClick={() => setShowNewEvent(false)}

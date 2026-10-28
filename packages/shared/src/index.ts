@@ -30,3 +30,11 @@ export {
   apiResponseSchema,
   paginatedResponseSchema,
 } from './schemas'
+
+export {
+  expandEventForMonth,
+  expandEventsForMonth,
+  getDaysInMonth,
+  getEventRecurrence,
+} from './recurrence'
+export type { EventRecurrence, RecurringEventInput } from './recurrence'
