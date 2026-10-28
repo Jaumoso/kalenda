@@ -98,6 +98,14 @@ jobs:
       - name: Validate production Compose configuration
         run: docker compose --env-file .env.example config --quiet
 
+      - name: Build production backend image
+        run: docker build --file docker/Dockerfile.backend --tag kalenda-backend:ci .
+
+      - name: Verify shared package in production image
+        run: >-
+          docker run --rm --entrypoint node kalenda-backend:ci
+          -e "import('/app/packages/shared/dist/index.js')"
+
       - name: Build and start development stack
         run: docker compose -f docker-compose.dev.yml up -d --build
 
