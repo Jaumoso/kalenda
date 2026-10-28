@@ -53,7 +53,15 @@ through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
 - DELETE /folders/:id
 
 ## Events, Holidays, Templates
-- GET/POST/PATCH/DELETE /events
+- GET/POST/PUT/DELETE /events
+- POST /events/import (multipart field `file`, `.ics` or `text/calendar`)
+
+`/events/import` accepts calendar files exported from Google Calendar or other
+iCalendar-compatible applications. It imports `SUMMARY`, `DTSTART`, `UID` and the
+supported `RRULE` frequencies (YEARLY, MONTHLY and WEEKLY). Re-importing the same
+UID skips the duplicate. OAuth connection, live synchronization, attendees,
+notifications, and unsupported `EXDATE`/`RDATE` or complex recurrence rules are
+outside this endpoint's scope and are reported as import errors.
 - GET /holidays
 - GET /holidays/autonomies
 - GET/POST/DELETE /templates

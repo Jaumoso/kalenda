@@ -92,6 +92,7 @@ export const eventSchema = z.object({
   weekday: z.number().int().min(0).max(6).nullable().optional(),
   startDate: z.string().date().nullable().optional(),
   endDate: z.string().date().nullable().optional(),
+  sourceUid: z.string().max(512).nullable().optional(),
   createdAt: z.date(),
 })
 
