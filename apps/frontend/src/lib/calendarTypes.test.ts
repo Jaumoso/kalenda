@@ -5,6 +5,7 @@ import {
   PAGE_WIDTH,
   getDaysInMonth,
   getFirstDayOfWeek,
+  getIsoWeekNumber,
   isWeekend,
 } from './calendarTypes'
 
@@ -18,6 +19,7 @@ describe('calendar helpers', () => {
     expect(DEFAULT_GRID_CONFIG.gridWidth).toBeGreaterThan(0)
     expect(DEFAULT_GRID_CONFIG.gridHeight).toBeGreaterThan(0)
     expect(DEFAULT_GRID_CONFIG.borderStyle).toBe('solid')
+    expect(DEFAULT_GRID_CONFIG.showWeekNumbers).toBe(false)
   })
 
   it('calculates month lengths including leap years', () => {
@@ -35,5 +37,12 @@ describe('calendar helpers', () => {
     expect(isWeekend(14, 2025, 6)).toBe(true)
     expect(isWeekend(15, 2025, 6)).toBe(true)
     expect(isWeekend(16, 2025, 6)).toBe(false)
+  })
+
+  it('calculates ISO week numbers across year boundaries', () => {
+    expect(getIsoWeekNumber(2025, 1, 1)).toBe(1)
+    expect(getIsoWeekNumber(2025, 1, 5)).toBe(1)
+    expect(getIsoWeekNumber(2025, 12, 31)).toBe(1)
+    expect(getIsoWeekNumber(2026, 1, 1)).toBe(1)
   })
 })

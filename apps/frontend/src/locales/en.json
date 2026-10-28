@@ -332,6 +332,8 @@
     "holidayColor": "Holiday color",
     "showEvents": "Show events",
     "showNameDay": "Show name day",
+    "showWeekNumbers": "Show week numbers",
+    "weekNumberShort": "Wk",
     "showMoonPhase": "Show moon phases",
     "monthTitle": "Month name",
     "monthTitleShow": "Show month name",

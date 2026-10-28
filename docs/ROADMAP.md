@@ -22,8 +22,9 @@ El trabajo pendiente real, en orden, es:
 
 El perfil, el cambio de credenciales, el registro público opcional, la subida desde el
 selector del editor, la restauración del fondo y los indicadores de portada y contraportada
-ya están implementados. Las ideas de v2 permanecen aplazadas hasta cerrar estos cuatro
-puntos operativos.
+ya están implementados. Además, varias ideas que originalmente se planificaron para v2 ya
+forman parte del editor actual; solo se mantienen como pendientes las extensiones que aún
+no están completas.
 
 ---
 
@@ -368,22 +369,31 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 
 ## Ideas para v2 (post-MVP)
 
+### Capacidades v2 ya integradas
+
+- [x] Copiar y pegar objetos del canvas
+- [x] Bloquear y desbloquear objetos desde el panel de capas
+- [x] Filtros de imagen (opacidad, brillo, contraste, escala de grises y sepia)
+- [x] Fondos degradados
+- [x] Controles avanzados de texto y tipografía
+
 ### Editor visual
 
-- Máscaras de recorte para imágenes (círculo, corazón, estrella, hexágono)
-- Marcos/bordes decorativos para fotos (polaroid, rasgado, sombra)
-- Formas básicas (rectángulos, círculos, líneas, flechas)
-- Collage automático: layouts predefinidos para la zona de fotos (1 foto, 2 lado a lado, mosaico…)
-- Sombra y resplandor en objetos (drop shadow, glow)
-- Multi-selección y agrupar/desagrupar objetos
-- Texto con contorno (stroke) y degradado
-- Guías de alineación (snap)
+- [x] Máscaras de recorte para imágenes (círculo, corazón, estrella, hexágono)
+- [x] Bordes configurables y sombra básica en objetos
+- [x] Formas básicas (rectángulos, círculos, líneas, flechas)
+- [ ] Collage automático: layouts predefinidos para la zona de fotos (baja prioridad)
+- [ ] Sombra y resplandor avanzado en objetos (drop shadow, glow)
+- [ ] Multi-selección y agrupar/desagrupar objetos
+- [ ] Texto con contorno (stroke) y degradado
+- [ ] Guías de alineación (snap)
 
 ### Calendario y datos
 
-- Números de semana (columna lateral opcional)
+- [x] Números de semana ISO (columna lateral opcional)
 - Mini-calendario del mes anterior/siguiente en una esquina
-- Eventos recurrentes (cada año, cada mes, cada semana)
+- [x] Eventos anuales recurrentes
+- [ ] Eventos recurrentes mensuales o semanales
 - Importar eventos desde Google Calendar / archivo .ics
 - Cuenta atrás a un evento destacado ("Faltan X días para…")
 - Festivos internacionales

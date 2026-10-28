@@ -332,6 +332,8 @@
     "holidayColor": "Color de festivo",
     "showEvents": "Mostrar eventos",
     "showNameDay": "Mostrar santo",
+    "showWeekNumbers": "Mostrar números de semana",
+    "weekNumberShort": "Sem",
     "showMoonPhase": "Mostrar fases lunares",
     "monthTitle": "Nombre del mes",
     "monthTitleShow": "Mostrar nombre del mes",
