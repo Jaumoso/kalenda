@@ -43,11 +43,4 @@
 ## Epic 8 — Administration
 
 - As A, I can manage user accounts and roles
-- As U, I can manage profile and credentials *(pending: profile and password-management flow)*
-
-## Current delivery status
-
-Epics 1–7 and administrative user/role management are implemented for the current MVP.
-The remaining story in this document is the standard user's profile and credential
-management flow. The v2 ideas in the roadmap are intentionally not part of the current
-delivery scope.
+- As U, I can manage profile and credentials

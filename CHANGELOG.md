@@ -4,31 +4,6 @@ All notable changes to Kalenda are documented here.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] - 2026-10-28
-
-### Added
-
-- Upload images directly from the editor asset picker and insert the uploaded asset
-  immediately.
-- Display front-cover and back-cover customization status in "My Calendars".
-
-### Fixed
-
-- Restore the page background when reopening saved month, front-cover or back-cover
-  canvas data.
-
-### Infrastructure
-
-- Publish development Docker images for every push to `dev`, using `dev` and
-  `dev-<short-sha>` tags.
-- Reduce the backend production image by deploying only pruned production dependencies.
-
-### Pending
-
-- User guide.
-- User profile and password management.
-- Real-server validation, backup restoration testing, and dev/stable rollback validation.
-
 ## [0.1.8] - 2026-10-27
 
 ### Security

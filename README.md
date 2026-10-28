@@ -244,8 +244,8 @@ kalenda/
 - `dev` contains the next development changes.
 - Stable releases use Semantic Versioning (`MAJOR.MINOR.PATCH`) and tags in the form
   `vX.Y.Z`. They must be created from `main`.
-- Development prereleases use an explicit prerelease suffix, such as `v0.1.9-rc.1`, and must
-  reference a commit contained in `dev`.
+- Development releases use an explicit prerelease suffix, such as `v0.1.9-dev.1`, and must
+  be created from `dev`.
 - Every push to `dev` publishes development images with the mutable `dev` tag and an immutable
   `dev-<short-sha>` tag. These images are intended for server validation and never update
   `latest`.
@@ -266,10 +266,10 @@ gh release create v0.1.10
 For a development prerelease, use a clean `dev` branch and an explicit prerelease label:
 
 ```bash
-./scripts/bump.sh patch --prerelease rc.1
+./scripts/bump.sh patch --prerelease dev.1
 git push
-git push origin v0.1.9-rc.1
-gh release create v0.1.9-rc.1 --prerelease
+git push origin v0.1.9-dev.1
+gh release create v0.1.9-dev.1 --prerelease
 ```
 
 The script updates all workspace package versions, creates the signed release commit and

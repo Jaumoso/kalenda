@@ -25,8 +25,6 @@ Format: JSON
 - PATCH /projects/:id
 - POST /projects/:id/duplicate
 - DELETE /projects/:id
-- GET /projects/:id/covers
-- PUT /projects/:id/covers
 
 ## Months
 - GET /projects/:id/months/:month
@@ -55,20 +53,6 @@ Format: JSON
 - GET /exports/:id/download
 - GET /exports
 - DELETE /exports/:id
-
-## Rendering and previews
-- GET /preview-tokens/:projectId
-- GET /render-data/:monthId
-- GET /render-data/cover/:projectId
-
-The render-data endpoints use a short-lived token issued by
-`/preview-tokens/:projectId` and are intended for the Puppeteer renderer.
-
-## Health
-- GET /health
-
-With the `/api` base URL, the full endpoint is `/api/health`. It returns the service
-status and a timestamp.
 
 ## Error model
 

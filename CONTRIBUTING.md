@@ -65,8 +65,5 @@ advisory process instead.
 ## Releases
 
 Releases are prepared from `dev`, promoted to `main`, and tagged using
-Semantic Versioning (`vMAJOR.MINOR.PATCH`). Every push to `dev` publishes
-validation images tagged `dev` and `dev-<short-sha>`. Published releases create
-immutable versioned images; stable releases from `main` also update `latest`.
-Prereleases must reference a commit contained in `dev`, while stable releases
-must reference a commit contained in `main`.
+Semantic Versioning (`vMAJOR.MINOR.PATCH`). Docker images are published only
+from a published release with a valid tag.

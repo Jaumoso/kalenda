@@ -2,27 +2,22 @@
 
 ## Kalenda
 
-**Versión:** 1.1
-**Fecha:** 28 de octubre de 2026
+**Versión:** 1.0  
+**Fecha:** Octubre 2026
 
 ---
 
 ## Estado actual
 
-Las fases 0 a 5, 6a, 6b, 7, 8, 9 y la mayor parte de la 10 están funcionalmente construidas. La aplicación está desplegada con Docker Compose detrás de Pangolin. El flujo de releases distingue entre imágenes estables de `main` e imágenes de validación de `dev`.
+Las fases 0 a 5, 6a, 6b, 7, 8, 9 y la implementación base de la 10 están funcionalmente construidas. La aplicación está desplegada en el servidor con Docker Compose detrás de Pangolin, y el flujo de releases distingue entre imágenes estables de `main` e imágenes de validación de `dev`. El trabajo pendiente se concentra en:
 
-Las mejoras recientes de subida desde el editor, restauración del fondo y estado de portada/contraportada ya están implementadas en el código y validadas localmente; queda integrarlas en la rama compartida mediante sus PRs correspondientes.
+1. Documentación de uso básico para que el usuario pueda trabajar sin asistencia.
+2. Revisión completa con el usuario principal sobre el servidor real.
+3. Validación operativa de restauración de backups y actualización entre canales `dev` y releases estables.
+4. Permitir subir un medio nuevo a la biblioteca directamente desde el editor al añadir una imagen.
+5. Incluir el estado personalizado de portada y contraportada en la vista de "Mis Calendarios".
 
-El trabajo pendiente funcional y operativo, en orden, es:
-
-1. Completar la guía de usuario básica.
-2. Implementar perfil y cambio de credenciales.
-3. Hacer la revisión completa con el usuario principal en el servidor real.
-4. Probar la restauración de backups en un entorno controlado.
-5. Validar actualización y rollback entre `dev` y releases estables.
-6. Integrar las PRs funcionales recientes y actualizar el estado de producción.
-
-Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hasta terminar estos puntos.
+Las casillas marcadas como completadas reflejan funcionalidad presente en el código o validada en el entorno de despliegue actual. Las tareas restantes son de documentación, validación de uso y operación continuada.
 
 ---
 
@@ -95,7 +90,7 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 - [x] Frontend: modal "Nuevo proyecto"
 - [x] Frontend: Vista general de proyecto (12 meses en grid)
 - [x] Frontend: estado visual de cada mes (vacío/con contenido/personalizado)
-- [x] Frontend: reflejar en "Mis Calendarios" si la portada y la contraportada están personalizadas
+- [ ] Frontend: reflejar en "Mis Calendarios" si la portada y la contraportada están personalizadas
 
 **Entregable:** Se pueden crear y organizar proyectos. La vista de 12 meses es navegable.
 
@@ -116,7 +111,7 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 - [x] Frontend: página de Biblioteca (grid de imágenes, árbol de carpetas)
 - [x] Frontend: subida drag & drop con barra de progreso
 - [x] Frontend: búsqueda y filtrado
-- [x] Permitir subir un medio nuevo desde el selector de imágenes del editor y reutilizarlo inmediatamente
+- [ ] Permitir subir un medio nuevo desde el selector de imágenes del editor y reutilizarlo inmediatamente
 
 **Entregable:** Puede subir todas sus fotos una vez y acceder a ellas siempre.
 
@@ -303,7 +298,6 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 - [x] Optimización de rendimiento (lazy loading de páginas con React.lazy + Suspense)
 - [x] Rate limiting en rutas de autenticación y API (`@fastify/rate-limit`)
 - [x] Toggle mostrar/ocultar contraseña en login
-- [ ] Perfil de usuario y cambio de contraseña
 - [x] Corrección build frontend para TypeScript 6
 - [x] Endpoints de health básicos
 - [x] Endurecimiento inicial de secretos: el compose de producción exige `COOKIE_SECRET`, `JWT_SECRET` y credenciales de administrador
@@ -343,7 +337,7 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 | 7    | Celdas avanzadas              | Funcional                                                                             |
 | 8    | Plantillas                    | Funcional                                                                             |
 | 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                                                  |
-| 10   | Pulido y producción           | En curso; guía, perfil, validación con usuario, restauración de backups y rollback pendientes |
+| 10   | Pulido y producción           | En curso; guía, validación con usuario, restauración de backups y rollback pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 
@@ -364,10 +358,7 @@ La zona de collage (Fase 6) es la más compleja y puede venir después del MVP.
 
 ---
 
-## Ideas para v2 (post-MVP, aplazadas)
-
-Estas ideas se conservan como backlog futuro. No deben incorporarse al trabajo actual ni
-considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteriores.
+## Ideas para v2 (post-MVP)
 
 ### Editor visual
 
@@ -394,6 +385,7 @@ considerarse pendientes funcionales del MVP hasta cerrar todos los puntos anteri
 - Más tamaños de papel (A3, Letter, A5 — calendario de escritorio)
 - Marcas de corte y sangrado (bleed) para impresión profesional
 - Exportar meses individuales (no solo el calendario completo)
+- Portada y contraportada personalizadas
 - Exportar como imágenes sueltas (para WhatsApp, redes sociales)
 - Calendario de pared vs. calendario de sobremesa (layouts diferentes)
 - Revisar calendario físico y disposición de páginas. Por delante / detrás, una sola cara, cover y contraportada

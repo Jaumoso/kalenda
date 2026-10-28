@@ -51,10 +51,6 @@ Images are published by GitHub Actions with separate stable and development chan
 The `dev` channel never updates `latest`, so development images can be tested on a server
 without changing the production image channel.
 
-The backend production image uses a pruned `pnpm deploy --prod` runtime and generates the
-Prisma client inside that runtime. The Puppeteer image remains comparatively large because
-Chromium and its Alpine runtime dependencies are required for pixel-accurate rendering.
-
 ## Security
 
 - httpOnly JWT cookies
