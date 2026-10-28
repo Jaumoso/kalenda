@@ -349,6 +349,7 @@
     "imageFilters": "Filtros de imagen",
     "brightness": "Brillo",
     "contrast": "Contraste",
+    "additionalFilters": "Filtros adicionales",
     "grayscale": "Grises",
     "sepia": "Sepia",
     "fontSize": "Tamaño",
