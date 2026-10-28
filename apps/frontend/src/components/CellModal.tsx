@@ -51,7 +51,7 @@ export default function CellModal({
   onEventsChanged,
   onClose,
 }: Props) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [bgColor, setBgColor] = useState(cell?.bgColor || '')
   const [text, setText] = useState(cell?.contentJson?.text || '')
   const [emoji, setEmoji] = useState(cell?.contentJson?.emoji || '')
@@ -208,7 +208,7 @@ export default function CellModal({
             </h3>
             {holidays.map((h) => (
               <div key={h.id} className="text-xs bg-red-50 text-red-700 rounded px-2 py-1 mb-1">
-                {h.nameEs}
+                {i18n.language.startsWith('en') ? h.nameEn : h.nameEs}
                 {h.scope === 'AUTONOMY' && (
                   <span className="text-red-400 ml-1">({h.autonomyCode})</span>
                 )}

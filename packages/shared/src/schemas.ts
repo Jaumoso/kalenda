@@ -27,6 +27,7 @@ export const projectSchema = z.object({
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
   printConfigJson: z.unknown().optional(),
+  holidayCountryCode: z.string().length(2).default('ES'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
   highlightedEventId: z.string().nullable().optional(),
@@ -40,6 +41,7 @@ export const createProjectSchema = z.object({
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
   printConfigJson: z.unknown().optional(),
+  holidayCountryCode: z.string().length(2).default('ES'),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
 })

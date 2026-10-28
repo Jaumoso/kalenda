@@ -115,7 +115,6 @@ export function getBleedPixels(config: Partial<PrintConfig> | null | undefined):
     (Math.min(Math.max(config.bleedMm ?? DEFAULT_PRINT_CONFIG.bleedMm, 0), 10) / 25.4) * 96
   )
 }
-
 export function scaleGridConfig(config: GridConfig, paperSize: PaperSize): GridConfig {
   const dimensions = getPaperDimensions(paperSize)
   const scaleX = dimensions.widthPx / PAGE_WIDTH
@@ -206,6 +205,7 @@ export interface MonthData {
     autonomyCode: string | null
     printConfigJson?: PrintConfig
     paperSize: PaperSize
+    holidayCountryCode: string
     highlightedEvent: CalEvent | null
   }
   dayCells: DayCell[]
@@ -218,6 +218,7 @@ export interface Holiday {
   day: number
   nameEs: string
   nameEn: string
+  countryCode: string
   scope: 'NATIONAL' | 'AUTONOMY'
   autonomyCode: string | null
 }

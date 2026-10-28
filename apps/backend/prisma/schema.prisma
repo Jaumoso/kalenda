@@ -39,6 +39,7 @@ model Project {
   weekStartsOn  String   @default("monday") // "monday" | "sunday"
   paperSize     String   @default("A4") // "A4" | "A3" | "A5" | "LETTER"
   printConfigJson Json?  // Bleed and crop-mark settings
+  holidayCountryCode String @default("ES")
   autonomyCode  String?  // Comunidad autónoma para festivos
   templateId    String?
   template      Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
@@ -181,10 +182,11 @@ model Holiday {
   day          Int
   nameEs       String
   nameEn       String
+  countryCode  String @default("ES")
   scope        HolidayScope @default(NATIONAL)
   autonomyCode String?
 
-  @@unique([year, month, day, scope, autonomyCode])
+  @@unique([year, month, day, countryCode, scope, autonomyCode])
   @@map("holidays")
 }
 

@@ -4,6 +4,7 @@ import { expandEventsForMonth } from '@kalenda/shared'
 import { prisma } from '@/prisma.js'
 import { getSaintsForMonth } from '@/data/saints.js'
 import { getSecret, rateLimitConfig } from '@/config.js'
+import { getHolidaysForMonth } from '@/lib/holidayService.js'
 
 const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
 
@@ -54,6 +55,7 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
               name: true,
               year: true,
               autonomyCode: true,
+              holidayCountryCode: true,
               highlightedEvent: {
                 select: {
                   id: true,
@@ -81,23 +83,12 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.code(404).send({ error: 'Month not found' })
       }
 
-      // Fetch holidays
-      const holidayWhere: Record<string, unknown> = {
-        year: month.year,
-        month: month.month,
-      }
-      if (month.project.autonomyCode) {
-        holidayWhere.OR = [
-          { scope: 'NATIONAL' },
-          { scope: 'AUTONOMY', autonomyCode: month.project.autonomyCode },
-        ]
-      } else {
-        holidayWhere.scope = 'NATIONAL'
-      }
-      const holidays = await prisma.holiday.findMany({
-        where: holidayWhere,
-        orderBy: { day: 'asc' },
-      })
+      const holidayResult = await getHolidaysForMonth(
+        month.year,
+        month.month,
+        month.project.holidayCountryCode,
+        month.project.autonomyCode
+      )
 
       // Fetch events
       const storedEvents = await prisma.event.findMany({
@@ -111,7 +102,13 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
 
       const saints = getSaintsForMonth(month.month)
 
-      reply.send({ month, holidays, events, saints })
+      reply.send({
+        month,
+        holidays: holidayResult.holidays,
+        holidaySupportError: holidayResult.supportError,
+        events,
+        saints,
+      })
     }
   )
 

@@ -19,6 +19,7 @@ export interface Project {
   weekStartsOn: 'monday' | 'sunday'
   paperSize: PaperSize
   printConfigJson?: PrintConfig
+  holidayCountryCode: string
   autonomyCode?: string
   templateId?: string
   highlightedEventId?: string | null
@@ -176,6 +177,7 @@ export interface Holiday {
   day: number
   nameEs: string
   nameEn: string
+  countryCode: string
   scope: 'NATIONAL' | 'AUTONOMY'
   autonomyCode?: string
 }
