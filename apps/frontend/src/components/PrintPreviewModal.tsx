@@ -41,6 +41,7 @@ function buildPages(
   data: TokenData,
   projectId: string,
   months: CalendarMonth[],
+  projectYear: number,
   monthNames: string[],
   t: (key: string) => string,
   renderQuery: string
@@ -54,7 +55,7 @@ function buildPages(
     ...sorted.map((m) => {
       const tok = data.monthTokens.find((mt) => mt.monthId === m.id)
       return {
-        label: `${monthNames[m.month - 1]} ${m.year}`,
+        label: `${monthNames[m.month - 1]} ${m.year ?? projectYear}`,
         renderUrl: `/render/${m.id}?token=${encodeURIComponent(tok?.token ?? '')}&${renderQuery}`,
       }
     }),
@@ -96,14 +97,14 @@ export default function PrintPreviewModal({
     api
       .get(`/preview-tokens/${projectId}`)
       .then(({ data }) => {
-        setPages(buildPages(data, projectId, months, monthNames, t, renderQuery))
+        setPages(buildPages(data, projectId, months, projectYear, monthNames, t, renderQuery))
         setLoading(false)
       })
       .catch(() => {
         setError(t('printPreview.errorLoading'))
         setLoading(false)
       })
-  }, [projectId, renderQuery])
+  }, [projectId, projectYear, renderQuery])
 
   const page = pages[currentPage]
   const [paperScale, setPaperScale] = useState(0.5)
