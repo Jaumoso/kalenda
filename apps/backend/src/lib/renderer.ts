@@ -12,14 +12,10 @@ import {
   type PaperSize,
   type PrintConfig,
 } from '@kalenda/shared'
+import { getSafeExportJobId } from './exportPath.js'
 
 const EXPORTS_DIR = process.env.EXPORT_PATH || path.join(process.cwd(), 'exports')
 const PUPPETEER_URL = process.env.PUPPETEER_URL || 'http://localhost:4000'
-const EXPORT_JOB_ID_PATTERN = /^c[a-z0-9]{24}$/
-
-export function getSafeExportJobId(jobId: string): string | null {
-  return EXPORT_JOB_ID_PATTERN.exec(jobId)?.[0] ?? null
-}
 
 interface RenderToken {
   monthId: string

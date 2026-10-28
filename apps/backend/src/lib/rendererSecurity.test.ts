@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getSafeExportJobId } from './renderer.js'
+import { getSafeExportJobId } from './exportPath.js'
 
 describe('export job directory identifiers', () => {
   it('accepts Prisma cuid values', () => {
