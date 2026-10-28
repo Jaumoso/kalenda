@@ -85,4 +85,32 @@ describe('event recurrence expansion', () => {
     expect(expandEventForMonth(event, 2028, 1)).toHaveLength(1)
     expect(expandEventForMonth(event, 2029, 1)).toHaveLength(0)
   })
+
+  it('limits monthly occurrences by the configured month range', () => {
+    const event = {
+      ...baseEvent,
+      day: 15,
+      recurrence: 'MONTHLY' as const,
+      startDate: '2027-03-01',
+      endDate: '2027-05-31',
+    }
+
+    expect(expandEventForMonth(event, 2027, 2)).toHaveLength(0)
+    expect(expandEventForMonth(event, 2027, 3)).toHaveLength(1)
+    expect(expandEventForMonth(event, 2027, 5)).toHaveLength(1)
+    expect(expandEventForMonth(event, 2027, 6)).toHaveLength(0)
+  })
+
+  it('limits weekly occurrences to complete date boundaries', () => {
+    const event = {
+      ...baseEvent,
+      recurrence: 'WEEKLY' as const,
+      weekday: 1,
+      startDate: '2026-02-09',
+      endDate: '2026-02-16',
+    }
+
+    expect(expandEventForMonth(event, 2026, 2).map((occurrence) => occurrence.day)).toEqual([9, 16])
+    expect(expandEventForMonth(event, 2026, 3)).toHaveLength(0)
+  })
 })
