@@ -69,6 +69,12 @@ se incorporan automáticamente al grid según la configuración regional del pro
 
 También se pueden consultar y editar los eventos desde la celda del día correspondiente.
 
+En la vista del proyecto, el selector **Evento destacado para la cuenta atrás** permite
+elegir un evento como objetivo. La cuenta atrás aparece en cada mes y en la vista previa y
+exportación. Las fechas se calculan como días naturales según la zona horaria del navegador;
+si el evento no tiene una ocurrencia válida en el año del proyecto, se indica que falta o que
+ya no está vigente en lugar de mostrar un valor engañoso.
+
 Para importar eventos, pulsa **Importar .ics** y selecciona un archivo iCalendar exportado
 desde Google Calendar u otra aplicación compatible. La importación admite eventos de una sola
 vez y recurrencias anuales, mensuales o semanales. Si vuelves a importar el mismo archivo,

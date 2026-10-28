@@ -21,6 +21,7 @@ export interface Project {
   printConfigJson?: PrintConfig
   autonomyCode?: string
   templateId?: string
+  highlightedEventId?: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -85,6 +86,22 @@ export const PAPER_DIMENSIONS: Record<PaperSize, PaperDimensions> = {
     widthPt: 612,
     heightPt: 792,
   },
+}
+
+export interface HighlightedEvent {
+  id: string
+  name: string
+  day: number
+  month: number
+  year: number | null
+  type: 'BIRTHDAY' | 'ANNIVERSARY' | 'SAINT' | 'CUSTOM'
+  color: string
+  icon?: string | null
+  userId: string
+  recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+  isRecurring: boolean
+  startDate?: Date | string | null
+  endDate?: Date | string | null
 }
 
 export interface CalendarMonth {

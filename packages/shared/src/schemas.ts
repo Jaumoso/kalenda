@@ -29,6 +29,7 @@ export const projectSchema = z.object({
   printConfigJson: z.unknown().optional(),
   autonomyCode: z.string().optional(),
   templateId: z.string().optional(),
+  highlightedEventId: z.string().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })

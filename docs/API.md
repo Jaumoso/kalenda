@@ -34,7 +34,7 @@ through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
 - GET /projects
 - POST /projects
 - GET /projects/:id
-- PATCH /projects/:id
+- PATCH /projects/:id (incluye `highlightedEventId`, que debe pertenecer al usuario; `null` desactiva la cuenta atrás)
 - POST /projects/:id/duplicate
 - DELETE /projects/:id
 - GET /projects/:id/covers

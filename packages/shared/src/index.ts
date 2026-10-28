@@ -17,6 +17,7 @@ export type {
   PaperSize,
   PaperDimensions,
   PrintConfig,
+  HighlightedEvent,
 } from './types'
 
 export { DEFAULT_PRINT_CONFIG, PAPER_DIMENSIONS } from './types'
@@ -43,3 +44,5 @@ export {
   getEventRecurrence,
 } from './recurrence'
 export type { EventRecurrence, RecurringEventInput } from './recurrence'
+export { getHighlightedEventCountdown } from './countdown'
+export type { CountdownResult, CountdownStatus } from './countdown'

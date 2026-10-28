@@ -206,6 +206,7 @@ export interface MonthData {
     autonomyCode: string | null
     printConfigJson?: PrintConfig
     paperSize: PaperSize
+    highlightedEvent: CalEvent | null
   }
   dayCells: DayCell[]
 }
