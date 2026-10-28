@@ -114,7 +114,7 @@ echo ""
 echo "To publish, run:"
 echo -e "  ${YELLOW}git push && git push origin v${NEXT}${NC}"
 if [[ -n "$PRERELEASE" ]]; then
-  echo -e "  ${YELLOW}gh release create v${NEXT} --prerelease${NC}"
+  echo -e "  ${YELLOW}./scripts/create-release.sh v${NEXT} --prerelease${NC}"
 else
-  echo -e "  ${YELLOW}gh release create v${NEXT}${NC}"
+  echo -e "  ${YELLOW}./scripts/create-release.sh v${NEXT}${NC}"
 fi

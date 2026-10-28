@@ -260,7 +260,7 @@ To prepare a stable release from a clean `main` branch:
 ./scripts/bump.sh patch
 git push
 git push origin v0.1.10
-gh release create v0.1.10
+./scripts/create-release.sh v0.1.10
 ```
 
 For a development prerelease, use a clean `dev` branch and an explicit prerelease label:
@@ -269,11 +269,16 @@ For a development prerelease, use a clean `dev` branch and an explicit prereleas
 ./scripts/bump.sh patch --prerelease dev.1
 git push
 git push origin v0.1.9-dev.1
-gh release create v0.1.9-dev.1 --prerelease
+./scripts/create-release.sh v0.1.9-dev.1 --prerelease
 ```
 
-The script updates all workspace package versions, creates the signed release commit and
-tag, and rejects release attempts from feature branches or unmarked releases from `dev`.
+The bump script updates all workspace package versions, creates the signed release commit
+and tag, and rejects release attempts from feature branches or unmarked releases from
+`dev`. The release script validates that the tag belongs to the correct branch, extracts
+the highlights from `CHANGELOG.md`, lists the associated pull requests and commits, and
+always uses the title `Kalenda vX.Y.Z`. A tag push also runs
+`.github/workflows/create-release.yml`, so releases are created consistently without
+manually composing release notes.
 
 To test the latest code merged into `dev` without creating a release, set this in the server's
 `.env` file and pull the images:
