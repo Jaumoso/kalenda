@@ -3,6 +3,7 @@ import {
   DEFAULT_GRID_CONFIG,
   PAGE_HEIGHT,
   PAGE_WIDTH,
+  getAdjacentMonth,
   getDaysInMonth,
   getFirstDayOfWeek,
   getIsoWeekNumber,
@@ -26,6 +27,11 @@ describe('calendar helpers', () => {
     expect(getDaysInMonth(2024, 2)).toBe(29)
     expect(getDaysInMonth(2025, 2)).toBe(28)
     expect(getDaysInMonth(2025, 12)).toBe(31)
+  })
+
+  it('calculates adjacent months across year boundaries', () => {
+    expect(getAdjacentMonth(2025, 1, -1)).toEqual({ year: 2024, month: 12 })
+    expect(getAdjacentMonth(2025, 12, 1)).toEqual({ year: 2026, month: 1 })
   })
 
   it('respects the configured first day of the week', () => {

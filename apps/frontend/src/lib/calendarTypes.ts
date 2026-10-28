@@ -42,6 +42,16 @@ export interface GridConfig {
   showSaints: boolean
   showEvents: boolean
   showMoonPhase: boolean
+  miniCalendarShow: boolean
+  miniCalendarX: number
+  miniCalendarY: number
+  miniCalendarWidth: number
+  miniCalendarHeight: number
+  miniCalendarBgColor: string
+  miniCalendarBgOpacity: number
+  miniCalendarBorderColor: string
+  miniCalendarBorderWidth: number
+  miniCalendarFontSize: number
 }
 
 // A4 page dimensions at 96 DPI (210mm × 297mm)
@@ -175,6 +185,16 @@ export const DEFAULT_GRID_CONFIG: GridConfig = {
   showSaints: false,
   showEvents: true,
   showMoonPhase: false,
+  miniCalendarShow: false,
+  miniCalendarX: 588,
+  miniCalendarY: 20,
+  miniCalendarWidth: 190,
+  miniCalendarHeight: 86,
+  miniCalendarBgColor: '#FFFFFF',
+  miniCalendarBgOpacity: 92,
+  miniCalendarBorderColor: '#E2DDD6',
+  miniCalendarBorderWidth: 1,
+  miniCalendarFontSize: 8,
 }
 
 export function getMonthNames(): string[] {
@@ -183,6 +203,11 @@ export function getMonthNames(): string[] {
 
 export function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate()
+}
+
+export function getAdjacentMonth(year: number, month: number, direction: -1 | 1) {
+  const date = new Date(year, month - 1 + direction, 1)
+  return { year: date.getFullYear(), month: date.getMonth() + 1 }
 }
 
 export function getFirstDayOfWeek(year: number, month: number, weekStartsOn: string): number {

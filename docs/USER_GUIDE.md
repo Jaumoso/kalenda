@@ -47,8 +47,10 @@ inmediatamente sin volver a la biblioteca.
 4. Configura el fondo de página y los efectos disponibles para las imágenes.
 5. Cambia a **Editar grid** para ajustar colores, bordes, fuentes y posición de la tabla.
 6. El grid se puede mover y redimensionar arrastrándolo o introduciendo sus coordenadas.
-7. Abre una celda para añadir texto, una imagen o un sticker y ajustar su posición.
-8. Guarda manualmente o espera al auto-guardado.
+7. Activa **Mostrar mes anterior y siguiente** para añadir mini-calendarios auxiliares.
+   Arrástralos o usa sus asas para cambiar su posición y tamaño; no pueden cubrir el grid.
+8. Abre una celda para añadir texto, una imagen o un sticker y ajustar su posición.
+9. Guarda manualmente o espera al auto-guardado.
 
 El panel de capas permite seleccionar objetos superpuestos. Los controles de deshacer y rehacer
 permiten recuperar cambios recientes.

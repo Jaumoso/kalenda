@@ -379,7 +379,17 @@
     "monthTitleAlignLabel": "Alignment",
     "monthTitleBgColor": "Background color",
     "monthTitleUppercase": "Uppercase",
-    "monthTitleBgOpacity": "Background opacity"
+    "monthTitleBgOpacity": "Background opacity",
+    "miniCalendar": "Adjacent months",
+    "miniCalendarShow": "Show previous and next month",
+    "miniCalendarDragHint": "Drag it or use the handles to move and resize it. It cannot cover the grid.",
+    "miniCalendarX": "X (px)",
+    "miniCalendarY": "Y (px)",
+    "miniCalendarWidth": "Width (px)",
+    "miniCalendarHeight": "Height (px)",
+    "miniCalendarOpacity": "Opacity: {{value}}%",
+    "miniCalendarLabel": "Previous and next month calendars",
+    "miniCalendarMonth": "{{month}} calendar"
   },
   "objectProps": {
     "noSelection": "Select an element to view its properties",
