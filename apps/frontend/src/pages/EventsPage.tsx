@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cake, Heart, Pin, Calendar, Pencil, Trash2 } from 'lucide-react'
 import api from '../lib/api'
-import type { CalEvent } from '../lib/calendarTypes'
+import { getEventRecurrence, type CalEvent } from '../lib/calendarTypes'
+import StickerPickerModal from '../components/StickerPickerModal'
 
 const EVENT_TYPES = [
   { value: 'BIRTHDAY', label: 'events.birthday', icon: <Cake size={16} /> },
@@ -58,12 +59,13 @@ export default function EventsPage() {
 
   const grouped = events.reduce(
     (acc, e) => {
-      const key = e.month
+      const recurrence = getEventRecurrence(e)
+      const key = recurrence !== 'NONE' ? 'recurring' : String(e.month)
       if (!acc[key]) acc[key] = []
       acc[key].push(e)
       return acc
     },
-    {} as Record<number, CalEvent[]>
+    {} as Record<string, CalEvent[]>
   )
 
   const typeIcon = (type: string) =>
@@ -108,15 +110,15 @@ export default function EventsPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {Array.from({ length: 12 }, (_, i) => i + 1)
-            .filter((m) => grouped[m])
-            .map((m) => (
-              <div key={m}>
+          {['recurring', ...Array.from({ length: 12 }, (_, i) => String(i + 1))]
+            .filter((key) => grouped[key])
+            .map((key) => (
+              <div key={key}>
                 <h2 className="text-sm font-semibold text-neutral-700 uppercase tracking-wider mb-2">
-                  {monthNames[m - 1]}
+                  {key === 'recurring' ? t('events.recurringGroup') : monthNames[Number(key) - 1]}
                 </h2>
                 <div className="bg-surface rounded-lg border border-neutral-200 divide-y divide-neutral-100">
-                  {grouped[m]
+                  {grouped[key]
                     .sort((a, b) => a.day - b.day)
                     .map((event) => (
                       <div
@@ -133,12 +135,7 @@ export default function EventsPage() {
                           <div>
                             <p className="text-sm font-medium text-neutral-900">{event.name}</p>
                             <p className="text-xs text-neutral-500">
-                              {monthNames[event.month - 1]} {event.day}
-                              {event.isRecurring
-                                ? t('events.everyYear')
-                                : event.year
-                                  ? ` · ${event.year}`
-                                  : ''}
+                              {formatEventSchedule(event, monthNames, t)}
                             </p>
                           </div>
                         </div>
@@ -190,6 +187,15 @@ function EventForm({
 }) {
   const { t } = useTranslation()
   const monthNames = t('months', { returnObjects: true }) as string[]
+  const weekdayNames = [
+    t('weekDays.long.sunday'),
+    t('weekDays.long.monday'),
+    t('weekDays.long.tuesday'),
+    t('weekDays.long.wednesday'),
+    t('weekDays.long.thursday'),
+    t('weekDays.long.friday'),
+    t('weekDays.long.saturday'),
+  ]
   const [name, setName] = useState(event?.name || '')
   const [day, setDay] = useState(event?.day || 1)
   const [month, setMonth] = useState(event?.month || 1)
@@ -198,8 +204,24 @@ function EventForm({
   )
   const [color, setColor] = useState(event?.color || '#C8502A')
   const [icon, setIcon] = useState(event?.icon || '')
-  const [isRecurring, setIsRecurring] = useState(event?.isRecurring ?? true)
+  const [recurrence, setRecurrence] = useState<'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'>(
+    getEventRecurrence(event || { isRecurring: true })
+  )
+  const [weekday, setWeekday] = useState(event?.weekday ?? 0)
   const [year, setYear] = useState<number | ''>(event?.year || '')
+  const eventStartDate = event?.startDate?.slice(0, 10) || ''
+  const eventEndDate = event?.endDate?.slice(0, 10) || ''
+  const [startYear, setStartYear] = useState(eventStartDate.slice(0, 4))
+  const [endYear, setEndYear] = useState(eventEndDate.slice(0, 4))
+  const [startMonth, setStartMonth] = useState<number | ''>(
+    eventStartDate ? Number(eventStartDate.slice(5, 7)) : ''
+  )
+  const [endMonth, setEndMonth] = useState<number | ''>(
+    eventEndDate ? Number(eventEndDate.slice(5, 7)) : ''
+  )
+  const [startDate, setStartDate] = useState(eventStartDate)
+  const [endDate, setEndDate] = useState(eventEndDate)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -211,15 +233,45 @@ function EventForm({
     setSaving(true)
     setError(null)
 
+    const validity =
+      recurrence === 'NONE'
+        ? { startDate: null, endDate: null }
+        : recurrence === 'YEARLY'
+          ? {
+              startDate: startYear ? `${startYear}-01-01` : null,
+              endDate: endYear ? `${endYear}-12-31` : null,
+            }
+          : recurrence === 'MONTHLY'
+            ? {
+                startDate:
+                  startMonth && startYear
+                    ? `${startYear}-${String(startMonth).padStart(2, '0')}-01`
+                    : null,
+                endDate:
+                  endMonth && endYear
+                    ? `${endYear}-${String(endMonth).padStart(2, '0')}-${getLastDayOfMonth(
+                        Number(endYear),
+                        endMonth
+                      )}`
+                    : null,
+              }
+            : {
+                startDate: startDate || null,
+                endDate: endDate || null,
+              }
+
     const payload = {
       name: name.trim(),
-      day,
-      month,
+      day: recurrence === 'WEEKLY' ? 1 : day,
+      month: recurrence === 'YEARLY' || recurrence === 'NONE' ? month : 1,
       type,
       color,
       icon: icon || null,
-      isRecurring,
-      year: isRecurring ? null : year || null,
+      isRecurring: recurrence !== 'NONE',
+      recurrence,
+      weekday: recurrence === 'WEEKLY' ? weekday : null,
+      year: recurrence === 'NONE' ? year || null : null,
+      ...validity,
     }
 
     try {
@@ -294,53 +346,80 @@ function EventForm({
           </div>
 
           {/* Date */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                {t('common.day')}
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={31}
-                value={day}
-                onChange={(e) => setDay(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-              />
+          {recurrence !== 'WEEKLY' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  {t('common.day')}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={31}
+                  value={day}
+                  onChange={(e) => setDay(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+              {recurrence !== 'MONTHLY' && (
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">
+                    {t('common.month')}
+                  </label>
+                  <select
+                    value={month}
+                    onChange={(e) => setMonth(Number(e.target.value))}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  >
+                    {monthNames.map((m, i) => (
+                      <option key={i} value={i + 1}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              {t('events.recurrence')}
+            </label>
+            <select
+              value={recurrence}
+              onChange={(e) =>
+                setRecurrence(e.target.value as 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY')
+              }
+              className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+            >
+              <option value="NONE">{t('events.once')}</option>
+              <option value="YEARLY">{t('events.yearlyOption')}</option>
+              <option value="MONTHLY">{t('events.monthlyOption')}</option>
+              <option value="WEEKLY">{t('events.weeklyOption')}</option>
+            </select>
+          </div>
+
+          {recurrence === 'WEEKLY' && (
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
-                {t('common.month')}
+                {t('events.weekday')}
               </label>
               <select
-                value={month}
-                onChange={(e) => setMonth(Number(e.target.value))}
+                value={weekday}
+                onChange={(e) => setWeekday(Number(e.target.value))}
                 className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
               >
-                {monthNames.map((m, i) => (
-                  <option key={i} value={i + 1}>
-                    {m}
+                {weekdayNames.map((weekdayName, value) => (
+                  <option key={value} value={value}>
+                    {weekdayName}
                   </option>
                 ))}
               </select>
             </div>
-          </div>
+          )}
 
-          {/* Recurring */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="recurring"
-              checked={isRecurring}
-              onChange={(e) => setIsRecurring(e.target.checked)}
-              className="accent-primary-600"
-            />
-            <label htmlFor="recurring" className="text-sm text-neutral-700">
-              {t('events.repeatsEveryYear')}
-            </label>
-          </div>
-
-          {!isRecurring && (
+          {recurrence === 'NONE' && (
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
                 {t('common.year')}
@@ -354,6 +433,125 @@ function EventForm({
                 className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
               />
             </div>
+          )}
+
+          {recurrence !== 'NONE' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  {t('events.validFrom')}
+                </label>
+                {recurrence === 'YEARLY' && (
+                  <input
+                    type="number"
+                    min={2020}
+                    max={2050}
+                    value={startYear}
+                    onChange={(e) => setStartYear(e.target.value)}
+                    placeholder="2027"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+                {recurrence === 'MONTHLY' && (
+                  <div className="flex gap-2">
+                    <select
+                      value={startMonth}
+                      onChange={(e) => setStartMonth(e.target.value ? Number(e.target.value) : '')}
+                      className="min-w-0 flex-1 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.month')}
+                    >
+                      <option value="">{t('common.month')}</option>
+                      {monthNames.map((monthName, index) => (
+                        <option key={monthName} value={index + 1}>
+                          {monthName}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      min={2020}
+                      max={2050}
+                      value={startYear}
+                      onChange={(e) => setStartYear(e.target.value)}
+                      placeholder={t('common.year')}
+                      className="w-24 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.year')}
+                    />
+                  </div>
+                )}
+                {recurrence === 'WEEKLY' && (
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  {t('events.validUntil')}
+                </label>
+                {recurrence === 'YEARLY' && (
+                  <input
+                    type="number"
+                    min={startYear || 2020}
+                    max={2050}
+                    value={endYear}
+                    onChange={(e) => setEndYear(e.target.value)}
+                    placeholder="2030"
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+                {recurrence === 'MONTHLY' && (
+                  <div className="flex gap-2">
+                    <select
+                      value={endMonth}
+                      onChange={(e) => setEndMonth(e.target.value ? Number(e.target.value) : '')}
+                      className="min-w-0 flex-1 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.month')}
+                    >
+                      <option value="">{t('common.month')}</option>
+                      {monthNames.map((monthName, index) => (
+                        <option key={monthName} value={index + 1}>
+                          {monthName}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      min={startYear || 2020}
+                      max={2050}
+                      value={endYear}
+                      onChange={(e) => setEndYear(e.target.value)}
+                      placeholder={t('common.year')}
+                      className="w-24 px-2 py-2 border border-neutral-300 rounded-md text-sm"
+                      aria-label={t('common.year')}
+                    />
+                  </div>
+                )}
+                {recurrence === 'WEEKLY' && (
+                  <input
+                    type="date"
+                    value={endDate}
+                    min={startDate || undefined}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+          {recurrence !== 'NONE' && (
+            <p className="text-xs text-neutral-500">
+              {t(
+                recurrence === 'YEARLY'
+                  ? 'events.validityHintYearly'
+                  : recurrence === 'MONTHLY'
+                    ? 'events.validityHintMonthly'
+                    : 'events.validityHintWeekly'
+              )}
+            </p>
           )}
 
           {/* Color */}
@@ -381,14 +579,25 @@ function EventForm({
             <label className="block text-sm font-medium text-neutral-700 mb-1">
               {t('events.iconLabel')}
             </label>
-            <input
-              type="text"
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              placeholder="🎂"
-              className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-              maxLength={4}
-            />
+            <div className="flex items-center gap-2">
+              {icon && (
+                <button
+                  type="button"
+                  onClick={() => setIcon('')}
+                  className="w-10 h-10 rounded-md border border-primary-300 bg-primary-50 text-2xl"
+                  title={t('events.clearIcon')}
+                >
+                  {icon}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(true)}
+                className="px-3 py-2 border border-neutral-300 rounded-md text-sm hover:bg-neutral-50"
+              >
+                {t('events.chooseIcon')}
+              </button>
+            </div>
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -410,7 +619,51 @@ function EventForm({
             </button>
           </div>
         </form>
+        <StickerPickerModal
+          isOpen={showEmojiPicker}
+          onClose={() => setShowEmojiPicker(false)}
+          onSelect={setIcon}
+        />
       </div>
     </div>
   )
+}
+
+function formatEventSchedule(event: CalEvent, monthNames: string[], t: (key: string) => string) {
+  const recurrence = getEventRecurrence(event)
+  if (recurrence === 'WEEKLY') {
+    const weekdayKey = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ][event.weekday ?? 0]
+    return `${t(`weekDays.long.${weekdayKey}`)}${t('events.everyWeek')}${formatValidity(event, t, recurrence)}`
+  }
+  if (recurrence === 'MONTHLY') {
+    return `${t('common.day')} ${event.day}${t('events.everyMonth')}${formatValidity(event, t, recurrence)}`
+  }
+  if (recurrence === 'YEARLY') {
+    return `${monthNames[event.month - 1]} ${event.day}${t('events.everyYear')}${formatValidity(event, t, recurrence)}`
+  }
+  return `${monthNames[event.month - 1]} ${event.day}${event.year ? ` · ${event.year}` : ''}`
+}
+
+function formatValidity(
+  event: CalEvent,
+  t: (key: string) => string,
+  recurrence: 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+) {
+  if (!event.startDate && !event.endDate) return ''
+  const length = recurrence === 'YEARLY' ? 4 : recurrence === 'MONTHLY' ? 7 : 10
+  const start = event.startDate?.slice(0, length) || '...'
+  const end = event.endDate?.slice(0, length) || '...'
+  return ` · ${t('events.validity')}: ${start} - ${end}`
+}
+
+function getLastDayOfMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }

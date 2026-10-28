@@ -135,7 +135,15 @@ export interface CalEvent {
   color: string
   icon: string | null
   isRecurring: boolean
+  recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+  weekday?: number | null
+  startDate?: string | null
+  endDate?: string | null
   userId: string
+}
+
+export function getEventRecurrence(event: Pick<CalEvent, 'isRecurring' | 'recurrence'>) {
+  return event.recurrence ?? (event.isRecurring ? 'YEARLY' : 'NONE')
 }
 
 export interface Saint {

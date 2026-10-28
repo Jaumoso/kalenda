@@ -75,11 +75,15 @@ export interface Event {
   name: string
   day: number
   month: number
-  year?: number // NULL for recurring events
+  year?: number | null // NULL for recurring events
   type: 'BIRTHDAY' | 'ANNIVERSARY' | 'SAINT' | 'CUSTOM'
   color: string
-  icon?: string
+  icon?: string | null
   isRecurring: boolean
+  recurrence?: 'NONE' | 'YEARLY' | 'MONTHLY' | 'WEEKLY'
+  weekday?: number | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
   createdAt: Date
 }
 
