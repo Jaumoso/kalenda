@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { X, ChevronLeft, ChevronRight, Book, Loader2 } from 'lucide-react'
 import api from '../lib/api'
-import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
+import { getPaperDimensions, type PaperSize } from '../lib/calendarTypes'
 
 interface CalendarMonth {
   id: string
@@ -15,6 +15,7 @@ interface Props {
   readonly projectId: string
   readonly projectName: string
   readonly projectYear: number
+  readonly paperSize: PaperSize
   readonly months: CalendarMonth[]
   readonly onClose: () => void
 }
@@ -60,11 +61,13 @@ export default function PrintPreviewModal({
   projectId,
   projectName,
   projectYear,
+  paperSize,
   months,
   onClose,
 }: Props) {
   const { t } = useTranslation()
   const monthNames = t('months', { returnObjects: true }) as string[]
+  const paper = getPaperDimensions(paperSize)
 
   const [pages, setPages] = useState<PageInfo[]>([])
   const [loading, setLoading] = useState(true)
@@ -93,8 +96,8 @@ export default function PrintPreviewModal({
     // Modal is max-h-[90vh], header ~60px, nav ~56px, padding ~32px, label ~32px = ~180px chrome
     const availH = window.innerHeight * 0.9 - 180
     const availW = Math.min(window.innerWidth - 64, 768 - 48) // modal max-w-3xl minus padding
-    const scaleW = availW / PAGE_WIDTH
-    const scaleH = availH / PAGE_HEIGHT
+    const scaleW = availW / paper.widthPx
+    const scaleH = availH / paper.heightPx
     setPaperScale(Math.min(scaleW, scaleH, 1))
   }, [])
 
@@ -151,8 +154,8 @@ export default function PrintPreviewModal({
               <div
                 className="relative bg-white shadow-[0_4px_40px_rgba(0,0,0,0.5)] rounded-sm overflow-hidden flex-shrink-0"
                 style={{
-                  width: PAGE_WIDTH * paperScale,
-                  height: PAGE_HEIGHT * paperScale,
+                  width: paper.widthPx * paperScale,
+                  height: paper.heightPx * paperScale,
                 }}
               >
                 {/* Loading spinner overlay */}
@@ -167,8 +170,8 @@ export default function PrintPreviewModal({
                   title={page.label}
                   className="border-0 absolute top-0 left-0"
                   style={{
-                    width: PAGE_WIDTH,
-                    height: PAGE_HEIGHT,
+                    width: paper.widthPx,
+                    height: paper.heightPx,
                     transform: `scale(${paperScale})`,
                     transformOrigin: 'top left',
                   }}

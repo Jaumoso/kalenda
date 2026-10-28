@@ -18,7 +18,14 @@ const coverRoutes: FastifyPluginAsync = async (fastify) => {
 
       const project = await prisma.project.findFirst({
         where: { id, userId: request.user!.id },
-        select: { id: true, coverJson: true, backCoverJson: true, name: true, year: true },
+        select: {
+          id: true,
+          coverJson: true,
+          backCoverJson: true,
+          name: true,
+          year: true,
+          paperSize: true,
+        },
       })
 
       if (!project) {

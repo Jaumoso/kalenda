@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ChevronRight, ChevronLeft } from 'lucide-react'
 import api from '../lib/api'
-import { PAGE_WIDTH, PAGE_HEIGHT } from '../lib/calendarTypes'
+import { getPaperDimensions, type PaperSize } from '../lib/calendarTypes'
 import CanvasEditor, { type CanvasEditorHandle } from '../components/CanvasEditor'
 import CanvasToolbar from '../components/CanvasToolbar'
 import LayersPanel from '../components/LayersPanel'
@@ -20,6 +20,7 @@ interface CoverData {
   backCoverJson: unknown
   name: string
   year: number
+  paperSize: PaperSize
 }
 
 export default function CoverEditorPage() {
@@ -41,6 +42,7 @@ export default function CoverEditorPage() {
   const [selectedObject, setSelectedObject] = useState<import('fabric').FabricObject | null>(null)
   const [canvasRefreshKey, setCanvasRefreshKey] = useState(0)
   const [currentZoom, setCurrentZoom] = useState(1)
+  const paperDimensions = getPaperDimensions(coverData?.paperSize)
   const [showAssetPicker, setShowAssetPicker] = useState(false)
   const [showStickerPicker, setShowStickerPicker] = useState(false)
   const [showBackgroundModal, setShowBackgroundModal] = useState(false)
@@ -268,16 +270,23 @@ export default function CoverEditorPage() {
         <div className="flex-1 overflow-auto p-6 bg-neutral-100">
           <div
             className="mx-auto"
-            style={{ width: PAGE_WIDTH * currentZoom, height: PAGE_HEIGHT * currentZoom }}
+            style={{
+              width: paperDimensions.widthPx * currentZoom,
+              height: paperDimensions.heightPx * currentZoom,
+            }}
           >
             <div
               className="relative shadow-lg origin-top-left"
-              style={{ width: PAGE_WIDTH, height: PAGE_HEIGHT, transform: `scale(${currentZoom})` }}
+              style={{
+                width: paperDimensions.widthPx,
+                height: paperDimensions.heightPx,
+                transform: `scale(${currentZoom})`,
+              }}
             >
               <CanvasEditor
                 ref={canvasEditorRef}
-                width={PAGE_WIDTH}
-                height={PAGE_HEIGHT}
+                width={paperDimensions.widthPx}
+                height={paperDimensions.heightPx}
                 onModified={handleCanvasModified}
                 onSelectionChange={handleSelectionChange}
                 onReady={handleCanvasReady}

@@ -21,6 +21,7 @@ interface Project {
   year: number
   status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   weekStartsOn: string
+  paperSize: 'A4' | 'A3' | 'A5' | 'LETTER'
   templateId: string | null
   coverJson: Record<string, unknown> | null
   backCoverJson: Record<string, unknown> | null
@@ -133,6 +134,9 @@ export default function ProjectPage() {
             <h1 className="text-2xl font-bold text-neutral-900">{project.name}</h1>
             <p className="text-sm text-neutral-500">
               {project.year}
+              <span className="ml-2 text-xs bg-neutral-100 text-neutral-600 px-1.5 py-0.5 rounded">
+                {t(`paperSizes.${project.paperSize}`)}
+              </span>
               {project.templateId && (
                 <span className="ml-2 text-xs bg-primary-50 text-primary-600 px-1.5 py-0.5 rounded">
                   <ClipboardList size={14} className="inline mr-1" />
@@ -327,6 +331,7 @@ export default function ProjectPage() {
           projectId={project.id}
           projectName={project.name}
           projectYear={project.year}
+          paperSize={project.paperSize}
           months={project.months}
           onClose={() => setShowPrintPreview(false)}
         />

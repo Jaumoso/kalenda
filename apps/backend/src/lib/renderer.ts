@@ -4,14 +4,7 @@ import path from 'path'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../prisma.js'
 import { getSecret } from '../config.js'
-
-// A4 at 96 DPI (matches frontend)
-const PAGE_WIDTH = 794
-const PAGE_HEIGHT = 1123
-
-// A4 in points (72 DPI) for PDF
-const A4_WIDTH_PT = 595.28
-const A4_HEIGHT_PT = 841.89
+import { PAPER_DIMENSIONS, type PaperSize } from '@kalenda/shared'
 
 const EXPORTS_DIR = process.env.EXPORT_PATH || path.join(process.cwd(), 'exports')
 const PUPPETEER_URL = process.env.PUPPETEER_URL || 'http://localhost:4000'
@@ -29,6 +22,7 @@ interface RenderOptions {
   filename: string
   projectId: string
   coverToken: string
+  paperSize: PaperSize
 }
 
 const jwtSecret = getSecret('JWT_SECRET', 'dev-jwt-secret')
@@ -48,6 +42,7 @@ export async function renderProject(
 
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
   const scaleFactor = options.dpi / 96
+  const paper = PAPER_DIMENSIONS[options.paperSize]
 
   try {
     // Update job status to PROCESSING
@@ -81,8 +76,8 @@ export async function renderProject(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           url,
-          width: PAGE_WIDTH,
-          height: PAGE_HEIGHT,
+          width: paper.widthPx,
+          height: paper.heightPx,
           deviceScaleFactor: scaleFactor,
         }),
       })
@@ -117,7 +112,7 @@ export async function renderProject(
 
     if (options.format === 'PDF') {
       finalPath = path.join(jobDir, `${options.filename}.pdf`)
-      await assemblePDF(pngPaths, finalPath, options.bindingGuide)
+      await assemblePDF(pngPaths, finalPath, options.bindingGuide, options.paperSize)
       fileSize = fs.statSync(finalPath).size
 
       // Clean up individual PNGs after PDF assembly
@@ -193,6 +188,7 @@ export async function startExportJob(jobId: string): Promise<void> {
     filename: job.filename || `${job.project.name}-${job.project.year}`,
     projectId: job.projectId,
     coverToken,
+    paperSize: job.project.paperSize as PaperSize,
   })
 }
 
@@ -217,29 +213,35 @@ export async function recoverInterruptedExports(log: (message: string) => void):
   }
 }
 
-async function assemblePDF(pngPaths: string[], outputPath: string, bindingGuide: boolean) {
+async function assemblePDF(
+  pngPaths: string[],
+  outputPath: string,
+  bindingGuide: boolean,
+  paperSize: PaperSize
+) {
   const pdfDoc = await PDFDocument.create()
+  const paper = PAPER_DIMENSIONS[paperSize]
 
   for (const pngPath of pngPaths) {
     const pngBytes = fs.readFileSync(pngPath)
     const pngImage = await pdfDoc.embedPng(pngBytes)
 
-    const page = pdfDoc.addPage([A4_WIDTH_PT, A4_HEIGHT_PT])
+    const page = pdfDoc.addPage([paper.widthPt, paper.heightPt])
 
     // Draw the PNG scaled to fill the A4 page
     page.drawImage(pngImage, {
       x: 0,
       y: 0,
-      width: A4_WIDTH_PT,
-      height: A4_HEIGHT_PT,
+      width: paper.widthPt,
+      height: paper.heightPt,
     })
 
     // Optional binding guide (center line)
     if (bindingGuide) {
-      const centerX = A4_WIDTH_PT / 2
+      const centerX = paper.widthPt / 2
       page.drawLine({
         start: { x: centerX, y: 0 },
-        end: { x: centerX, y: A4_HEIGHT_PT },
+        end: { x: centerX, y: paper.heightPt },
         thickness: 0.25,
         color: rgb(0.8, 0.8, 0.8),
         opacity: 0.5,

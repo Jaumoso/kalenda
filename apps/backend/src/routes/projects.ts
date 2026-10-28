@@ -8,6 +8,7 @@ const createProjectSchema = z.object({
   year: z.number().int().min(2020).max(2050),
   weekStartsOn: z.enum(['monday', 'sunday']).default('monday'),
   holidayCountryCode: z.string().length(2).default('ES'),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).default('A4'),
   autonomyCode: z.string().max(10).optional(),
   templateId: z.string().optional(),
 })
@@ -18,6 +19,7 @@ const updateProjectSchema = z.object({
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED']).optional(),
   weekStartsOn: z.enum(['monday', 'sunday']).optional(),
   holidayCountryCode: z.string().length(2).optional(),
+  paperSize: z.enum(['A4', 'A3', 'A5', 'LETTER']).optional(),
   autonomyCode: z.string().max(10).nullable().optional(),
   highlightedEventId: z.string().nullable().optional(),
 })
@@ -33,6 +35,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         year: true,
         status: true,
         weekStartsOn: true,
+        paperSize: true,
         createdAt: true,
         updatedAt: true,
         coverJson: true,
@@ -59,7 +62,8 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
 
-    const { name, year, weekStartsOn, holidayCountryCode, autonomyCode, templateId } = parsed.data
+    const { name, year, weekStartsOn, holidayCountryCode, paperSize, autonomyCode, templateId } =
+      parsed.data
     if (!isSupportedHolidayCountry(holidayCountryCode)) {
       return reply
         .code(400)
@@ -86,6 +90,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
         year,
         weekStartsOn,
         holidayCountryCode,
+        paperSize,
         autonomyCode,
         templateId: templateId || undefined,
         userId: request.user!.id,
@@ -290,6 +295,7 @@ const projectRoutes: FastifyPluginAsync = async (fastify) => {
           year: source.year,
           weekStartsOn: source.weekStartsOn,
           holidayCountryCode: source.holidayCountryCode,
+          paperSize: source.paperSize,
           autonomyCode: source.autonomyCode,
           highlightedEventId: source.highlightedEventId,
           userId: request.user!.id,

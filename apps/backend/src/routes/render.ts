@@ -50,6 +50,7 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
             select: {
               userId: true,
               weekStartsOn: true,
+              paperSize: true,
               name: true,
               year: true,
               autonomyCode: true,
@@ -139,7 +140,14 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
 
       const project = await prisma.project.findFirst({
         where: { id: projectId },
-        select: { id: true, name: true, year: true, coverJson: true, backCoverJson: true },
+        select: {
+          id: true,
+          name: true,
+          year: true,
+          paperSize: true,
+          coverJson: true,
+          backCoverJson: true,
+        },
       })
 
       if (!project) {
@@ -149,7 +157,12 @@ const renderRoutes: FastifyPluginAsync = async (fastify) => {
       const canvasJson = type === 'back' ? project.backCoverJson : project.coverJson
 
       reply.send({
-        project: { id: project.id, name: project.name, year: project.year },
+        project: {
+          id: project.id,
+          name: project.name,
+          year: project.year,
+          paperSize: project.paperSize,
+        },
         canvasJson,
       })
     }
