@@ -6,9 +6,16 @@ Format: JSON
 
 ## Authentication
 - POST /auth/login
+- GET /auth/registration-status
+- POST /auth/register
 - POST /auth/logout
 - POST /auth/refresh
 - GET /auth/me
+
+`POST /auth/register` creates a standard `USER` only when `ALLOW_USER_REGISTRATION=true`
+and an administrator has already been bootstrapped. The registration `name` is the user's
+display name; users sign in with the registered `email`. Administrator accounts are created
+through the required `ADMIN_EMAIL` and `ADMIN_PASSWORD` bootstrap variables.
 
 ## Users
 - GET /users (admin)
@@ -17,6 +24,8 @@ Format: JSON
 - PATCH /users/:id/status (admin)
 - PATCH /users/:id/role (admin)
 - DELETE /users/:id (admin)
+- PATCH /users/:id also allows the authenticated user to update their own name, language and
+  password. Password changes require the current password.
 
 ## Projects
 - GET /projects

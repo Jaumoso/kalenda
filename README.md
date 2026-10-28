@@ -49,6 +49,7 @@ POSTGRES_USER=kalenda
 POSTGRES_PASSWORD=$(openssl rand -hex 32)
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=$(openssl rand -base64 24)
+ALLOW_USER_REGISTRATION=false
 COOKIE_SECRET=$(openssl rand -base64 32)
 JWT_SECRET=$(openssl rand -base64 32)
 EOF
@@ -57,7 +58,13 @@ chmod 600 .env
 ```
 
 Change `ADMIN_EMAIL` if required and keep the generated `ADMIN_PASSWORD`: it is the initial
-administrator password. The `.env` file contains secrets and must not be committed or shared.
+administrator password. The production container creates this administrator during its first
+startup; the bootstrap variables remain required even when the user already exists. Set
+`ALLOW_USER_REGISTRATION=true` only when you want users to create their own standard accounts
+from the login page. It defaults to `false`; administrators can always create users from the
+administration panel. The public registration form's username is the user's display name;
+authentication still uses the registered email address. Public registration never grants the
+`ADMIN` role. The `.env` file contains secrets and must not be committed or shared.
 
 ### 3. Start Kalenda
 
@@ -184,6 +191,9 @@ The development seed creates:
 
 These credentials are for local development only. Never use them in a Compose or production
 installation.
+
+Development Compose enables `ALLOW_USER_REGISTRATION` so the registration flow can be tested
+locally. Production Compose disables it unless explicitly enabled in `.env`.
 
 ### Useful development commands
 

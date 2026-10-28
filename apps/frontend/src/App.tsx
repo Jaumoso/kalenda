@@ -20,6 +20,8 @@ const EventsPage = lazy(() => import('./pages/EventsPage'))
 const TemplatesPage = lazy(() => import('./pages/TemplatesPage'))
 const RenderMonthPage = lazy(() => import('./pages/RenderMonthPage'))
 const RenderCoverPage = lazy(() => import('./pages/RenderCoverPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 
 function PageLoader() {
   return (
@@ -62,6 +64,10 @@ function App() {
             element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
           />
           <Route
+            path="/register"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+          />
+          <Route
             element={
               <ProtectedRoute>
                 <AppLayout />
@@ -75,6 +81,7 @@ function App() {
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/templates" element={<TemplatesPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route
               path="/admin"
               element={

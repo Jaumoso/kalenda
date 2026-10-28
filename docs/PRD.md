@@ -57,7 +57,6 @@ tests.
 The remaining functional and operational work is deliberately limited to:
 
 - user documentation;
-- profile and password management;
 - validation with the primary user on the real server;
 - controlled backup restoration testing;
 - documented and verified update/rollback between development and stable image channels.

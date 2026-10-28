@@ -32,11 +32,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // Don't retry refresh, login, or session check requests
+    // Don't retry auth bootstrap and registration requests
     if (
       originalRequest.url === '/auth/refresh' ||
       originalRequest.url === '/auth/login' ||
       originalRequest.url === '/auth/me' ||
+      originalRequest.url === '/auth/register' ||
+      originalRequest.url === '/auth/registration-status' ||
       originalRequest._retry
     ) {
       return Promise.reject(error)
@@ -90,6 +92,8 @@ api.interceptors.response.use(
       url === '/auth/me' ||
       url === '/auth/refresh' ||
       url === '/auth/login' ||
+      url === '/auth/register' ||
+      url === '/auth/registration-status' ||
       error.config?._silent
 
     if (!isSilent && status && status >= 400) {

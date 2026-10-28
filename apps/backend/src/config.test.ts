@@ -1,9 +1,33 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getSecret } from './config.js'
+import { getSecret, isUserRegistrationEnabled } from './config.js'
 
 describe('getSecret', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
+  })
+
+  describe('isUserRegistrationEnabled', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it.each(['1', 'true', 'TRUE', 'yes', 'on'])('accepts %s as enabled', (value) => {
+      vi.stubEnv('ALLOW_USER_REGISTRATION', value)
+
+      expect(isUserRegistrationEnabled()).toBe(true)
+    })
+
+    it('is disabled by default', () => {
+      vi.stubEnv('ALLOW_USER_REGISTRATION', '')
+
+      expect(isUserRegistrationEnabled()).toBe(false)
+    })
+
+    it('rejects unsupported values', () => {
+      vi.stubEnv('ALLOW_USER_REGISTRATION', 'enabled')
+
+      expect(isUserRegistrationEnabled()).toBe(false)
+    })
   })
 
   it('returns the configured value when present', () => {
