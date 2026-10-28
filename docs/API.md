@@ -6,6 +6,8 @@ Format: JSON
 
 ## Authentication
 - POST /auth/login
+- GET /auth/registration-status
+- POST /auth/register
 - POST /auth/logout
 - POST /auth/refresh
 - GET /auth/me
@@ -17,6 +19,8 @@ Format: JSON
 - PATCH /users/:id/status (admin)
 - PATCH /users/:id/role (admin)
 - DELETE /users/:id (admin)
+- PATCH /users/:id also allows the authenticated user to update their own name, language and
+  password. Password changes require the current password.
 
 ## Projects
 - GET /projects

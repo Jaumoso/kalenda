@@ -11,6 +11,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Upload images directly from the editor asset picker and insert the uploaded asset
   immediately.
 - Display front-cover and back-cover customization status in "My Calendars".
+- Add a user profile page with name, language and password management.
+- Add optional public standard-user registration controlled by `ALLOW_USER_REGISTRATION`.
 
 ### Fixed
 
@@ -26,7 +28,6 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Pending
 
 - User guide.
-- User profile and password management.
 - Real-server validation, backup restoration testing, and dev/stable rollback validation.
 
 ## [0.1.8] - 2026-10-27

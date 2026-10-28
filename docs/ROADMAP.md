@@ -16,7 +16,7 @@ Las mejoras recientes de subida desde el editor, restauración del fondo y estad
 El trabajo pendiente funcional y operativo, en orden, es:
 
 1. Completar la guía de usuario básica.
-2. Implementar perfil y cambio de credenciales.
+2. Implementar perfil, cambio de credenciales y registro público configurable.
 3. Hacer la revisión completa con el usuario principal en el servidor real.
 4. Probar la restauración de backups en un entorno controlado.
 5. Validar actualización y rollback entre `dev` y releases estables.
@@ -303,7 +303,8 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 - [x] Optimización de rendimiento (lazy loading de páginas con React.lazy + Suspense)
 - [x] Rate limiting en rutas de autenticación y API (`@fastify/rate-limit`)
 - [x] Toggle mostrar/ocultar contraseña en login
-- [ ] Perfil de usuario y cambio de contraseña
+- [x] Perfil de usuario y cambio de contraseña
+- [x] Registro público opcional mediante `ALLOW_USER_REGISTRATION`, manteniendo el bootstrap obligatorio del administrador
 - [x] Corrección build frontend para TypeScript 6
 - [x] Endpoints de health básicos
 - [x] Endurecimiento inicial de secretos: el compose de producción exige `COOKIE_SECRET`, `JWT_SECRET` y credenciales de administrador
@@ -343,7 +344,7 @@ Las ideas de la sección v2 quedan explícitamente fuera del trabajo actual hast
 | 7    | Celdas avanzadas              | Funcional                                                                             |
 | 8    | Plantillas                    | Funcional                                                                             |
 | 9    | Exportación PDF/PNG           | Funcional; recuperación implementada                                                  |
-| 10   | Pulido y producción           | En curso; guía, perfil, validación con usuario, restauración de backups y rollback pendientes |
+| 10   | Pulido y producción           | En curso; guía, validación con usuario, restauración de backups y rollback pendientes |
 
 > ⚠️ Estas estimaciones son para dedicación a tiempo parcial (no jornada completa). Ajustar según disponibilidad real.
 

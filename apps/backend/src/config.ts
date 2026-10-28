@@ -13,6 +13,12 @@ export const rateLimitConfig = {
   },
 }
 
+export function isUserRegistrationEnabled(): boolean {
+  return ['1', 'true', 'yes', 'on'].includes(
+    (process.env.ALLOW_USER_REGISTRATION ?? 'false').trim().toLowerCase()
+  )
+}
+
 export function getSecret(name: string, developmentFallback: string): string {
   const value = process.env[name]
   if (value) return value
