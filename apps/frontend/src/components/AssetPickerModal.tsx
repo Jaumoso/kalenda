@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, Folder } from 'lucide-react'
+import { X, Folder, Upload } from 'lucide-react'
 import api from '../lib/api'
 
 interface Asset {
@@ -38,8 +38,10 @@ export default function AssetPickerModal({
   const [folders, setFolders] = useState<AssetFolder[]>([])
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [search, setSearch] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchAssets = useCallback(async () => {
     setLoading(true)
@@ -56,11 +58,36 @@ export default function AssetPickerModal({
     } finally {
       setLoading(false)
     }
-  }, [currentFolder, search])
+  }, [assetType, currentFolder, search, t])
 
   useEffect(() => {
     if (isOpen) fetchAssets()
   }, [isOpen, fetchAssets])
+
+  const handleUpload = async (file: File) => {
+    setUploading(true)
+    setError(null)
+
+    const formData = new FormData()
+    formData.append('files', file)
+    if (currentFolder) formData.append('folderId', currentFolder)
+
+    try {
+      const { data } = await api.post('/assets/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      const uploadedAsset = data.assets?.[0] as Asset | undefined
+      if (!uploadedAsset) {
+        throw new Error('Upload response did not contain an asset')
+      }
+      onSelect(uploadedAsset)
+    } catch {
+      setError(t('assetPicker.errorUploading'))
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   if (!isOpen) return null
 
@@ -95,6 +122,29 @@ export default function AssetPickerModal({
             onChange={(e) => setSearch(e.target.value)}
             className="border border-neutral-200 rounded-md px-3 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-primary-300"
           />
+          {assetType === 'IMAGE' && (
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) void handleUpload(file)
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary-600 px-3 py-1.5 text-sm text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Upload size={15} />
+                {uploading ? t('assetPicker.uploading') : t('assetPicker.upload')}
+              </button>
+            </>
+          )}
           {currentFolder && (
             <button
               onClick={() => setCurrentFolder(null)}

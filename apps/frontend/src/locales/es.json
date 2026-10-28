@@ -268,6 +268,9 @@
     "allFolders": "← Todas las carpetas",
     "noImages": "No se encontraron imágenes",
     "errorLoading": "Error al cargar los recursos de la biblioteca",
+    "upload": "Subir imagen",
+    "uploading": "Subiendo...",
+    "errorUploading": "Error al subir la imagen",
     "retry": "Reintentar"
   },
   "stickerPicker": {
@@ -349,6 +352,7 @@
     "imageFilters": "Filtros de imagen",
     "brightness": "Brillo",
     "contrast": "Contraste",
+    "additionalFilters": "Filtros adicionales",
     "grayscale": "Grises",
     "sepia": "Sepia",
     "fontSize": "Tamaño",
