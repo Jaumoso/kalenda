@@ -82,6 +82,7 @@ model CalendarMonth {
 
   // Relations
   dayCells DayCell[]
+  exportJobs ExportJob[]
 
   @@unique([projectId, month, year])
   @@map("calendar_months")
@@ -241,6 +242,8 @@ model ExportJob {
   id           String       @id @default(cuid())
   projectId    String
   project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  monthId      String?
+  month        CalendarMonth? @relation(fields: [monthId], references: [id], onDelete: Cascade)
   userId       String
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   format       ExportFormat @default(PDF)

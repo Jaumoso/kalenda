@@ -343,6 +343,7 @@ export default function ProjectPage() {
           projectYear={project.year}
           printConfig={printConfig}
           onPrintConfigChange={handlePrintConfigChange}
+          months={project.months}
           onClose={() => setShowExport(false)}
         />
       )}

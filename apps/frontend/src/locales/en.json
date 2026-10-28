@@ -298,6 +298,10 @@
     "errorDeleting": "Error deleting"
   },
   "exportModal": {
+    "scope": "Export scope",
+    "fullCalendar": "Full calendar",
+    "singleMonth": "Single month",
+    "month": "Month",
     "title": "Export calendar",
     "format": "Format",
     "pdfLabel": "PDF",
