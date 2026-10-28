@@ -61,7 +61,12 @@ export default function ExportModal({
 
   // Poll job status
   useEffect(() => {
-    if (!job || job.status === 'COMPLETED' || job.status === 'FAILED') {
+    if (
+      !job ||
+      job.status === 'COMPLETED' ||
+      job.status === 'FAILED' ||
+      job.status === 'CANCELLED'
+    ) {
       if (pollRef.current) {
         clearInterval(pollRef.current)
         pollRef.current = null
