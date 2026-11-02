@@ -1,6 +1,6 @@
 {
   "name": "@kalenda/frontend",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "private": true,
   "type": "module",
   "scripts": {
@@ -48,25 +48,25 @@
     "axios": "^1.21.0",
     "emoji-picker-react": "^5.1.4",
     "fabric": "^7.4.0",
-    "i18next": "^26.0.4",
+    "i18next": "^26.5.11",
     "i18next-browser-languagedetector": "^8.2.1",
-    "lucide-react": "^1.8.0",
+    "lucide-react": "^1.64.0",
     "react": "^19.0.0-rc.0",
     "react-colorful": "^5.6.1",
     "react-dom": "^19.0.0-rc.0",
     "react-hook-form": "^7.72.1",
-    "react-i18next": "^15.7.4",
-    "react-router-dom": "^7.18.4",
+    "react-i18next": "^17.1.9",
+    "react-router-dom": "^7.18.5",
     "tailwindcss": "^4.2.2",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@types/node": "^20.11.17",
+    "@types/node": "^26.6.6",
     "@types/react": "^19.0.0-rc.0",
     "@types/react-dom": "^19.0.0-rc.0",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^6.0.2",
-    "vite": "^6.4.5",
-    "vitest": "^4.1.12"
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   }
 }

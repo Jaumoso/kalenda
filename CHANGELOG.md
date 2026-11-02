@@ -4,7 +4,7 @@ All notable changes to Kalenda are documented here.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] - 2026-10-28
+## [0.1.10] - 2026-10-28
 
 ### Added
 
@@ -71,4 +71,5 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 [0.1.7]: https://github.com/Jaumoso/kalenda/releases/tag/v0.1.7
 [0.1.8]: https://github.com/Jaumoso/kalenda/releases/tag/v0.1.8
+[0.1.10]: https://github.com/Jaumoso/kalenda/releases/tag/v0.1.10
 [0.1.6]: https://github.com/Jaumoso/kalenda/releases/tag/v0.1.6
