@@ -57,6 +57,10 @@ docs: update compose installation
 ci: require generated Prisma client
 ```
 
+The Husky `commit-msg` hook rejects commits containing a `Co-authored-by`
+trailer that mentions Copilot. Do not add Copilot attribution trailers to
+commits.
+
 Commits maintained by the project owner must preserve the identity and signing
 configuration for Jaumoso. Dependabot may retain its author attribution for
 security-related dependency updates.
