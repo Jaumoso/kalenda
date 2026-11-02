@@ -20,12 +20,12 @@
     "db:seed": "tsx src/seed.ts"
   },
   "dependencies": {
-    "@fastify/cookie": "^11.0.2",
+    "@fastify/cookie": "^11.1.5",
     "@fastify/cors": "^11.2.0",
     "@fastify/helmet": "^13.0.2",
     "@fastify/multipart": "^10.1.6",
     "@fastify/rate-limit": "^11.2.1",
-    "@fastify/static": "^10.1.2",
+    "@fastify/static": "^10.1.8",
     "@kalenda/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
@@ -43,11 +43,11 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/pg": "^8.20.0",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.2",
+    "typescript": "^7.0.2",
     "vitest": "^5.0.5"
   }
 }
