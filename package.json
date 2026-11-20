@@ -5,6 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@12.15.0",
   "scripts": {
+    "prepare": "husky",
     "build": "pnpm --filter @kalenda/backend db:generate && pnpm -r build",
     "dev": "pnpm -r dev",
     "lint": "pnpm -r lint",
