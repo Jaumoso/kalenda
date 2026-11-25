@@ -33,6 +33,7 @@ overrides:
   '@babel/core@<7.29.6': '>=7.29.6 <8.0.0'
   'glob@>=9.0.0 <=14.0.1': '>=14.0.2'
   'minimatch@<11.0.1': '>=11.0.1'
+  'effect@<=3.22.0': '3.22.1'
 
 minimumReleaseAgeExclude:
   - '@rollup/rollup-linux-arm64-musl@4.65.1'

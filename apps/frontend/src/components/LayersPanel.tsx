@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import type * as fabric from 'fabric'
 import type { CanvasEditorHandle } from './CanvasEditor'
 import {
@@ -174,11 +175,7 @@ export default function LayersPanel({ editorRef, selectedObject, refreshKey }: L
   )
 }
 
-function getObjectName(
-  obj: fabric.FabricObject,
-  layerNum: number,
-  t: (key: string, opts?: Record<string, unknown>) => string
-): string {
+function getObjectName(obj: fabric.FabricObject, layerNum: number, t: TFunction): string {
   const custom = (obj as fabric.FabricObject & { customName?: string }).customName
   if (custom) return custom
   if (obj.type === 'i-text' || obj.type === 'text' || obj.type === 'textbox') {
